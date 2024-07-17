@@ -50,8 +50,12 @@ export class PositionsService {
     return `This action updates a #${id} position`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} position`;
+  async remove(id: number) {
+
+    const position = await this.findOne( id );
+    await this.positionRepository.remove( position );
+
+    // return `This action removes a #${id} position`;
   }
 
   private handleDBExceptions( error:any ){

@@ -32,11 +32,11 @@ export class PositionsService {
   }
 
   findAll() {
-    return `This action returns all positions`;
+    return this.positionRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} position`;
+    return this.positionRepository.findOneBy({ id }); 
   }
 
   update(id: number, updatePositionDto: UpdatePositionDto) {

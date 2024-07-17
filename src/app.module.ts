@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ApplicationsModule } from './applications/applications.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PositionsModule } from './positions/positions.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize:true
     }),
-    ApplicationsModule
+    ApplicationsModule,
+    PositionsModule
   ],
   controllers: [],
   providers: [],

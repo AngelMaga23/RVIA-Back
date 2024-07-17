@@ -3,8 +3,11 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 @Entity()
 export class User {
 
-    @PrimaryGeneratedColumn('increment')
+    @PrimaryGeneratedColumn('identity')
     id: number;
+
+    @Column({ type: 'integer', unique: true })
+    employee_number: number;
 
     @Column({type: 'varchar', length:255})
     name: string;

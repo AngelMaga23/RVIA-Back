@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Position {
@@ -7,4 +7,10 @@ export class Position {
 
     @Column({type: 'varchar', length:255})
     name: string;
+
+    @CreateDateColumn({ type: 'timestamp' })
+    created_at: Date;
+  
+    @UpdateDateColumn({ type: 'timestamp' })
+    updated_at: Date;
 }

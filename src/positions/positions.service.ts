@@ -46,8 +46,24 @@ export class PositionsService {
     return position; 
   }
 
-  update(id: number, updatePositionDto: UpdatePositionDto) {
-    return `This action updates a #${id} position`;
+  async update(id: number, updatePositionDto: UpdatePositionDto) {
+
+    const position = await this.positionRepository.preload({
+      id: id,
+      ...updatePositionDto
+    });
+
+    if( !position ) throw new NotFoundException(`Position with ${id} not found `);
+
+    try {
+      await this.positionRepository.save( position );
+      return position;
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+
+    return position;
   }
 
   async remove(id: number) {

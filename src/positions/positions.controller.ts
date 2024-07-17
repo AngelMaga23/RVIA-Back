@@ -23,8 +23,8 @@ export class PositionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePositionDto: UpdatePositionDto) {
-    return this.positionsService.update(+id, updatePositionDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatePositionDto: UpdatePositionDto) {
+    return this.positionsService.update(id, updatePositionDto);
   }
 
   @Delete(':id')

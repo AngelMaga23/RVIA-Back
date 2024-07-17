@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 
 @Entity()
 export class Position {
-    @PrimaryGeneratedColumn('increment')
+    @PrimaryGeneratedColumn('identity')
     id: number;
 
     @Column({type: 'varchar', length:255})

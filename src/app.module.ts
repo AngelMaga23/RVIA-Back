@@ -3,6 +3,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PositionsModule } from './positions/positions.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { PositionsModule } from './positions/positions.module';
       synchronize:true
     }),
     ApplicationsModule,
-    PositionsModule
+    PositionsModule,
+    UsersModule
   ],
   controllers: [],
   providers: [],

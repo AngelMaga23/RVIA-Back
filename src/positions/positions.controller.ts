@@ -28,7 +28,7 @@ export class PositionsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.positionsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.positionsService.remove(id);
   }
 }

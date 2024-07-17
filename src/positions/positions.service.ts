@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,8 +35,15 @@ export class PositionsService {
     return this.positionRepository.find();
   }
 
-  findOne(id: number) {
-    return this.positionRepository.findOneBy({ id }); 
+  async findOne(id: number) {
+
+    const position = await this.positionRepository.findOneBy({ id });
+    console.log(position)
+
+    if( !position )
+      throw new NotFoundException(`Position with ${id} not found `);
+
+    return position; 
   }
 
   update(id: number, updatePositionDto: UpdatePositionDto) {

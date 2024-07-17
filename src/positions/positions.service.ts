@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Position } from './entities/position.entity';
 
 @Injectable()
 export class PositionsService {
+
+  private readonly logger = new Logger('PositionsService');
 
   constructor(
     @InjectRepository(Position)
@@ -23,8 +25,8 @@ export class PositionsService {
         return position;
 
      } catch (error) {
-        console.log(error)
-        throw new InternalServerErrorException("Ayuda!!!");
+
+        this.handleDBExceptions( error );
      }
 
   }
@@ -44,4 +46,13 @@ export class PositionsService {
   remove(id: number) {
     return `This action removes a #${id} position`;
   }
+
+  private handleDBExceptions( error:any ){
+    if( error.code === '23505' )
+      throw new BadRequestException(error.detail);
+
+    this.logger.error(error);
+    throw new InternalServerErrorException("Unexpected error, check server logs");
+  }
+
 }

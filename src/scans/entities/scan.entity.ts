@@ -8,7 +8,7 @@ export class Scan {
     @Column({type: 'varchar', length:255})
     name: string;
 
-    @Column({type: 'varchar', length:255})
+    @Column({type: 'varchar', length:20})
     directory: string;
 
     @CreateDateColumn({ type: 'timestamp' })

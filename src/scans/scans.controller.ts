@@ -22,13 +22,13 @@ export class ScansController {
     return this.scansService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateScanDto: UpdateScanDto) {
-    return this.scansService.update(+id, updateScanDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateScanDto: UpdateScanDto) {
+  //   return this.scansService.update(+id, updateScanDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.scansService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.scansService.remove(+id);
+  // }
 }

@@ -4,6 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PositionsModule } from './positions/positions.module';
 import { UsersModule } from './users/users.module';
 import { ApplicationsModule } from './applications/applications.module';
+import { AuthModule } from './auth/auth.module';
+import { SourcecodeModule } from './sourcecode/sourcecode.module';
+import { ScansModule } from './scans/scans.module';
+import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
 
 @Module({
   imports: [
@@ -21,7 +25,11 @@ import { ApplicationsModule } from './applications/applications.module';
 
     PositionsModule,
     UsersModule,
-    ApplicationsModule
+    ApplicationsModule,
+    AuthModule,
+    SourcecodeModule,
+    ScansModule,
+    ApplicationstatusModule
   ],
   controllers: [],
   providers: [],

@@ -10,7 +10,7 @@ import { Sourcecode } from './entities/sourcecode.entity';
 @Injectable()
 export class SourcecodeService {
 
-  private readonly logger = new Logger('PositionsService');
+  private readonly logger = new Logger('SourcecodeService');
 
   constructor(
     @InjectRepository(Sourcecode)

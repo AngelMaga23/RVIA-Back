@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString, Length, MinLength } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsEmail, IsNumber, IsString, Length, MinLength } from "class-validator";
 
 export class CreateUserDto {
 
@@ -14,5 +15,9 @@ export class CreateUserDto {
     @MinLength(1)
     @IsEmail()
     email: string;
+
+    @IsNumber()
+    @Transform(({ value }) => parseInt(value, 10))
+    positionId: number;
 
 }

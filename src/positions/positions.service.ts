@@ -38,7 +38,6 @@ export class PositionsService {
   async findOne(id: number) {
 
     const position = await this.positionRepository.findOneBy({ id });
-    console.log(position)
 
     if( !position )
       throw new NotFoundException(`Position with ${id} not found `);

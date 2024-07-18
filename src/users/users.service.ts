@@ -4,6 +4,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { PositionsService } from 'src/positions/positions.service';
+import { Position } from 'src/positions/entities/position.entity';
 
 @Injectable()
 export class UsersService {
@@ -12,13 +14,18 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User> ,
+
+    private readonly positionService: PositionsService
   ){}
 
   async create(createUserDto: CreateUserDto) {
       try {
           
-        const user = this.userRepository.create(createUserDto);
+        
+        const position = await this.positionService.findOne( createUserDto.positionId );
+
+        const user = this.userRepository.create({...createUserDto,position: position});
         await this.userRepository.save(user);
 
         return user;

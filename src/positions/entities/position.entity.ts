@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { User } from "src/users/entities/user.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Position {
@@ -13,4 +14,12 @@ export class Position {
   
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
+
+    @OneToMany(
+        () => User, user => user.position,
+        { eager:true }
+    )
+
+    user:User[]
+
 }

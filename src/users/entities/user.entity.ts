@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Position } from "src/positions/entities/position.entity";
+
 
 @Entity()
 export class User {
@@ -21,4 +23,11 @@ export class User {
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
 
+    @ManyToOne(
+        () => Position, position => position.user
+    )
+    position: Position
+
+    // @ManyToOne(() => Puesto, puesto => puesto.empleados)
+    // puesto: Puesto;
 }

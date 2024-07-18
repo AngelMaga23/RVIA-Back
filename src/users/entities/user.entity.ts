@@ -24,7 +24,8 @@ export class User {
     updated_at: Date;
 
     @ManyToOne(
-        () => Position, position => position.user
+        () => Position, position => position.user,
+        { eager:true }
     )
     position: Position
 

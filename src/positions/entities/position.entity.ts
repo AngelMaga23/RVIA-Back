@@ -17,7 +17,6 @@ export class Position {
 
     @OneToMany(
         () => User, user => user.position,
-        { eager:true }
     )
 
     user:User[]

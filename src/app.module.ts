@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { SourcecodeModule } from './sourcecode/sourcecode.module';
 import { ScansModule } from './scans/scans.module';
 import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { ApplicationstatusModule } from './applicationstatus/applicationstatus.m
     AuthModule,
     SourcecodeModule,
     ScansModule,
-    ApplicationstatusModule
+    ApplicationstatusModule,
+    CommonModule
   ],
   controllers: [],
   providers: [],

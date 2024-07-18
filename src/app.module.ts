@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ApplicationsModule } from './applications/applications.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PositionsModule } from './positions/positions.module';
 import { UsersModule } from './users/users.module';
+import { ApplicationsModule } from './applications/applications.module';
 
 @Module({
   imports: [
@@ -18,9 +18,10 @@ import { UsersModule } from './users/users.module';
       autoLoadEntities: true,
       synchronize:true
     }),
-    ApplicationsModule,
+
     PositionsModule,
-    UsersModule
+    UsersModule,
+    ApplicationsModule
   ],
   controllers: [],
   providers: [],

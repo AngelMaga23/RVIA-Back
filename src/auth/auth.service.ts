@@ -7,6 +7,8 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { PositionsService } from '../positions/positions.service';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces';
 
 
 
@@ -16,7 +18,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly positionService: PositionsService
+    private readonly positionService: PositionsService,
+    private readonly jwtService: JwtService,
   ) {}
 
 
@@ -39,9 +42,9 @@ export class AuthService {
 
       return {
         ...user,
-        // token: this.getJwtToken({ id: user.id })
+        token: this.getJwtToken({ id: user.id })
       };
-      // TODO: Retornar el JWT de acceso
+
 
     } catch (error) {
       this.handleDBErrors(error);
@@ -69,9 +72,25 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
 
     return {
-      ...userWithoutPassword,
-      // token: this.getJwtToken({ id: user.id })
+      ...user,
+      token: this.getJwtToken({ id: user.id }) 
     };
+  }
+
+  async checkAuthStatus( user: User ){
+
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id })
+    };
+
+  }
+
+  private getJwtToken( payload: JwtPayload ) {
+
+    const token = this.jwtService.sign( payload );
+    return token;
+
   }
 
   private handleDBErrors( error: any ): never {

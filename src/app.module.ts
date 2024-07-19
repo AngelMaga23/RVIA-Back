@@ -8,6 +8,7 @@ import { SourcecodeModule } from './sourcecode/sourcecode.module';
 import { ScansModule } from './scans/scans.module';
 import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
 import { CommonModule } from './common/common.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { CommonModule } from './common/common.module';
     SourcecodeModule,
     ScansModule,
     ApplicationstatusModule,
-    CommonModule
+    CommonModule,
+    FilesModule
   ],
   controllers: [],
   providers: [],

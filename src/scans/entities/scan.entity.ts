@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Application } from '../../applications/entities/application.entity';
 
 @Entity()
 export class Scan {
@@ -16,4 +17,10 @@ export class Scan {
   
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
+
+    @OneToMany(
+        () => Application, application => application.applicationstatus,
+    )
+    application:Application[]
+
 }

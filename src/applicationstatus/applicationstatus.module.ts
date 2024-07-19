@@ -9,6 +9,9 @@ import { Applicationstatus } from './entities/applicationstatus.entity';
   providers: [ApplicationstatusService],
   imports: [
     TypeOrmModule.forFeature([Applicationstatus])
+  ],
+  exports:[
+    ApplicationstatusService
   ]
 })
 export class ApplicationstatusModule {}

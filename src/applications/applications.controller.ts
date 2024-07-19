@@ -1,34 +1,44 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { fileFilterZip, fileNamerZip } from './helper/ZIP';
+import { diskStorage } from 'multer';
+import { DeepPartial } from 'typeorm';
+import { Application } from './entities/application.entity';
 
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
-  @Post()
+  @Post('git')
   create(@Body() createApplicationDto: CreateApplicationDto) {
     return this.applicationsService.create(createApplicationDto);
   }
 
-  @Get()
-  findAll() {
-    return this.applicationsService.findAll();
-  }
+  @Post('files')
+  @UseInterceptors( FileInterceptor('file', {
+    fileFilter: fileFilterZip,
+    // limits: { fileSize: 1000 }
+    storage: diskStorage({
+      destination: './static/zip',
+      filename: fileNamerZip
+    })
+  }) )
+  uploadProductImage( 
+    @UploadedFile() file: Express.Multer.File
+  ){
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.applicationsService.findOne(+id);
-  }
+    if ( !file ) {
+      throw new BadRequestException('Make sure that the file is an Zip');
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateApplicationDto: UpdateApplicationDto) {
-    return this.applicationsService.update(+id, updateApplicationDto);
-  }
+    return this.applicationsService.createFile(file);
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.applicationsService.remove(+id);
+    // const secureUrl = `${ file.filename }`;
+    // const secureUrl = `${ this.configService.get('HOST_API') }/files/product/${ file.filename }`;
+
+    
   }
 }

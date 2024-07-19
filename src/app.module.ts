@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { PositionsModule } from './positions/positions.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
@@ -8,7 +9,6 @@ import { SourcecodeModule } from './sourcecode/sourcecode.module';
 import { ScansModule } from './scans/scans.module';
 import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
 import { CommonModule } from './common/common.module';
-import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -24,14 +24,19 @@ import { FilesModule } from './files/files.module';
       synchronize:true
     }),
 
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname,'..','public'), 
+    // }),
+
+
     PositionsModule,
     ApplicationsModule,
     AuthModule,
     SourcecodeModule,
     ScansModule,
     ApplicationstatusModule,
-    CommonModule,
-    FilesModule
+    CommonModule
+    
   ],
   controllers: [],
   providers: [],

@@ -18,9 +18,9 @@ export class Scan {
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
 
-    @OneToMany(
-        () => Application, application => application.applicationstatus,
-    )
-    application:Application[]
+    // @OneToMany(
+    //     () => Application, application => application.applicationstatus,
+    // )
+    // application:Application[]
 
 }

@@ -30,10 +30,10 @@ export class Application {
     )
     sourcecode: Sourcecode
 
-    @ManyToOne(
-        () => Scan, scan => scan.application,
-        { eager:true }
-    )
-    scan: Scan
+    // @ManyToOne(
+    //     () => Scan, scan => scan.application,
+    //     { eager:true }
+    // )
+    // scan: Scan
 
 }

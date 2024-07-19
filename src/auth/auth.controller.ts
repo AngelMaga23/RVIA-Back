@@ -20,7 +20,7 @@ export class AuthController {
   }
 
   @Get('private')
-  @Auth()
+  @Auth( ValidRoles.admin, ValidRoles.autorizador )
   // @Auth(ValidRoles.autorizador, ValidRoles.admin)
 
   testingPrivateRoute(  @GetUser() user: User ) {

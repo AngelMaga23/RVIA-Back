@@ -10,6 +10,9 @@ import { Sourcecode } from './entities/sourcecode.entity';
   providers: [SourcecodeService],
   imports: [
     TypeOrmModule.forFeature([ Sourcecode ])
+  ],
+  exports:[
+    SourcecodeService
   ]
 })
 export class SourcecodeModule {}

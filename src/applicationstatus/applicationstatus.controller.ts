@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { ApplicationstatusService } from './applicationstatus.service';
 import { CreateApplicationstatusDto } from './dto/create-applicationstatus.dto';
 import { UpdateApplicationstatusDto } from './dto/update-applicationstatus.dto';
@@ -18,13 +18,13 @@ export class ApplicationstatusController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.applicationstatusService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.applicationstatusService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateApplicationstatusDto: UpdateApplicationstatusDto) {
-    return this.applicationstatusService.update(+id, updateApplicationstatusDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateApplicationstatusDto: UpdateApplicationstatusDto) {
+    return this.applicationstatusService.update(id, updateApplicationstatusDto);
   }
 
   @Delete(':id')

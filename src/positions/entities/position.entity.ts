@@ -1,5 +1,5 @@
-import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { User } from "../../auth/entities/user.entity";
 
 @Entity()
 export class Position {

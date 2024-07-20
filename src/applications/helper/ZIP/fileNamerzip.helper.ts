@@ -6,8 +6,7 @@ export const fileNamerZip = ( req: Express.Request, file: Express.Multer.File, c
     if ( !file ) return callback( new Error('File is empty'), false );
 
     const fileExtension = file.mimetype.split('/')[1];
-
-    const fileName = `${ uuid() }.${ fileExtension }`;
+    const fileName = `${ file.originalname }.${ fileExtension }`;
 
 
     callback(null, fileName );

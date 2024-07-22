@@ -14,7 +14,7 @@ export class ApplicationsController {
 
   @Post('git')
   create(@Body() createApplicationDto: CreateApplicationDto) {
-    return this.applicationsService.create(createApplicationDto);
+    return this.applicationsService.createGitFile(createApplicationDto);
   }
 
   @Post('files')

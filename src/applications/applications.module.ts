@@ -6,6 +6,7 @@ import { ApplicationsController } from './applications.controller';
 import { Application } from './entities/application.entity';
 import { ApplicationstatusModule } from '../applicationstatus/applicationstatus.module';
 import { SourcecodeModule } from '../sourcecode/sourcecode.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   controllers: [ApplicationsController],
@@ -13,7 +14,8 @@ import { SourcecodeModule } from '../sourcecode/sourcecode.module';
   imports:[
     TypeOrmModule.forFeature([ Application ]),
     ApplicationstatusModule,
-    SourcecodeModule
+    SourcecodeModule,
+    HttpModule
   ]
 })
 export class ApplicationsModule {}

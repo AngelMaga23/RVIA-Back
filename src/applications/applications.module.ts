@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 
 import { ApplicationsService } from './applications.service';
 import { ApplicationsController } from './applications.controller';
 import { Application } from './entities/application.entity';
 import { ApplicationstatusModule } from '../applicationstatus/applicationstatus.module';
 import { SourcecodeModule } from '../sourcecode/sourcecode.module';
-import { HttpModule } from '@nestjs/axios';
+
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -15,7 +17,8 @@ import { HttpModule } from '@nestjs/axios';
     TypeOrmModule.forFeature([ Application ]),
     ApplicationstatusModule,
     SourcecodeModule,
-    HttpModule
+    HttpModule,
+    AuthModule
   ]
 })
 export class ApplicationsModule {}

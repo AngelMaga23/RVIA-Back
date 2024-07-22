@@ -13,6 +13,7 @@ import { extname, join } from 'path';
 import * as unzipper from 'unzipper';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -36,7 +37,7 @@ export class ApplicationsService {
     }
   }
 
-  async createGitFile(createApplicationDto: CreateApplicationDto)
+  async createGitFile(createApplicationDto: CreateApplicationDto, user: User)
   {
 
     try {
@@ -83,6 +84,7 @@ export class ApplicationsService {
       application.name = repoName;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
+      application.user = user;
 
       await this.applicationRepository.save(application);
 
@@ -122,7 +124,7 @@ export class ApplicationsService {
     });
   }
 
-  async createFile(file){
+  async createFile(file, user: User){
 
     try {
 
@@ -140,6 +142,7 @@ export class ApplicationsService {
       application.name = nameApplication;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
+      application.user = user;
 
       // Guarda la nueva aplicación en la base de datos
       await this.applicationRepository.save(application);

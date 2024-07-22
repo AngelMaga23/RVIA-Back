@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 import { Applicationstatus } from '../../applicationstatus/entities/applicationstatus.entity';
 import { Sourcecode } from '../../sourcecode/entities/sourcecode.entity';
 import { Scan } from '../../scans/entities/scan.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity()
 export class Application {
@@ -29,6 +30,12 @@ export class Application {
         { eager:true }
     )
     sourcecode: Sourcecode
+
+    @ManyToOne(
+        () => User, user => user.application,
+        { eager:true }
+    )
+    user: User
 
     // @ManyToOne(
     //     () => Scan, scan => scan.application,

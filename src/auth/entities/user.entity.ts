@@ -1,5 +1,6 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Position } from "../../positions/entities/position.entity";
+import { Application } from '../../applications/entities/application.entity';
 
 
 @Entity('users')
@@ -49,6 +50,11 @@ export class User {
         { eager:true }
     )
     position: Position
+
+    @OneToMany(
+        () => Application, application => application.applicationstatus,
+    )
+    application:Application[]
 
     @BeforeInsert()
     checkFieldsBeforeInsert() {

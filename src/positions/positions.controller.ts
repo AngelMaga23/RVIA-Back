@@ -2,8 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { PositionsService } from './positions.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/interfaces/valid-roles';
 
 @Controller('positions')
+@Auth( ValidRoles.admin )
 export class PositionsController {
   constructor(private readonly positionsService: PositionsService) {}
 

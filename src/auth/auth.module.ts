@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -29,7 +29,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         }
       }
     }),
-    PositionsModule
+    forwardRef(() => PositionsModule)
   ],
   exports: [ TypeOrmModule, JwtStrategy, PassportModule, JwtModule ]
 })

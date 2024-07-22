@@ -54,16 +54,16 @@ export class AuthService {
 
   async login( loginUserDto: LoginUserDto ) {
 
-    const { password, email } = loginUserDto;
+    const { password, employee_number } = loginUserDto;
 
     const user = await this.userRepository.findOne({
-      where: { email },
-      select: { email: true, password: true, id: true },
+      where: { employee_number },
+      select: { employee_number:true, email: true, password: true, id: true },
       relations: ['position']
     });
 
     if ( !user ) 
-      throw new UnauthorizedException('Credentials are not valid (email)');
+      throw new UnauthorizedException('Credentials are not valid (employee_number)');
       
     if ( !bcrypt.compareSync( password, user.password ) )
       throw new UnauthorizedException('Credentials are not valid (password)');
@@ -72,7 +72,7 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
 
     return {
-      ...user,
+      ...userWithoutPassword,
       token: this.getJwtToken({ id: user.id }) 
     };
   }

@@ -14,6 +14,7 @@ import * as unzipper from 'unzipper';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../auth/entities/user.entity';
+import { ValidRoles } from '../auth/interfaces/valid-roles';
 
 @Injectable()
 export class ApplicationsService {
@@ -26,9 +27,21 @@ export class ApplicationsService {
     private readonly applicationRepository: Repository<Application>,
     private readonly estatusService: ApplicationstatusService,
     private readonly sourcecodeService: SourcecodeService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ){
     this.ensureDirectoryExists(this.downloadPath);
+  }
+
+  async findAll(user: User) {
+ 
+    if( user.position !== null && user.position.name == ValidRoles.admin  ){
+      return await this.applicationRepository.find();
+    }
+    return await this.applicationRepository.find({
+      where: { user: { id: user.id } },
+    });
   }
 
   private ensureDirectoryExists(directory: string): void {

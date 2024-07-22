@@ -15,6 +15,12 @@ import { Auth } from 'src/auth/decorators';
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
+  @Get()
+  @Auth()
+  findAll(@GetUser() user: User) {
+    return this.applicationsService.findAll(user);
+  }
+
   @Post('git')
   @Auth()
   create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User) {
@@ -42,10 +48,6 @@ export class ApplicationsController {
     }
 
     return this.applicationsService.createFile(file, user);
-
-    // const secureUrl = `${ file.filename }`;
-    // const secureUrl = `${ this.configService.get('HOST_API') }/files/product/${ file.filename }`;
-
     
   }
 }

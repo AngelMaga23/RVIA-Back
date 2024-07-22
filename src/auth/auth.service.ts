@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -83,6 +83,21 @@ export class AuthService {
       ...user,
       token: this.getJwtToken({ id: user.id })
     };
+
+  }
+
+  async delete( id: string ){
+
+    const user = await this.userRepository.findOneBy({ id });
+    if( !user )
+      throw new NotFoundException(`application with ${id} not found `);
+
+
+    user.isActive = !user.isActive;
+
+    const appDelete =  await this.userRepository.save(user);
+
+    return appDelete;
 
   }
 

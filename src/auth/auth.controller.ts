@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { Auth, GetUser } from './decorators';
@@ -8,7 +8,7 @@ import { ValidRoles } from './interfaces';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  @Auth( ValidRoles.admin )
   @Post('register')
   createUser(@Body() createUserDto: CreateUserDto ) {
     return this.authService.create( createUserDto );
@@ -17,6 +17,12 @@ export class AuthController {
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto ) {
     return this.authService.login( loginUserDto );
+  }
+
+  @Auth( ValidRoles.admin )
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.authService.delete(id);
   }
 
   @Get('private')

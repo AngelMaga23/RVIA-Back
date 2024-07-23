@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe } from '@nestjs/common';
 import * as fs from 'fs';
 
 import { ApplicationsService } from './applications.service';
@@ -59,4 +59,10 @@ export class ApplicationsController {
     return this.applicationsService.createFile(file, user);
     
   }
+
+  @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
+    return this.applicationsService.update(id, estatusId);
+  }
+
 }

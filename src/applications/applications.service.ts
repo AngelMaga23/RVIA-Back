@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
@@ -174,6 +174,36 @@ export class ApplicationsService {
 
     return file.originalname;
   }
+
+  async update(id: number, estatusId: number) {
+
+
+
+
+    try {
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion:id },
+        relations: ['applicationstatus', 'user']
+      });
+      if( !application ) throw new NotFoundException(`Application with ${id} not found `);
+  
+  
+      const estatu = await this.estatusService.findOne(estatusId);
+  
+      if (!estatu) {
+        throw new Error(`Estatus with ID ${estatusId} not found`);
+      }
+
+      application.applicationstatus = estatu;
+      await this.applicationRepository.save(application)
+
+      return application;
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
 
   private handleDBExceptions( error:any ){
     if( error.code === '23505' )

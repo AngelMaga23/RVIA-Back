@@ -199,6 +199,7 @@ export class ApplicationsService {
     } catch (error) {
       this.handleDBExceptions(error);
     }
+    
   }
 
 

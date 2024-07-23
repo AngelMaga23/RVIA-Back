@@ -20,7 +20,8 @@ import { ValidRoles } from '../auth/interfaces/valid-roles';
 export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
-  private readonly downloadPath = join(process.cwd(), 'static', 'zip');
+  // private readonly downloadPath = join(process.cwd(), 'static', 'zip');
+  private downloadPath = './static/zip';
 
   constructor(
     @InjectRepository(Application)
@@ -57,6 +58,10 @@ export class ApplicationsService {
       const repoName = this.getRepoName(createApplicationDto.url);
       const repoUserName = this.getUserName(createApplicationDto.url);
 
+      // Generar una carpeta para el repositorio
+      const repoFolderPath = join(this.downloadPath, repoName);
+      mkdirSync(repoFolderPath, { recursive: true });
+
       const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
 
       const response = await lastValueFrom(
@@ -67,17 +72,17 @@ export class ApplicationsService {
         ),
       );
 
-      const storage =   ({
-        destination: this.downloadPath,
-        filename: (req, file, cb) => {
-          const fileExtName = extname(file.originalname);
-          const randomName = uuidv4() + fileExtName;  
-          cb(null, `${repoName}-${randomName}`);
-        },
-      });
+      // const storage =   ({
+      //   destination: this.downloadPath,
+      //   filename: (req, file, cb) => {
+      //     const fileExtName = extname(file.originalname);
+      //     const randomName = uuidv4() + fileExtName;  
+      //     cb(null, `${repoName}-${randomName}`);
+      //   },
+      // });
 
       const zipFilename = `${repoName}-${uuidv4()}.zip`;
-      const zipPath = join(this.downloadPath, zipFilename);
+      const zipPath = join(repoFolderPath, zipFilename);
       const writeStream = createWriteStream(zipPath);
       response.data.pipe(writeStream);
 
@@ -90,7 +95,7 @@ export class ApplicationsService {
 
       const sourcecode = await this.sourcecodeService.create({
          nom_codigo_fuente: zipFilename,
-         nom_directorio: './static/zip'
+         nom_directorio: zipPath
       });
 
       const application = new Application();

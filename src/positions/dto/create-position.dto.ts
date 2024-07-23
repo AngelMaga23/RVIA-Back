@@ -4,7 +4,7 @@ export class CreatePositionDto {
 
     @IsString()
     @MinLength(1)
-    name: string;
+    nom_puesto: string;
 
 
 }

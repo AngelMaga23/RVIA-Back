@@ -36,7 +36,7 @@ export class ApplicationstatusService {
   }
 
   async findOne(id: number) {
-    const status = await this.applicationStatusRepository.findOneBy({ id });
+    const status = await this.applicationStatusRepository.findOneBy({ idu_estatus_aplicacion:id });
 
     if( !status )
       throw new NotFoundException(`status with ${id} not found `);
@@ -46,7 +46,7 @@ export class ApplicationstatusService {
 
   async update(id: number, updateApplicationstatusDto: UpdateApplicationstatusDto) {
     const statu = await this.applicationStatusRepository.preload({
-      id: id,
+      idu_estatus_aplicacion: id,
       ...updateApplicationstatusDto
     });
 

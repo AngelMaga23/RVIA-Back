@@ -36,7 +36,7 @@ export class SourcecodeService {
   }
 
   async findOne(id: number) {
-    const source = await this.sourceCodeRepository.findOneBy({ id });
+    const source = await this.sourceCodeRepository.findOneBy({ idu_codigo_fuente:id });
 
     if( !source )
       throw new NotFoundException(`source with ${id} not found `);

@@ -36,11 +36,11 @@ export class ApplicationsService {
 
   async findAll(user: User) {
  
-    if( user.position !== null && user.position.name == ValidRoles.admin  ){
+    if( user.position !== null && user.position.nom_puesto == ValidRoles.admin  ){
       return await this.applicationRepository.find();
     }
     return await this.applicationRepository.find({
-      where: { user: { id: user.id } },
+      where: { user: { idu_usuario: user.idu_usuario } },
     });
   }
 
@@ -89,12 +89,12 @@ export class ApplicationsService {
       const estatu = await this.estatusService.findOne(2);
 
       const sourcecode = await this.sourcecodeService.create({
-         name: zipFilename,
-         directory: './static/zip'
+         nom_codigo_fuente: zipFilename,
+         nom_directorio: './static/zip'
       });
 
       const application = new Application();
-      application.name = repoName;
+      application.nom_aplicacion = repoName;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -145,14 +145,14 @@ export class ApplicationsService {
       const estatu = await this.estatusService.findOne(2);
 
       const sourcecode = await this.sourcecodeService.create({
-         name: file.filename,
-         directory: file.destination
+         nom_codigo_fuente: file.filename,
+         nom_directorio: file.destination
       });
 
       const nameApplication = file.originalname.split('.')[0];
 
       const application = new Application();
-      application.name = nameApplication;
+      application.nom_aplicacion = nameApplication;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

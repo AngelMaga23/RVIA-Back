@@ -1,54 +1,55 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Position } from "../../positions/entities/position.entity";
 import { Application } from '../../applications/entities/application.entity';
 
 
-@Entity('users')
+@Entity('usuarios')
 export class User {
 
     @PrimaryGeneratedColumn('identity')
-    id: string;
+    idu_usuario: string;
 
     @Column({
         type: 'varchar', 
         length:255, 
         unique:true
     })
-    employee_number: string;
+    numero_empleado: string;
 
     @Column({
         type: 'varchar', 
         length:255, 
         unique:true
     })
-    email: string;
+    nom_correo: string;
 
     @Column('text', {
         select: false
     })
-    password: string;
+    nom_contrasena: string;
 
     @Column({
         type: 'varchar', 
         length:255,
     })
-    name: string;
+    nom_usuario: string;
 
     @Column('bool', {
         default: true
     })
-    isActive: boolean;
+    esActivo: boolean;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    // @CreateDateColumn({ type: 'timestamp' })
+    // created_at: Date;
   
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    // @UpdateDateColumn({ type: 'timestamp' })
+    // updated_at: Date;
 
     @ManyToOne(
         () => Position, position => position.user,
         { eager:true }
     )
+    @JoinColumn({ name: 'idu_puesto' })
     position: Position
 
     @OneToMany(
@@ -58,7 +59,7 @@ export class User {
 
     @BeforeInsert()
     checkFieldsBeforeInsert() {
-        this.email = this.email.toLowerCase().trim();
+        this.nom_correo = this.nom_correo.toLowerCase().trim();
     }
 
     @BeforeUpdate()

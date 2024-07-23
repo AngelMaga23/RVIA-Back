@@ -5,11 +5,11 @@ export class LoginUserDto {
 
     @IsString()
     @Length(8, 8)
-    employee_number: string;
+    numero_empleado: string;
 
     @IsString()
     @MinLength(6)
     @MaxLength(50)
-    password: string;
+    nom_contrasena: string;
 
 }

@@ -1,22 +1,22 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity('scans')
+@Entity('escaneos')
 export class Scan {
     @PrimaryGeneratedColumn('identity')
-    id: number;
+    idu_escaneo: number;
 
     @Column({type: 'varchar', length:255})
-    name: string;
+    nom_escaneo: string;
 
     @Column({type: 'varchar', length:20})
-    directory: string;
+    nom_directorio: string;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    // @CreateDateColumn({ type: 'timestamp' })
+    // created_at: Date;
   
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    // @UpdateDateColumn({ type: 'timestamp' })
+    // updated_at: Date;
 
     // @OneToMany(
     //     () => Application, application => application.applicationstatus,

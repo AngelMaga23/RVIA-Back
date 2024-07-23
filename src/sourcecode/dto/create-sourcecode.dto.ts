@@ -4,10 +4,10 @@ export class CreateSourcecodeDto {
 
     @IsString()
     @MinLength(1)
-    name: string;
+    nom_codigo_fuente: string;
 
     @IsString()
     @MinLength(1)
-    directory: string;
+    nom_directorio: string;
 
 }

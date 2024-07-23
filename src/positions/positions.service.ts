@@ -37,7 +37,7 @@ export class PositionsService {
 
   async findOne(id: number) {
 
-    const position = await this.positionRepository.findOneBy({ id });
+    const position = await this.positionRepository.findOneBy({ idu_puesto:id });
 
     if( !position )
       throw new NotFoundException(`Position with ${id} not found `);
@@ -48,7 +48,7 @@ export class PositionsService {
   async update(id: number, updatePositionDto: UpdatePositionDto) {
 
     const position = await this.positionRepository.preload({
-      id: id,
+      idu_puesto: id,
       ...updatePositionDto
     });
 

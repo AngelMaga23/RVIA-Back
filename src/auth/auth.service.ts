@@ -27,22 +27,22 @@ export class AuthService {
     
     try {
 
-      const { password, ...userData } = createUserDto;
+      const { nom_contrasena, ...userData } = createUserDto;
       
-      const position = await this.positionService.findOne( createUserDto.positionId );
+      const position = await this.positionService.findOne( createUserDto.idu_puesto );
 
       const user = this.userRepository.create({
         ...userData,
-        password: bcrypt.hashSync( password, 10 ),
+        nom_contrasena: bcrypt.hashSync( nom_contrasena, 10 ),
         position: position
       });
 
       await this.userRepository.save( user )
-      delete user.password;
+      delete user.nom_contrasena;
 
       return {
         ...user,
-        token: this.getJwtToken({ id: user.id })
+        token: this.getJwtToken({ id: user.idu_usuario })
       };
 
 
@@ -54,26 +54,26 @@ export class AuthService {
 
   async login( loginUserDto: LoginUserDto ) {
 
-    const { password, employee_number } = loginUserDto;
+    const { nom_contrasena, numero_empleado } = loginUserDto;
 
     const user = await this.userRepository.findOne({
-      where: { employee_number },
-      select: { employee_number:true, email: true, password: true, id: true },
+      where: { numero_empleado },
+      select: { numero_empleado:true, nom_correo: true, nom_contrasena: true, idu_usuario: true },
       relations: ['position']
     });
 
     if ( !user ) 
       throw new UnauthorizedException('Credentials are not valid (employee_number)');
       
-    if ( !bcrypt.compareSync( password, user.password ) )
+    if ( !bcrypt.compareSync( nom_contrasena, user.nom_contrasena ) )
       throw new UnauthorizedException('Credentials are not valid (password)');
 
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { nom_contrasena: _, ...userWithoutPassword } = user;
 
     return {
       ...userWithoutPassword,
-      token: this.getJwtToken({ id: user.id }) 
+      token: this.getJwtToken({ id: user.idu_usuario }) 
     };
   }
 
@@ -81,19 +81,19 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: user.idu_usuario })
     };
 
   }
 
   async delete( id: string ){
 
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOneBy({ idu_usuario:id });
     if( !user )
       throw new NotFoundException(`application with ${id} not found `);
 
 
-    user.isActive = !user.isActive;
+    user.esActivo = !user.esActivo;
 
     const appDelete =  await this.userRepository.save(user);
 

@@ -6,7 +6,7 @@ export class CreateUserDto {
 
     @IsString()
     @IsEmail()
-    email: string;
+    nom_correo: string;
 
     @IsString()
     @MinLength(6)
@@ -15,18 +15,18 @@ export class CreateUserDto {
         /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
         message: 'The password must have a Uppercase, lowercase letter and a number'
     })
-    password: string;
+    nom_contrasena: string;
 
     @IsString()
     @MinLength(1)
-    name: string;
+    nom_usuario: string;
 
     @IsString()
     @Length(8, 8)
-    employee_number: string;
+    numero_empleado: string;
 
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))
-    positionId: number;
+    idu_puesto: number;
 
 }

@@ -4,11 +4,11 @@ export class CreateScanDto {
 
     @IsString()
     @MinLength(1)
-    name: string;
+    nom_escaneo: string;
 
     @IsString()
     @MinLength(1)
-    directory: string;
+    nom_directorio: string;
 
 
 }

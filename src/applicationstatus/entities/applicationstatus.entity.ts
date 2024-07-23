@@ -1,20 +1,20 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity('applicationstatus')
+@Entity('estatus_aplicaciones')
 export class Applicationstatus {
 
     @PrimaryGeneratedColumn('identity')
-    id: number;
+    idu_estatus_aplicacion: number;
 
     @Column({type: 'varchar', length:20})
-    description: string;
+    des_estatus_aplicacion  : string;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
+    // @CreateDateColumn({ type: 'timestamp' })
+    // created_at: Date;
   
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    // @UpdateDateColumn({ type: 'timestamp' })
+    // updated_at: Date;
 
     @OneToMany(
         () => Application, application => application.applicationstatus,

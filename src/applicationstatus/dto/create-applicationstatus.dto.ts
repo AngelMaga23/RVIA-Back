@@ -4,6 +4,6 @@ export class CreateApplicationstatusDto {
 
     @IsString()
     @MinLength(1)
-    description: string;
+    des_estatus_aplicacion: string;
 
 }

@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
         
         const { id } = payload;
 
-        const user = await this.userRepository.findOneBy({ id });
+        const user = await this.userRepository.findOneBy({ idu_usuario:id });
         // const user = await this.userRepository.findOne({
         //     where: { id },
         //     select: { email: true, password: true, id: true, isActive:true },
@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
         if ( !user ) 
             throw new UnauthorizedException('Token not valid')
             
-        if ( !user.isActive ) 
+        if ( !user.esActivo ) 
             throw new UnauthorizedException('User is inactive, talk with an admin');
         
         // console.log({user})

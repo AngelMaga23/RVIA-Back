@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity()
+@Entity('scans')
 export class Scan {
     @PrimaryGeneratedColumn('identity')
     id: number;

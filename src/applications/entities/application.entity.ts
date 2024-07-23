@@ -4,7 +4,7 @@ import { Sourcecode } from '../../sourcecode/entities/sourcecode.entity';
 import { Scan } from '../../scans/entities/scan.entity';
 import { User } from '../../auth/entities/user.entity';
 
-@Entity()
+@Entity('applications')
 export class Application {
 
     @PrimaryGeneratedColumn('identity')

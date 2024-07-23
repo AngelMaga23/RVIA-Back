@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
 
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { PositionsService } from '../positions/positions.service';
 import { JwtService } from '@nestjs/jwt';
@@ -101,6 +101,35 @@ export class AuthService {
 
   }
 
+  async update(id:string, updateUserDto: UpdateUserDto){
+
+    try {
+      const user = await this.userRepository.findOneBy({ idu_usuario:id });
+
+      if( !user ) throw new NotFoundException(`User with ${id} not found `);
+
+
+      if (updateUserDto.nom_contrasena) {
+        user.nom_contrasena = bcrypt.hashSync(updateUserDto.nom_contrasena, 10);
+      }
+
+      if (updateUserDto.idu_puesto) {
+        const position = await this.positionService.findOne( updateUserDto.idu_puesto );
+        if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_puesto} not found `);
+        user.position = position;
+      }
+
+      Object.assign(user, updateUserDto);
+
+      await this.userRepository.save(user);
+
+      return user;
+
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+  }
+
   private getJwtToken( payload: JwtPayload ) {
 
     const token = this.jwtService.sign( payload );
@@ -114,7 +143,6 @@ export class AuthService {
     if ( error.code === '23505' ) 
       throw new BadRequestException( error.detail );
 
-    console.log(error)
 
     throw new InternalServerErrorException('Please check server logs');
 

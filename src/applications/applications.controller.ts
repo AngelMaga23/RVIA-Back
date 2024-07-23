@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import * as fs from 'fs';
+
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
@@ -34,7 +36,14 @@ export class ApplicationsController {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
     storage: diskStorage({
-      destination: './static/zip',
+      destination: (req, file, cb) => {
+
+        const folderName = file.originalname.split('.')[0];
+        const dir = `./static/zip/${folderName}`;
+        
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
       filename: fileNamerZip
     })
   }) )

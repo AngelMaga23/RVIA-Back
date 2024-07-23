@@ -177,9 +177,6 @@ export class ApplicationsService {
 
   async update(id: number, estatusId: number) {
 
-
-
-
     try {
       const application = await this.applicationRepository.findOne({
         where: { idu_aplicacion:id },

@@ -8,6 +8,14 @@ import { ValidRoles } from './interfaces';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+
+  @Get()
+  @Auth( ValidRoles.admin )
+  findAll() {
+    return this.authService.findAll();
+  }
+
   // @Auth( ValidRoles.admin )
   @Post('register')
   createUser(@Body() createUserDto: CreateUserDto ) {

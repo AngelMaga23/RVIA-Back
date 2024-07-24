@@ -20,7 +20,7 @@ import { ValidRoles } from '../auth/interfaces/valid-roles';
 export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
-  // private readonly downloadPath = join(process.cwd(), 'static', 'zip');
+
   private downloadPath = './static/zip';
   private readonly basePath = join(__dirname, '..', '..', '');
 

@@ -41,7 +41,8 @@ export class ApplicationsController {
       destination: (req, file, cb) => {
 
         const folderName = file.originalname.split('.')[0];
-        const dir = `./static/zip/${folderName}`;
+        const dir = `./static/zip/${folderName}`; // windows
+        // const dir = `/tmp/${folderName}`; linux
         
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);

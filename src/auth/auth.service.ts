@@ -105,21 +105,24 @@ export class AuthService {
 
     try {
       const user = await this.userRepository.findOneBy({ idu_usuario:id });
-
-      if( !user ) throw new NotFoundException(`User with ${id} not found `);
-
+     
+      if( !user || user === null || user === undefined) 
+        throw new NotFoundException(`User with ${id} not found `);
+      
 
       if (updateUserDto.nom_contrasena) {
+        
         user.nom_contrasena = bcrypt.hashSync(updateUserDto.nom_contrasena, 10);
+        
       }
-
+  
       if (updateUserDto.idu_puesto) {
         const position = await this.positionService.findOne( updateUserDto.idu_puesto );
         if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_puesto} not found `);
         user.position = position;
       }
-
-      Object.assign(user, updateUserDto);
+      const { nom_contrasena, idu_puesto, ...otherUpdates } = updateUserDto;
+      Object.assign(user, otherUpdates);
 
       await this.userRepository.save(user);
 
@@ -139,9 +142,11 @@ export class AuthService {
 
   private handleDBErrors( error: any ): never {
 
-
+    console.log(error)
     if ( error.code === '23505' ) 
       throw new BadRequestException( error.detail );
+    if ( error.status == '404' ) 
+      throw new BadRequestException( error.response.message );
 
 
     throw new InternalServerErrorException('Please check server logs');

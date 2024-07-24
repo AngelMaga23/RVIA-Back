@@ -22,6 +22,7 @@ export class ApplicationsService {
   private readonly logger = new Logger('ApplicationsService');
   // private readonly downloadPath = join(process.cwd(), 'static', 'zip');
   private downloadPath = './static/zip';
+  private readonly basePath = join(__dirname, '..', '..', '');
 
   constructor(
     @InjectRepository(Application)
@@ -72,15 +73,6 @@ export class ApplicationsService {
         ),
       );
 
-      // const storage =   ({
-      //   destination: this.downloadPath,
-      //   filename: (req, file, cb) => {
-      //     const fileExtName = extname(file.originalname);
-      //     const randomName = uuidv4() + fileExtName;  
-      //     cb(null, `${repoName}-${randomName}`);
-      //   },
-      // });
-
       const zipFilename = `${repoName}-${uuidv4()}.zip`;
       const zipPath = join(repoFolderPath, zipFilename);
       const writeStream = createWriteStream(zipPath);
@@ -95,7 +87,7 @@ export class ApplicationsService {
 
       const sourcecode = await this.sourcecodeService.create({
          nom_codigo_fuente: zipFilename,
-         nom_directorio: zipPath
+         nom_directorio: this.downloadPath+'/'+repoName
       });
 
       const application = new Application();
@@ -199,9 +191,28 @@ export class ApplicationsService {
     } catch (error) {
       this.handleDBExceptions(error);
     }
-    
+
   }
 
+  async getStaticFileZip( id: number ) {
+    const application = await this.applicationRepository.findOne({
+      where: { idu_aplicacion:id },
+      relations: ['applicationstatus', 'user']
+    });
+
+    if( !application ) throw new NotFoundException(`Application with ${id} not found `);
+
+
+    const path = join( this.basePath, application.sourcecode.nom_directorio, application.sourcecode.nom_codigo_fuente );
+    console.log(path)
+    if ( !existsSync(path) ) 
+        throw new BadRequestException(`No file found with name ${ application.sourcecode.nom_codigo_fuente }`);
+
+    // const fileName = basename(path);
+    
+    // console.log(fileName)
+    return path;
+}
 
   private handleDBExceptions( error:any ){
     if( error.code === '23505' )

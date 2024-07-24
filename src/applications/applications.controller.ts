@@ -49,7 +49,7 @@ export class ApplicationsController {
       filename: fileNamerZip
     })
   }) )
-  uploadProductImage( 
+  uploadFileZip( 
     @UploadedFile() file: Express.Multer.File,
     @GetUser() user: User
   ){

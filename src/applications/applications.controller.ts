@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe, Res, HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
+import { Response } from 'express';
 
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
@@ -12,6 +13,7 @@ import { Application } from './entities/application.entity';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators';
+import { basename } from 'path';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -63,6 +65,27 @@ export class ApplicationsController {
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
+  }
+
+  @Get('zip/:id')
+  async findFileZip(
+    @Res() res: Response,
+    @Param('id') id: number
+  ) {
+
+    const path = await this.applicationsService.getStaticFileZip( id );
+
+    const fileName = basename(path); 
+
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.sendFile(path, (err) => {
+      if (err) {
+        throw new HttpException('Error sending file', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    });
+
+    // res.sendFile( path );
+    // return path;
   }
 
 }

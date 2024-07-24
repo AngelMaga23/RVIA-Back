@@ -73,15 +73,6 @@ export class ApplicationsService {
         ),
       );
 
-      // const storage =   ({
-      //   destination: this.downloadPath,
-      //   filename: (req, file, cb) => {
-      //     const fileExtName = extname(file.originalname);
-      //     const randomName = uuidv4() + fileExtName;  
-      //     cb(null, `${repoName}-${randomName}`);
-      //   },
-      // });
-
       const zipFilename = `${repoName}-${uuidv4()}.zip`;
       const zipPath = join(repoFolderPath, zipFilename);
       const writeStream = createWriteStream(zipPath);
@@ -96,7 +87,7 @@ export class ApplicationsService {
 
       const sourcecode = await this.sourcecodeService.create({
          nom_codigo_fuente: zipFilename,
-         nom_directorio: zipPath
+         nom_directorio: this.downloadPath+'/'+repoName
       });
 
       const application = new Application();

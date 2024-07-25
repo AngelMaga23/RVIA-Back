@@ -30,6 +30,14 @@ export class AuthService {
     return this.userRepository.find({ where: { esActivo: true }});
   }
 
+  async findUserById(id: string) {
+    const user = await this.userRepository.findOneBy({ idu_usuario:id });
+    if( !user )
+      throw new NotFoundException(`User with ${id} not found `);
+
+    return user;
+  }
+
   async create( createUserDto: CreateUserDto) {
     
     try {

@@ -18,7 +18,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*', // Permite todas las URLs de origen
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // await app.listen(3000);

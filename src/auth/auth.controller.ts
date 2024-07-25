@@ -12,9 +12,15 @@ export class AuthController {
 
   @Get()
   @Auth( ValidRoles.admin )
-  findAll() {
-    return this.authService.findAll();
+  findAllActive() {
+    return this.authService.findAllActiveUsers();
   }
+
+  // @Get()
+  // @Auth( ValidRoles.admin )
+  // findAll() {
+  //   return this.authService.findAll();
+  // }
 
   // @Auth( ValidRoles.admin )
   @Post('register')

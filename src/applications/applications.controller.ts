@@ -64,11 +64,12 @@ export class ApplicationsController {
   }
 
   @Patch(':id')
+  @Auth()
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
   }
 
-  @Auth()
+  // @Auth()
   @Get('zip/:id')
   async findFileZip(
     @Res() res: Response,

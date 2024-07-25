@@ -26,6 +26,10 @@ export class AuthService {
     return this.userRepository.find();
   }
 
+  findAllActiveUsers(){
+    return this.userRepository.find({ where: { esActivo: true }});
+  }
+
   async create( createUserDto: CreateUserDto) {
     
     try {

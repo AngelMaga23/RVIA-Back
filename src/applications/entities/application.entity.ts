@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Applicationstatus } from '../../applicationstatus/entities/applicationstatus.entity';
 import { Sourcecode } from '../../sourcecode/entities/sourcecode.entity';
 import { Scan } from '../../scans/entities/scan.entity';
 import { User } from '../../auth/entities/user.entity';
+import { UsersApplication } from "src/users-applications/entities/users-application.entity";
 
 @Entity('aplicaciones')
 export class Application {
@@ -39,6 +40,9 @@ export class Application {
     )
     @JoinColumn({ name: 'idu_usuario' })
     user: User
+
+    @OneToMany(() => UsersApplication, usuariosAplicaciones => usuariosAplicaciones.aplicacion)
+    usuariosXAplicaciones: UsersApplication[];
 
     // @ManyToOne(
     //     () => Scan, scan => scan.application,

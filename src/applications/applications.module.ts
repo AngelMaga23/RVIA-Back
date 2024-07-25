@@ -19,6 +19,7 @@ import { AuthModule } from '../auth/auth.module';
     SourcecodeModule,
     HttpModule,
     AuthModule
-  ]
+  ],
+  exports:[ ApplicationsService,TypeOrmModule ]
 })
 export class ApplicationsModule {}

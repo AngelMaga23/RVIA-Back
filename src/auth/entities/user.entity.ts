@@ -1,6 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Position } from "../../positions/entities/position.entity";
 import { Application } from '../../applications/entities/application.entity';
+import { UsersApplication } from "src/users-applications/entities/users-application.entity";
 
 
 @Entity('usuarios')
@@ -56,6 +57,9 @@ export class User {
         () => Application, application => application.applicationstatus,
     )
     application:Application[]
+
+    @OneToMany(() => UsersApplication, usuariosAplicaciones => usuariosAplicaciones.usuario)
+    usuariosXAplicaciones: UsersApplication[];
 
     @BeforeInsert()
     checkFieldsBeforeInsert() {

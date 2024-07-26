@@ -41,8 +41,8 @@ export class ApplicationsController {
       destination: (req, file, cb) => {
 
         const folderName = file.originalname.split('.')[0];
-        const dir = `./static/zip/${folderName}`; // windows
-        // const dir = `\\wsl$\tmp\${folderName}`; linux
+        //const dir = `./static/zip/${folderName}`; // windows
+        const dir = `/tmp/${folderName}`;
         
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
@@ -64,27 +64,28 @@ export class ApplicationsController {
   }
 
   @Patch(':id')
+  @Auth()
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
   }
 
-  @Auth()
+  // @Auth()
   @Get('zip/:id')
   async findFileZip(
     @Res() res: Response,
     @Param('id') id: number
   ) {
 
-    const path = await this.applicationsService.getStaticFileZip( id );
+    // const path = await this.applicationsService.getStaticFileZip( id, res );
 
-    const fileName = basename(path); 
-
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.sendFile(path, (err) => {
-      if (err) {
-        throw new HttpException('Error sending file', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    });
+    // const fileName = basename(path); 
+    await this.applicationsService.getStaticFileZip(id, res);
+    // res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    // res.sendFile(path, (err) => {
+    //   if (err) {
+    //     throw new HttpException('Error sending file', HttpStatus.INTERNAL_SERVER_ERROR);
+    //   }
+    // });
 
     // res.sendFile( path );
     // return path;

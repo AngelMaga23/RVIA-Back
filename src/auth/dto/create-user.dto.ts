@@ -1,6 +1,29 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNumber, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsNumber, IsString, Matches, MaxLength, MinLength, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 
+// Validador personalizado para el rango específico
+@ValidatorConstraint({ name: 'isInRange', async: false })
+class IsInRange implements ValidatorConstraintInterface {
+  validate(value: number, args: ValidationArguments): boolean {
+    return value >= 90000000 && value < 100000000;
+  }
+
+  defaultMessage(args: ValidationArguments): string {
+    return 'Value must be between 90,000,000 and 100,000,000';
+  }
+}
+
+// Validador personalizado para la longitud del número
+@ValidatorConstraint({ name: 'isExactLength', async: false })
+class IsExactLength implements ValidatorConstraintInterface {
+  validate(value: number, args: ValidationArguments): boolean {
+    return value.toString().length === 8;
+  }
+
+  defaultMessage(args: ValidationArguments): string {
+    return 'Number must be exactly 8 digits long';
+  }
+}
 
 export class CreateUserDto {
 
@@ -21,8 +44,10 @@ export class CreateUserDto {
     @MinLength(1)
     nom_usuario: string;
 
-    @IsString()
-    @Length(8, 8)
+    @IsNumber()
+    @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+    @Validate(IsExactLength)
+    @Validate(IsInRange)
     numero_empleado: string;
 
     @IsNumber()

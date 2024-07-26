@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import * as archiver from 'archiver';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { Application } from './entities/application.entity';
@@ -8,8 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
 import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { catchError, lastValueFrom } from 'rxjs';
-import { createReadStream, createWriteStream, existsSync, mkdirSync } from 'fs';
-import { extname, join } from 'path';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import path, { extname, join } from 'path';
 import * as unzipper from 'unzipper';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,8 +22,9 @@ export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
 
-  private downloadPath = './static/zip';
-  private readonly basePath = join(__dirname, '..', '..', '');
+  private downloadPath = '/tmp';
+  // private readonly basePath = join(__dirname, '..', '..', '');
+  private readonly basePath = '';
 
   constructor(
     @InjectRepository(Application)
@@ -33,7 +35,7 @@ export class ApplicationsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ){
-    this.ensureDirectoryExists(this.downloadPath);
+    // this.ensureDirectoryExists(this.downloadPath);
   }
 
   async findAll(user: User) {
@@ -82,6 +84,8 @@ export class ApplicationsService {
         writeStream.on('finish', resolve);
         writeStream.on('error', reject);
       });
+
+      // console.log(zipPath)
 
       const estatu = await this.estatusService.findOne(2);
 
@@ -147,6 +151,15 @@ export class ApplicationsService {
       });
 
       const nameApplication = file.originalname.split('.')[0];
+      const applicationDir = join(file.destination, nameApplication);
+
+      // Descomprimir el archivo ZIP usando unzipper
+      await createReadStream(file.path)
+        .pipe(unzipper.Extract({ path: file.destination }))
+        .promise();
+
+      const pathDelete = join( file.destination, file.filename );
+      unlinkSync(pathDelete);
 
       const application = new Application();
       application.nom_aplicacion = nameApplication;
@@ -194,7 +207,7 @@ export class ApplicationsService {
 
   }
 
-  async getStaticFileZip( id: number ) {
+  async getStaticFileZip( id: number, response ): Promise<void> {
     const application = await this.applicationRepository.findOne({
       where: { idu_aplicacion:id },
       relations: ['applicationstatus', 'user']
@@ -203,16 +216,34 @@ export class ApplicationsService {
     if( !application ) throw new NotFoundException(`Application with ${id} not found `);
 
 
-    const path = join( this.basePath, application.sourcecode.nom_directorio, application.sourcecode.nom_codigo_fuente );
-    console.log(path)
-    if ( !existsSync(path) ) 
-        throw new BadRequestException(`No file found with name ${ application.sourcecode.nom_codigo_fuente }`);
+    const directoryPath = join(this.basePath, application.sourcecode.nom_directorio);
+ 
+    if (!existsSync(directoryPath)) {
+      throw new BadRequestException(`No directory found with name ${application.sourcecode.nom_directorio}`);
+    }
 
-    // const fileName = basename(path);
-    
-    // console.log(fileName)
-    return path;
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader('Content-Disposition', `attachment; filename="${application.sourcecode.nom_codigo_fuente}.zip"`);
+
+    // Pipe the archive data to the response
+    archive.pipe(response);
+
+    // Agregar el directorio al archivo ZIP
+    archive.directory(directoryPath, false);
+
+    // Finalizar el archivo ZIP
+    await archive.finalize();
+
+    // const path = join( this.basePath, application.sourcecode.nom_directorio, application.sourcecode.nom_codigo_fuente );
+
+    // if ( !existsSync(path) ) 
+    //     throw new BadRequestException(`No file found with name ${ application.sourcecode.nom_codigo_fuente }`);
+
+    // return path;
 }
+
 
   private handleDBExceptions( error:any ){
     if( error.code === '23505' )

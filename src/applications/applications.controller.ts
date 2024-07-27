@@ -42,7 +42,7 @@ export class ApplicationsController {
 
         const folderName = file.originalname.split('.')[0];
         //const dir = `./static/zip/${folderName}`; // windows
-        const dir = `/tmp/${folderName}`;
+        const dir = `/tmp/bito`;
         
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);

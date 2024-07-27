@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
 import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { catchError, lastValueFrom } from 'rxjs';
-import { createReadStream, createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, unlinkSync, promises as fsPromises } from 'fs';
 import path, { extname, join } from 'path';
 import * as unzipper from 'unzipper';
 import { diskStorage } from 'multer';
@@ -22,7 +22,7 @@ export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
 
-  private downloadPath = '/tmp';
+  private downloadPath = '/tmp/bito';
   // private readonly basePath = join(__dirname, '..', '..', '');
   private readonly basePath = '';
 
@@ -54,62 +54,68 @@ export class ApplicationsService {
     }
   }
 
-  async createGitFile(createApplicationDto: CreateApplicationDto, user: User)
-  {
+    async createGitFile(createApplicationDto: CreateApplicationDto, user: User)
+    {
 
-    try {
-      const repoName = this.getRepoName(createApplicationDto.url);
-      const repoUserName = this.getUserName(createApplicationDto.url);
+      try {
+        const repoName = this.getRepoName(createApplicationDto.url);
+        const repoUserName = this.getUserName(createApplicationDto.url);
 
-      // Generar una carpeta para el repositorio
-      const repoFolderPath = join(this.downloadPath, repoName);
-      mkdirSync(repoFolderPath, { recursive: true });
+        // Generar una carpeta para el repositorio
+        const repoFolderPath = join(this.downloadPath, repoName);
+        mkdirSync(repoFolderPath, { recursive: true });
 
-      const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
+        const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
 
-      const response = await lastValueFrom(
-        this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
-          catchError((err) => {
-            throw new InternalServerErrorException('Error al descargar el repositorio');
-          }),
-        ),
-      );
+        const response = await lastValueFrom(
+          this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
+            catchError((err) => {
+              throw new InternalServerErrorException('Error al descargar el repositorio');
+            }),
+          ),
+        );
 
-      const zipFilename = `${repoName}-${uuidv4()}.zip`;
-      const zipPath = join(repoFolderPath, zipFilename);
-      const writeStream = createWriteStream(zipPath);
-      response.data.pipe(writeStream);
+        const zipFilename = `${uuidv4()}-${repoName}.zip`;
+        const zipPath = join(repoFolderPath, zipFilename);
+        const writeStream = createWriteStream(zipPath);
+        response.data.pipe(writeStream);
 
-      await new Promise((resolve, reject) => {
-        writeStream.on('finish', resolve);
-        writeStream.on('error', reject);
-      });
+        await new Promise((resolve, reject) => {
+          writeStream.on('finish', resolve);
+          writeStream.on('error', reject);
+        });
 
-      // console.log(zipPath)
+        // Descomprimir el archivo ZIP usando unzipper
+        await createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: repoFolderPath }))
+        .promise();
 
-      const estatu = await this.estatusService.findOne(2);
+        // Eliminar el archivo ZIP original
+        await fsPromises.unlink(zipPath)
 
-      const sourcecode = await this.sourcecodeService.create({
-         nom_codigo_fuente: zipFilename,
-         nom_directorio: this.downloadPath+'/'+repoName
-      });
+        const estatu = await this.estatusService.findOne(2);
 
-      const application = new Application();
-      application.nom_aplicacion = repoName;
-      application.applicationstatus = estatu;
-      application.sourcecode = sourcecode;
-      application.user = user;
+        const sourcecode = await this.sourcecodeService.create({
+          nom_codigo_fuente: zipFilename,
+          nom_directorio: this.downloadPath+'/'+repoName
+        });
 
-      await this.applicationRepository.save(application);
+        const application = new Application();
+        application.nom_aplicacion = repoName;
+        application.applicationstatus = estatu;
+        application.sourcecode = sourcecode;
+        application.user = user;
 
-      return application;
+        await this.applicationRepository.save(application);
 
-    } catch (error) {
-      this.handleDBExceptions( error );
+        return application;
+
+      } catch (error) {
+        this.handleDBExceptions( error );
+      }
+
+      
     }
-
-    
-  }
 
   private getRepoName(url: string): string {
     const regex = /([^\/]+)\.git$/;

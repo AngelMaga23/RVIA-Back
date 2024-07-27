@@ -16,6 +16,12 @@ export class AuthController {
     return this.authService.findAllActiveUsers();
   }
 
+  @Get(':id')
+  @Auth( ValidRoles.admin)
+  findById(@Param('id') id: string) {
+    return this.authService.findUserById(id);
+  }
+
   // @Get()
   // @Auth( ValidRoles.admin )
   // findAll() {

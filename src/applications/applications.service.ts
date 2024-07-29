@@ -62,7 +62,7 @@ export class ApplicationsService {
         const repoUserName = this.getUserName(createApplicationDto.url);
 
         // Generar una carpeta para el repositorio
-        const repoFolderPath = join(this.downloadPath, repoName);
+        const repoFolderPath = join(this.downloadPath);
         mkdirSync(repoFolderPath, { recursive: true });
 
         const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
@@ -75,29 +75,15 @@ export class ApplicationsService {
           ),
         );
 
-        const zipFilename = `${uuidv4()}-${repoName}.zip`;
-        const zipPath = join(repoFolderPath, zipFilename);
-        const writeStream = createWriteStream(zipPath);
-        response.data.pipe(writeStream);
+     
+        await response.data.pipe(unzipper.Extract({ path: repoFolderPath })).promise();
 
-        await new Promise((resolve, reject) => {
-          writeStream.on('finish', resolve);
-          writeStream.on('error', reject);
-        });
-
-        // Descomprimir el archivo ZIP usando unzipper
-        await createReadStream(zipPath)
-        .pipe(unzipper.Extract({ path: repoFolderPath }))
-        .promise();
-
-        // Eliminar el archivo ZIP original
-        await fsPromises.unlink(zipPath)
 
         const estatu = await this.estatusService.findOne(2);
 
         const sourcecode = await this.sourcecodeService.create({
-          nom_codigo_fuente: zipFilename,
-          nom_directorio: this.downloadPath+'/'+repoName
+          nom_codigo_fuente: repoName,
+          nom_directorio: this.downloadPath
         });
 
         const application = new Application();

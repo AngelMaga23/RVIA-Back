@@ -7,8 +7,8 @@ export class CreatePositionDto {
     nom_puesto: string;
 
     @IsOptional()
-    fechaCreacion?: Date;
+    fec_creacion?: Date;
   
     @IsOptional()
-    fechaActualizacion?: Date; 
+    fec_actualizacion?: Date; 
 }

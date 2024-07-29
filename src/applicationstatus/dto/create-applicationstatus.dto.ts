@@ -7,8 +7,8 @@ export class CreateApplicationstatusDto {
     des_estatus_aplicacion: string;
 
     @IsOptional()
-    fechaCreacion?: Date;
+    fec_creacion?: Date;
   
     @IsOptional()
-    fechaActualizacion?: Date; 
+    fec_actualizacion?: Date; 
 }

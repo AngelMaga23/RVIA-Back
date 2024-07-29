@@ -55,9 +55,9 @@ export class CreateUserDto {
     idu_puesto: number;
 
     @IsOptional()
-    fechaCreacion?: Date;
+    fec_creacion?: Date;
   
     @IsOptional()
-    fechaActualizacion?: Date; 
+    fec_actualizacion?: Date; 
 
 }

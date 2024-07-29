@@ -7,9 +7,9 @@ export class CreateApplicationDto {
     url: string;
     
     @IsOptional()
-    fechaCreacion?: Date;
+    fec_creacion?: Date;
   
     @IsOptional()
-    fechaActualizacion?: Date; 
+    fec_actualizacion?: Date; 
 
 }

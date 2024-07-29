@@ -11,9 +11,9 @@ export class CreateSourcecodeDto {
     nom_directorio: string;
 
     @IsOptional()
-    fechaCreacion?: Date;
+    fec_creacion?: Date;
   
     @IsOptional()
-    fechaActualizacion?: Date; 
+    fec_actualizacion?: Date; 
 
 }

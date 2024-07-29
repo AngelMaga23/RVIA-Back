@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateApplicationstatusDto {
 
@@ -6,4 +6,9 @@ export class CreateApplicationstatusDto {
     @MinLength(1)
     des_estatus_aplicacion: string;
 
+    @IsOptional()
+    fechaCreacion?: Date;
+  
+    @IsOptional()
+    fechaActualizacion?: Date; 
 }

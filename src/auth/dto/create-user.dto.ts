@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNumber, IsString, Matches, MaxLength, MinLength, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, Matches, MaxLength, MinLength, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 
 // Validador personalizado para el rango específico
 @ValidatorConstraint({ name: 'isInRange', async: false })
@@ -53,5 +53,11 @@ export class CreateUserDto {
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))
     idu_puesto: number;
+
+    @IsOptional()
+    fechaCreacion?: Date;
+  
+    @IsOptional()
+    fechaActualizacion?: Date; 
 
 }

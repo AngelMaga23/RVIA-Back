@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateSourcecodeDto {
 
@@ -9,5 +9,11 @@ export class CreateSourcecodeDto {
     @IsString()
     @MinLength(1)
     nom_directorio: string;
+
+    @IsOptional()
+    fechaCreacion?: Date;
+  
+    @IsOptional()
+    fechaActualizacion?: Date; 
 
 }

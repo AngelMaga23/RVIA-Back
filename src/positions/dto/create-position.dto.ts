@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreatePositionDto {
 
@@ -6,5 +6,9 @@ export class CreatePositionDto {
     @MinLength(1)
     nom_puesto: string;
 
-
+    @IsOptional()
+    fechaCreacion?: Date;
+  
+    @IsOptional()
+    fechaActualizacion?: Date; 
 }

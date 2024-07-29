@@ -11,6 +11,7 @@ import { ApplicationstatusModule } from './applicationstatus/applicationstatus.m
 import { CommonModule } from './common/common.module';
 import { UsersApplicationsModule } from './users-applications/users-applications.module';
 import { RviaModule } from './rvia/rvia.module';
+import { SeguimientoModule } from './seguimiento/seguimiento.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { RviaModule } from './rvia/rvia.module';
     ApplicationstatusModule,
     CommonModule,
     UsersApplicationsModule,
-    RviaModule
+    RviaModule,
+    SeguimientoModule
     
   ],
   controllers: [],

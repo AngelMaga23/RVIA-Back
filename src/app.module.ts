@@ -10,6 +10,7 @@ import { ScansModule } from './scans/scans.module';
 import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
 import { CommonModule } from './common/common.module';
 import { UsersApplicationsModule } from './users-applications/users-applications.module';
+import { RviaModule } from './rvia/rvia.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { UsersApplicationsModule } from './users-applications/users-applications
     ScansModule,
     ApplicationstatusModule,
     CommonModule,
-    UsersApplicationsModule
+    UsersApplicationsModule,
+    RviaModule
     
   ],
   controllers: [],

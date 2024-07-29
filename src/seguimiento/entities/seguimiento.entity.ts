@@ -3,6 +3,7 @@ import { Application } from '../../applications/entities/application.entity';
 
 @Entity('seguimiento_modificaciones')
 export class Seguimiento {
+    
     @PrimaryGeneratedColumn('identity')
     idu_seguimiento: number;
 

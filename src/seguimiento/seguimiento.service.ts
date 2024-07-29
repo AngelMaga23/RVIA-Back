@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSeguimientoDto } from './dto/create-seguimiento.dto';
 import { UpdateSeguimientoDto } from './dto/update-seguimiento.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Seguimiento } from './entities/seguimiento.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SeguimientoService {
+
+  constructor(
+    @InjectRepository(Seguimiento)
+    private seguimientoRepository: Repository<Seguimiento>,
+  ) {}
+
   create(createSeguimientoDto: CreateSeguimientoDto) {
-    return 'This action adds a new seguimiento';
+    const auditoriaGlobal = this.seguimientoRepository.create(createSeguimientoDto);
+    return this.seguimientoRepository.save(auditoriaGlobal);
   }
 
-  findAll() {
-    return `This action returns all seguimiento`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} seguimiento`;
-  }
-
-  update(id: number, updateSeguimientoDto: UpdateSeguimientoDto) {
-    return `This action updates a #${id} seguimiento`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} seguimiento`;
-  }
 }

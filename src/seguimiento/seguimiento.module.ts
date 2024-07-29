@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { SeguimientoService } from './seguimiento.service';
-import { SeguimientoController } from './seguimiento.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { Seguimiento } from './entities/seguimiento.entity';
 
 @Module({
-  controllers: [SeguimientoController],
   providers: [SeguimientoService],
+  imports: [
+    TypeOrmModule.forFeature([ Seguimiento ])
+  ],
+  exports:[TypeOrmModule, SeguimientoService]
 })
 export class SeguimientoModule {}

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
-const addon = require('/sysx/progs/rvia/bin/rvia');
+// const addon = require('/sysx/progs/rvia/bin/rvia');
 
 @Injectable()
 export class RviaService {
   create(createRviaDto: CreateRviaDto) {
 
-    const obj = new addon.CIAJASR(200, 2);
+    // const obj = new addon.CIAJASR(200, 2);
     return 'This action adds a new rvia';
   }
 

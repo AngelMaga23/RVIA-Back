@@ -27,12 +27,30 @@ export class AuthService {
     private readonly encryptionService: CommonService
   ) {}
 
-  findAll() {
-    return this.userRepository.find();
+  async findAll() {
+    
+    const usuarios = await this.userRepository.find();
+
+    usuarios.map(usuario => {
+      usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
+      usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
+      return usuarios;
+    });
+
+    return usuarios;
   }
 
-  findAllActiveUsers(){
-    return this.userRepository.find({ where: { esActivo: true }});
+  async findAllActiveUsers(){
+
+    const usuarios = await this.userRepository.find({ where: { esActivo: true }});
+
+    usuarios.map(usuario => {
+      usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
+      usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
+      return usuarios;
+    });
+
+    return usuarios;
   }
 
   async findUserById(id: string) {

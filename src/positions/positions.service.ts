@@ -4,6 +4,7 @@ import { UpdatePositionDto } from './dto/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Position } from './entities/position.entity';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class PositionsService {
@@ -12,13 +13,15 @@ export class PositionsService {
 
   constructor(
     @InjectRepository(Position)
-    private readonly positionRepository: Repository<Position>
+    private readonly positionRepository: Repository<Position>,
+    private readonly encryptionService: CommonService
   ){}
 
   async create(createPositionDto: CreatePositionDto) {
     
      try {
         
+        createPositionDto.nom_puesto = this.encryptionService.encrypt(createPositionDto.nom_puesto);
         const position = this.positionRepository.create(createPositionDto);
         await this.positionRepository.save(position);
 
@@ -31,8 +34,24 @@ export class PositionsService {
 
   }
 
-  findAll() {
-    return this.positionRepository.find();
+  async findAll() {
+
+    try {
+      const puestos = await this.positionRepository.find();
+
+      const decryptedStatuses = puestos.map(puesto => {
+        if (puesto.nom_puesto) {
+          puesto.nom_puesto = this.encryptionService.decrypt(puesto.nom_puesto);
+        }
+        return puestos;
+      });
+  
+      return decryptedStatuses;
+    } catch (error) {
+      this.handleDBExceptions( error ); 
+    }
+
+    // return this.positionRepository.find();
   }
 
   async findOne(id: number) {
@@ -41,7 +60,7 @@ export class PositionsService {
 
     if( !position )
       throw new NotFoundException(`Position with ${id} not found `);
-
+    position.nom_puesto = this.encryptionService.decrypt(position.nom_puesto);
     return position; 
   }
 
@@ -55,6 +74,7 @@ export class PositionsService {
     if( !position ) throw new NotFoundException(`Position with ${id} not found `);
 
     try {
+      position.nom_puesto = this.encryptionService.encrypt(position.nom_puesto);
       await this.positionRepository.save( position );
       return position;
 

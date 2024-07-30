@@ -9,6 +9,7 @@ import { ApplicationstatusModule } from '../applicationstatus/applicationstatus.
 import { SourcecodeModule } from '../sourcecode/sourcecode.module';
 
 import { AuthModule } from '../auth/auth.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -18,7 +19,8 @@ import { AuthModule } from '../auth/auth.module';
     ApplicationstatusModule,
     SourcecodeModule,
     HttpModule,
-    AuthModule
+    AuthModule,
+    CommonModule
   ],
   exports:[ ApplicationsService,TypeOrmModule ]
 })

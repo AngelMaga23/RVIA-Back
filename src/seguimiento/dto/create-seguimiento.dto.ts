@@ -15,9 +15,10 @@ export class CreateSeguimientoDto {
     @IsNotEmpty()
     idu_usuario: string;
   
-    @IsDate()
-    @Type(() => Date)
-    fec_evento: Date;
+    // @IsOptional()
+    // @IsDate()
+    // @Type(() => Date)
+    // fec_evento: Date;
   
     @IsOptional()
     @IsJSON()

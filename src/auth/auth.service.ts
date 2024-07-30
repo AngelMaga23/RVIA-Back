@@ -9,6 +9,8 @@ import { User } from './entities/user.entity';
 import { PositionsService } from '../positions/positions.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
+import { SeguimientoService } from 'src/seguimiento/seguimiento.service';
+import { CreateSeguimientoDto } from 'src/seguimiento/dto/create-seguimiento.dto';
 
 
 
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly positionService: PositionsService,
     private readonly jwtService: JwtService,
+    private readonly seguimientoService: SeguimientoService,
   ) {}
 
   findAll() {
@@ -101,22 +104,32 @@ export class AuthService {
 
   }
 
-  async delete( id: string ){
+  async delete( id: string, user: User ){
 
-    const user = await this.userRepository.findOneBy({ idu_usuario:id });
-    if( !user )
+    const userData = await this.userRepository.findOneBy({ idu_usuario:id });
+    if( !userData )
       throw new NotFoundException(`application with ${id} not found `);
 
+    const seguimientoDto: CreateSeguimientoDto = {
+      nom_tabla: 'usuarios',
+      nom_accion: 'DELETE',
+      idu_usuario: user.idu_usuario,
+      identificador_registro: { idu_usuario: user.idu_usuario },
+      valores_anteriores: { esActivo: userData.esActivo },
+      valores_nuevos: { esActivo: !userData.esActivo }
+    };
 
-    user.esActivo = !user.esActivo;
+    await this.seguimientoService.create(seguimientoDto);
 
-    const appDelete =  await this.userRepository.save(user);
+    userData.esActivo = !userData.esActivo;
+
+    const appDelete =  await this.userRepository.save(userData);
 
     return appDelete;
 
   }
 
-  async update(id:string, updateUserDto: UpdateUserDto){
+  async update(id:string, updateUserDto: UpdateUserDto, userInfo: User){
 
     try {
       const user = await this.userRepository.findOneBy({ idu_usuario:id });
@@ -124,7 +137,7 @@ export class AuthService {
       if( !user || user === null || user === undefined) 
         throw new NotFoundException(`User with ${id} not found `);
       
-
+      const usuario_anterior = {...user};
       if (updateUserDto.nom_contrasena) {
         
         user.nom_contrasena = bcrypt.hashSync(updateUserDto.nom_contrasena, 10);
@@ -136,8 +149,20 @@ export class AuthService {
         if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_puesto} not found `);
         user.position = position;
       }
+
       const { nom_contrasena, idu_puesto, ...otherUpdates } = updateUserDto;
       Object.assign(user, otherUpdates);
+
+      const seguimientoDto: CreateSeguimientoDto = {
+        nom_tabla: 'usuarios',
+        nom_accion: 'UPDATE',
+        idu_usuario: userInfo.idu_usuario,
+        identificador_registro: { idu_usuario: user.idu_usuario },
+        valores_anteriores: usuario_anterior,
+        valores_nuevos: user
+      };
+  
+      await this.seguimientoService.create(seguimientoDto);
 
       await this.userRepository.save(user);
 

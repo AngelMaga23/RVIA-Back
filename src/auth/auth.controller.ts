@@ -55,14 +55,14 @@ findAllActive() {
 // Rutas PATCH
 @Patch(':id')
 @Auth(ValidRoles.admin)
-update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  return this.authService.update(id, updateUserDto);
+update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
+  return this.authService.update(id, updateUserDto, user);
 }
 
 // Rutas DELETE
 @Delete(':id')
 @Auth(ValidRoles.admin)
-remove(@Param('id') id: string) {
-  return this.authService.delete(id);
+remove(@Param('id') id: string, @GetUser() user: User) {
+  return this.authService.delete(id, user);
 }
 }

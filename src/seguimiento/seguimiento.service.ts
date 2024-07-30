@@ -11,12 +11,11 @@ export class SeguimientoService {
   constructor(
     @InjectRepository(Seguimiento)
     private seguimientoRepository: Repository<Seguimiento>,
+    
   ) {}
 
   create(createSeguimientoDto: CreateSeguimientoDto) {
     const auditoriaGlobal = this.seguimientoRepository.create(createSeguimientoDto);
     return this.seguimientoRepository.save(auditoriaGlobal);
   }
-
-
 }

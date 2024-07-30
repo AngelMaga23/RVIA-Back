@@ -37,6 +37,8 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
         //     select: { email: true, password: true, id: true, isActive:true },
         //     relations: ['position']
         // });
+        user.nom_correo = this.encryptionService.decrypt(user.nom_correo);
+        user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
         user.position.nom_puesto = this.encryptionService.decrypt(user.position.nom_puesto);
 
         if ( !user ) 

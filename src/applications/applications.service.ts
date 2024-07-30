@@ -51,6 +51,7 @@ export class ApplicationsService {
         aplicacion.applicationstatus.des_estatus_aplicacion = this.encryptionService.decrypt(aplicacion.applicationstatus.des_estatus_aplicacion);
         aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
         aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+        aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
         return aplicaciones;
       });
 
@@ -66,6 +67,7 @@ export class ApplicationsService {
       aplicacion.applicationstatus.des_estatus_aplicacion = this.encryptionService.decrypt(aplicacion.applicationstatus.des_estatus_aplicacion);
       aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
       aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+      aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
       return aplicaciones;
     });
 
@@ -111,6 +113,7 @@ export class ApplicationsService {
         application.user = user;
 
         await this.applicationRepository.save(application);
+        application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
         return application;
 
@@ -169,6 +172,8 @@ export class ApplicationsService {
 
       // Guarda la nueva aplicación en la base de datos
       await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return application;
 

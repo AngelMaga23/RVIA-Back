@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
 import { SeguimientoService } from 'src/seguimiento/seguimiento.service';
 import { CreateSeguimientoDto } from 'src/seguimiento/dto/create-seguimiento.dto';
+import { CommonService } from 'src/common/common.service';
 
 
 
@@ -23,6 +24,7 @@ export class AuthService {
     private readonly positionService: PositionsService,
     private readonly jwtService: JwtService,
     private readonly seguimientoService: SeguimientoService,
+    private readonly encryptionService: CommonService
   ) {}
 
   findAll() {
@@ -45,12 +47,14 @@ export class AuthService {
     
     try {
 
-      const { nom_contrasena, ...userData } = createUserDto;
+      const { nom_contrasena,nom_correo, nom_usuario, ...userData } = createUserDto;
       
       const position = await this.positionService.findOne( createUserDto.idu_puesto );
 
       const user = this.userRepository.create({
         ...userData,
+        nom_correo: this.encryptionService.encrypt(createUserDto.nom_correo),
+        nom_usuario: this.encryptionService.encrypt(createUserDto.nom_usuario),
         nom_contrasena: bcrypt.hashSync( nom_contrasena, 10 ),
         position: position
       });
@@ -88,7 +92,9 @@ export class AuthService {
 
 
     const { nom_contrasena: _, ...userWithoutPassword } = user;
-
+    userWithoutPassword.nom_correo = this.encryptionService.decrypt(userWithoutPassword.nom_correo);
+    // userWithoutPassword.nom_usuario = this.encryptionService.decrypt(userWithoutPassword.nom_usuario);
+    
     return {
       ...userWithoutPassword,
       token: this.getJwtToken({ id: user.idu_usuario }) 
@@ -149,6 +155,9 @@ export class AuthService {
         if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_puesto} not found `);
         user.position = position;
       }
+
+      if(updateUserDto.nom_correo) updateUserDto.nom_correo = this.encryptionService.encrypt(updateUserDto.nom_correo);
+      if(updateUserDto.nom_usuario) updateUserDto.nom_usuario = this.encryptionService.encrypt(updateUserDto.nom_usuario);
 
       const { nom_contrasena, idu_puesto, ...otherUpdates } = updateUserDto;
       Object.assign(user, otherUpdates);

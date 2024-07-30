@@ -12,6 +12,7 @@ import { CommonModule } from './common/common.module';
 import { UsersApplicationsModule } from './users-applications/users-applications.module';
 import { RviaModule } from './rvia/rvia.module';
 import { SeguimientoModule } from './seguimiento/seguimiento.module';
+import { ConfiguracionModule } from './configuracion/configuracion.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { SeguimientoModule } from './seguimiento/seguimiento.module';
     CommonModule,
     UsersApplicationsModule,
     RviaModule,
-    SeguimientoModule
+    SeguimientoModule,
+    ConfiguracionModule
     
   ],
   controllers: [],

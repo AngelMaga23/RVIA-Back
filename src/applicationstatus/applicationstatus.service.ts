@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateApplicationstatusDto } from './dto/create-applicationstatus.dto';
 import { UpdateApplicationstatusDto } from './dto/update-applicationstatus.dto';
 import { Applicationstatus } from './entities/applicationstatus.entity';
+import { CommonService } from 'src/common/common.service';
 
 
 
@@ -15,11 +16,15 @@ export class ApplicationstatusService {
 
   constructor(
     @InjectRepository(Applicationstatus)
-    private readonly applicationStatusRepository: Repository<Applicationstatus>
+    private readonly applicationStatusRepository: Repository<Applicationstatus>,
+    private readonly encryptionService: CommonService
   ){}
 
   async create(createApplicationstatusDto: CreateApplicationstatusDto) {
     try {
+
+    
+      createApplicationstatusDto.des_estatus_aplicacion = this.encryptionService.encrypt(createApplicationstatusDto.des_estatus_aplicacion);
         
       const status = this.applicationStatusRepository.create(createApplicationstatusDto);
       await this.applicationStatusRepository.save(status);
@@ -31,8 +36,24 @@ export class ApplicationstatusService {
     }
   }
 
-  findAll() {
-    return this.applicationStatusRepository.find();
+  async findAll() {
+
+    try {
+      const estatusall = await this.applicationStatusRepository.find();
+
+      const decryptedStatuses = estatusall.map(status => {
+        if (status.des_estatus_aplicacion) {
+          status.des_estatus_aplicacion = this.encryptionService.decrypt(status.des_estatus_aplicacion);
+        }
+        return status;
+      });
+  
+      return decryptedStatuses;
+    } catch (error) {
+      this.handleDBExceptions( error ); 
+    }
+
+
   }
 
   async findOne(id: number) {
@@ -41,6 +62,7 @@ export class ApplicationstatusService {
     if( !status )
       throw new NotFoundException(`status with ${id} not found `);
 
+    status.des_estatus_aplicacion = this.encryptionService.decrypt(status.des_estatus_aplicacion);
     return status;
   }
 
@@ -53,6 +75,8 @@ export class ApplicationstatusService {
     if( !statu ) throw new NotFoundException(`Position with ${id} not found `);
 
     try {
+
+      statu.des_estatus_aplicacion = this.encryptionService.encrypt(updateApplicationstatusDto.des_estatus_aplicacion);
       await this.applicationStatusRepository.save( statu );
       return statu;
 

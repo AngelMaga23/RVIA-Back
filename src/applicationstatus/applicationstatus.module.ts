@@ -3,12 +3,14 @@ import { ApplicationstatusService } from './applicationstatus.service';
 import { ApplicationstatusController } from './applicationstatus.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Applicationstatus } from './entities/applicationstatus.entity';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [ApplicationstatusController],
   providers: [ApplicationstatusService],
   imports: [
-    TypeOrmModule.forFeature([Applicationstatus])
+    TypeOrmModule.forFeature([Applicationstatus]),
+    CommonModule
   ],
   exports:[
     ApplicationstatusService

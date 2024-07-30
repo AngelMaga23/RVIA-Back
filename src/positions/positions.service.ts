@@ -40,13 +40,11 @@ export class PositionsService {
       const puestos = await this.positionRepository.find();
 
       const decryptedStatuses = puestos.map(puesto => {
-        if (puesto.nom_puesto) {
-          puesto.nom_puesto = this.encryptionService.decrypt(puesto.nom_puesto);
-        }
+        puesto.nom_puesto = this.encryptionService.decrypt(puesto.nom_puesto);
         return puestos;
       });
   
-      return decryptedStatuses;
+      return puestos;
     } catch (error) {
       this.handleDBExceptions( error ); 
     }

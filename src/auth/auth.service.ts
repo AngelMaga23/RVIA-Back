@@ -62,6 +62,9 @@ export class AuthService {
       await this.userRepository.save( user )
       delete user.nom_contrasena;
 
+      user.nom_correo = this.encryptionService.decrypt(user.nom_correo);
+      user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
+
       return {
         ...user,
         token: this.getJwtToken({ id: user.idu_usuario })
@@ -80,7 +83,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { numero_empleado },
-      select: { numero_empleado:true, nom_correo: true, nom_contrasena: true, idu_usuario: true },
+      select: { numero_empleado:true, nom_correo: true, nom_contrasena: true, idu_usuario: true, nom_usuario:true },
       relations: ['position']
     });
 
@@ -93,7 +96,7 @@ export class AuthService {
 
     const { nom_contrasena: _, ...userWithoutPassword } = user;
     userWithoutPassword.nom_correo = this.encryptionService.decrypt(userWithoutPassword.nom_correo);
-    // userWithoutPassword.nom_usuario = this.encryptionService.decrypt(userWithoutPassword.nom_usuario);
+    userWithoutPassword.nom_usuario = this.encryptionService.decrypt(userWithoutPassword.nom_usuario);
     
     return {
       ...userWithoutPassword,

@@ -6,6 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy( Strategy ) {
@@ -14,7 +15,8 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
         @InjectRepository( User )
         private readonly userRepository: Repository<User>,
 
-        configService: ConfigService
+        configService: ConfigService,
+        private readonly encryptionService: CommonService
     ) {
 
         super({
@@ -29,11 +31,13 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
         const { id } = payload;
 
         const user = await this.userRepository.findOneBy({ idu_usuario:id });
+
         // const user = await this.userRepository.findOne({
         //     where: { id },
         //     select: { email: true, password: true, id: true, isActive:true },
         //     relations: ['position']
         // });
+        user.position.nom_puesto = this.encryptionService.decrypt(user.position.nom_puesto);
 
         if ( !user ) 
             throw new UnauthorizedException('Token not valid')

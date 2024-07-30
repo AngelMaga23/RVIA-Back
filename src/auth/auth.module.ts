@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SeguimientoModule } from 'src/seguimiento/seguimiento.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { SeguimientoModule } from 'src/seguimiento/seguimiento.module';
   imports: [
     ConfigModule,
     SeguimientoModule,
+    CommonModule,
 
     TypeOrmModule.forFeature([ User ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),

@@ -198,7 +198,9 @@ export class ApplicationsService {
       }
 
       application.applicationstatus = estatu;
-      await this.applicationRepository.save(application)
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return application;
 

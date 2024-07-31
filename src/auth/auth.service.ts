@@ -34,6 +34,7 @@ export class AuthService {
     usuarios.map(usuario => {
       usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
       usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
+      usuario.position.nom_puesto = this.encryptionService.decrypt(usuario.position.nom_puesto);
       return usuarios;
     });
 
@@ -47,6 +48,7 @@ export class AuthService {
     usuarios.map(usuario => {
       usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
       usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
+      usuario.position.nom_puesto = this.encryptionService.decrypt(usuario.position.nom_puesto);
       return usuarios;
     });
 

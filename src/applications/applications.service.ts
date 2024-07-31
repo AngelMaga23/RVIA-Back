@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
 import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { catchError, lastValueFrom } from 'rxjs';
-import { createReadStream, createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { createReadStream, existsSync, mkdirSync, unlinkSync } from 'fs';
 import  { join } from 'path';
 import * as unzipper from 'unzipper';
 import { User } from '../auth/entities/user.entity';
@@ -79,7 +79,7 @@ export class ApplicationsService {
         const repoUserName = this.getUserName(createApplicationDto.url);
 
         // Generar una carpeta para el repositorio
-        const repoFolderPath = join(this.downloadPath);
+        const repoFolderPath = join(this.downloadPath,repoName);
         mkdirSync(repoFolderPath, { recursive: true });
 
         const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
@@ -208,42 +208,47 @@ export class ApplicationsService {
 
   }
 
-  async getStaticFileZip( id: number, response ): Promise<void> {
+  async getStaticFileZip(id: number, response): Promise<void> {
+    // Buscar la aplicación en el repositorio
     const application = await this.applicationRepository.findOne({
-      where: { idu_aplicacion:id },
+      where: { idu_aplicacion: id },
       relations: ['applicationstatus', 'user']
     });
-
-    if( !application ) throw new NotFoundException(`Application with ${id} not found `);
-
-
-    const directoryPath = join(this.downloadPath, this.encryptionService.decrypt(application.nom_aplicacion));
-    
-    if (!existsSync(directoryPath)) {
-      throw new BadRequestException(`No directory found with name ${this.encryptionService.decrypt(application.nom_aplicacion)}`);
+  
+    // Verificar si la aplicación existe
+    if (!application) {
+      throw new NotFoundException(`Application with ID ${id} not found`);
     }
-
-    const archive = archiver('zip', { zlib: { level: 9 } });
-
+  
+    // Desencriptar el nombre de la aplicación para obtener el nombre de la carpeta
+    const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
+    const directoryPath = join(this.downloadPath, decryptedAppName);
+  
+    // Verificar si el directorio existe
+    if (!existsSync(directoryPath)) {
+      throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
+    }
+  
+    // Configurar el encabezado de la respuesta para descarga de archivo ZIP
     response.setHeader('Content-Type', 'application/zip');
-    response.setHeader('Content-Disposition', `attachment; filename="${this.encryptionService.decrypt(application.nom_aplicacion)}.zip"`);
-
+    response.setHeader('Content-Disposition', `attachment; filename="${decryptedAppName}.zip"`);
+  
+    // Crear un archivo ZIP y transmitirlo a la respuesta
+    const archive = archiver('zip', { zlib: { level: 9 } });
+  
+    archive.on('error', (err) => {
+      throw new BadRequestException(`Error while archiving: ${err.message}`);
+    });
+  
     // Pipe the archive data to the response
     archive.pipe(response);
-
+  
     // Agregar el directorio al archivo ZIP
     archive.directory(directoryPath, false);
-
+  
     // Finalizar el archivo ZIP
     await archive.finalize();
-
-    // const path = join( this.basePath, application.sourcecode.nom_directorio, application.sourcecode.nom_codigo_fuente );
-
-    // if ( !existsSync(path) ) 
-    //     throw new BadRequestException(`No file found with name ${ application.sourcecode.nom_codigo_fuente }`);
-
-    // return path;
-}
+  }
 
 
   private handleDBExceptions( error:any ){

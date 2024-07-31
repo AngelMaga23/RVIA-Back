@@ -60,6 +60,10 @@ export class AuthService {
     if( !user )
       throw new NotFoundException(`User with ${id} not found `);
 
+    user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
+    user.nom_correo = this.encryptionService.decrypt(user.nom_correo);
+    user.position.nom_puesto = this.encryptionService.decrypt(user.position.nom_puesto);
+    
     return user;
   }
 

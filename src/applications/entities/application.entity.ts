@@ -44,10 +44,7 @@ export class Application {
     @OneToMany(() => UsersApplication, usuariosAplicaciones => usuariosAplicaciones.aplicacion)
     usuariosXAplicaciones: UsersApplication[];
 
-    // @ManyToOne(
-    //     () => Scan, scan => scan.application,
-    //     { eager:true }
-    // )
-    // scan: Scan
+    @OneToMany(() => Scan, scan => scan.application)
+    scans: Scan[];
 
 }

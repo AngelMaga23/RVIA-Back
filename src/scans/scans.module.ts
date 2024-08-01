@@ -10,6 +10,7 @@ import { Scan } from './entities/scan.entity';
   providers: [ScansService],
   imports: [
     TypeOrmModule.forFeature([ Scan ])
-  ]
+  ],
+  exports:[ TypeOrmModule, ScansService ]
 })
 export class ScansModule {}

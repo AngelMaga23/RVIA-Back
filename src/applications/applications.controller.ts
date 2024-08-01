@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe, Res, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe, Res, HttpException, HttpStatus, UploadedFiles } from '@nestjs/common';
 import * as fs from 'fs';
 import { Response } from 'express';
 
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilterZip, fileNamerZip } from './helper/ZIP';
 import { diskStorage } from 'multer';
 import { DeepPartial } from 'typeorm';
@@ -34,7 +34,7 @@ export class ApplicationsController {
 
   @Post('files')
   @Auth()
-  @UseInterceptors( FileInterceptor('file', {
+  @UseInterceptors( FilesInterceptor('files', 2,{
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
     storage: diskStorage({
@@ -51,15 +51,22 @@ export class ApplicationsController {
     })
   }) )
   uploadFileZip( 
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @GetUser() user: User
   ){
 
-    if ( !file ) {
-      throw new BadRequestException('Make sure that the file is an Zip');
+    if ( files.length !== 2 ) {
+      throw new BadRequestException('No files uploaded');
     }
 
-    return this.applicationsService.createFile(file, user);
+    const zipFile = files.find(file => file.mimetype.includes('zip'));
+    const pdfFile = files.find(file => file.mimetype.includes('pdf'));
+  
+    if (!zipFile || !pdfFile) {
+      throw new BadRequestException('You must upload one ZIP file and one PDF file');
+    }
+
+    return this.applicationsService.createFiles(zipFile, pdfFile, user);
     
   }
 

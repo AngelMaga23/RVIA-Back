@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
 @Entity('escaneos')
@@ -18,9 +18,8 @@ export class Scan {
     // @UpdateDateColumn({ type: 'timestamp' })
     // updated_at: Date;
 
-    // @OneToMany(
-    //     () => Application, application => application.applicationstatus,
-    // )
-    // application:Application[]
+    @ManyToOne(() => Application, application => application.scans, { nullable: false })
+    @JoinColumn({ name: 'idu_aplicacion' })
+    application: Application;
 
 }

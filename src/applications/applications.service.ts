@@ -14,6 +14,7 @@ import * as unzipper from 'unzipper';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
+import { Scan } from 'src/scans/entities/scan.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -32,7 +33,9 @@ export class ApplicationsService {
     private readonly httpService: HttpService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly encryptionService: CommonService
+    private readonly encryptionService: CommonService,
+    @InjectRepository(Scan)
+    private scanRepository: Repository<Scan>,
   ){
     // this.ensureDirectoryExists(this.downloadPath);
   }
@@ -139,27 +142,26 @@ export class ApplicationsService {
     return '';
   }
 
-  async createFile(file, user: User){
+  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File, user: User){
 
     try {
-
-      const nameApplication = file.originalname.split('.')[0];
+      // console.log("zipFile services ", zipFile)
+      // console.log("pdfFile services ", pdfFile)
+      const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
 
-      const sourcecode = await this.sourcecodeService.create({
-         nom_codigo_fuente: this.encryptionService.encrypt(file.filename),
-         nom_directorio: this.encryptionService.encrypt(file.destination)
-      });
 
-      
-
-      // Descomprimir el archivo ZIP usando unzipper
-      await createReadStream(file.path)
-        .pipe(unzipper.Extract({ path: file.destination }))
+      await createReadStream(zipFile.path)
+        .pipe(unzipper.Extract({ path: zipFile.destination }))
         .promise();
 
-      const pathDelete = join( file.destination, file.filename );
+      const pathDelete = join( zipFile.destination, zipFile.filename );
       unlinkSync(pathDelete);
+
+      const sourcecode = await this.sourcecodeService.create({
+        nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
+        nom_directorio: this.encryptionService.encrypt(zipFile.destination)
+      });
 
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
@@ -167,8 +169,15 @@ export class ApplicationsService {
       application.sourcecode = sourcecode;
       application.user = user;
 
-      // Guarda la nueva aplicación en la base de datos
+
+
       await this.applicationRepository.save(application);
+
+      const scan = new Scan();
+      scan.nom_escaneo =  this.encryptionService.encrypt(pdfFile.filename);
+      scan.nom_directorio =  this.encryptionService.encrypt(pdfFile.destination);
+      scan.application = application;
+      await this.scanRepository.save(scan);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 

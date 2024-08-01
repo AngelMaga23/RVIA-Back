@@ -10,6 +10,7 @@ import { SourcecodeModule } from '../sourcecode/sourcecode.module';
 
 import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
+import { ScansModule } from 'src/scans/scans.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -20,7 +21,8 @@ import { CommonModule } from 'src/common/common.module';
     SourcecodeModule,
     HttpModule,
     AuthModule,
-    CommonModule
+    CommonModule,
+    ScansModule
   ],
   exports:[ ApplicationsService,TypeOrmModule ]
 })

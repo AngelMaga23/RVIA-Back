@@ -2,16 +2,15 @@
 
 export const fileFilterZip = ( req: Express.Request, file: Express.Multer.File, callback: Function ) => {
 
-    if ( !file ) return callback( new Error('File is empty'), false );
+    if (!file) return callback(new Error('File is empty'), false);
 
-    const fileExptension = file.mimetype.split('/')[1];
-    //TODO: Revisar aqui
-    const validExtensions = ['zip','x-zip-compressed'];
+    const fileExtension = file.mimetype.split('/')[1];
+    const validExtensions = ['zip', 'x-zip-compressed', 'pdf'];
 
-    if (  validExtensions.includes( fileExptension ) ) {
-        return callback( null, true )
+    if (validExtensions.includes(fileExtension)) {
+        return callback(null, true);
     }
 
-    callback(null, false );
+    callback(null, false);
 
 }

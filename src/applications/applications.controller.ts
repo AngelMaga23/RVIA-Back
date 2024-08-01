@@ -17,7 +17,7 @@ import { basename } from 'path';
 
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(private readonly applicationsService: ApplicationsService) { }
 
   @Get()
   @Auth()
@@ -27,7 +27,7 @@ export class ApplicationsController {
 
   @Post('git')
   @Auth()
-  @UseInterceptors( FileInterceptor('file',{
+  @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
     storage: diskStorage({
@@ -36,21 +36,21 @@ export class ApplicationsController {
         const folderName = file.originalname.split('.')[0];
         //const dir = `./static/zip/${folderName}`; // windows
         const dir = `/tmp/bito`;
-        
+
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
       filename: fileNamerZip
     })
-  }) )
-  create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User,@UploadedFile() file: Express.Multer.File) {
+  }))
+  create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.applicationsService.createGitFile(createApplicationDto, user, file);
     // return user;
   }
 
   @Post('files')
   @Auth()
-  @UseInterceptors( FilesInterceptor('files', 2,{
+  @UseInterceptors(FilesInterceptor('files', 2, {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
     storage: diskStorage({
@@ -59,31 +59,31 @@ export class ApplicationsController {
         const folderName = file.originalname.split('.')[0];
         //const dir = `./static/zip/${folderName}`; // windows
         const dir = `/tmp/bito`;
-        
+
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
       filename: fileNamerZip
     })
-  }) )
-  uploadFileZip( 
+  }))
+  uploadFileZip(
     @UploadedFiles() files: Express.Multer.File[],
     @GetUser() user: User
-  ){
+  ) {
 
-    if ( files.length !== 2 ) {
+    if (files.length !== 2) {
       throw new BadRequestException('No files uploaded');
     }
 
     const zipFile = files.find(file => file.mimetype.includes('zip'));
     const pdfFile = files.find(file => file.mimetype.includes('pdf'));
-  
+
     if (!zipFile || !pdfFile) {
       throw new BadRequestException('You must upload one ZIP file and one PDF file');
     }
 
     return this.applicationsService.createFiles(zipFile, pdfFile, user);
-    
+
   }
 
   @Patch(':id')

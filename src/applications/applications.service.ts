@@ -3,13 +3,13 @@ import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { Application } from './entities/application.entity';
-import {  Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
 import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { catchError, lastValueFrom } from 'rxjs';
 import { createReadStream, existsSync, mkdirSync, unlinkSync } from 'fs';
-import  { join } from 'path';
+import { join } from 'path';
 import * as unzipper from 'unzipper';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
@@ -36,13 +36,13 @@ export class ApplicationsService {
     private readonly encryptionService: CommonService,
     @InjectRepository(Scan)
     private scanRepository: Repository<Scan>,
-  ){
+  ) {
     // this.ensureDirectoryExists(this.downloadPath);
   }
 
   async findAll(user: User) {
 
-    if( user.position !== null && user.position.nom_puesto == ValidRoles.admin  ){
+    if (user.position !== null && user.position.nom_puesto == ValidRoles.admin) {
 
       const aplicaciones = await this.applicationRepository.find();
 
@@ -74,59 +74,58 @@ export class ApplicationsService {
     return aplicaciones;
   }
 
-    async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file)
-    {
-  
-      try {
-        const repoName = this.getRepoName(createApplicationDto.url);
-        const repoUserName = this.getUserName(createApplicationDto.url);
+  async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file) {
 
-        const repoFolderPath = join(this.downloadPath,repoName);
-        mkdirSync(repoFolderPath, { recursive: true });
+    try {
+      const repoName = this.getRepoName(createApplicationDto.url);
+      const repoUserName = this.getUserName(createApplicationDto.url);
 
-        const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
+      const repoFolderPath = join(this.downloadPath, repoName);
+      mkdirSync(repoFolderPath, { recursive: true });
 
-        const response = await lastValueFrom(
-          this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
-            catchError((err) => {
-              throw new InternalServerErrorException('Error al descargar el repositorio');
-            }),
-          ),
-        );
-     
-        await response.data.pipe(unzipper.Extract({ path: repoFolderPath })).promise();
+      const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
 
-        const estatu = await this.estatusService.findOne(2);
+      const response = await lastValueFrom(
+        this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
+          catchError((err) => {
+            throw new InternalServerErrorException('Error al descargar el repositorio');
+          }),
+        ),
+      );
 
-        const sourcecode = await this.sourcecodeService.create({
-          nom_codigo_fuente: this.encryptionService.encrypt(repoName),
-          nom_directorio: this.encryptionService.encrypt(this.downloadPath)
-        });
+      await response.data.pipe(unzipper.Extract({ path: repoFolderPath })).promise();
 
-        const application = new Application();
-        application.nom_aplicacion = this.encryptionService.encrypt(repoName);
-        application.applicationstatus = estatu;
-        application.sourcecode = sourcecode;
-        application.user = user;
+      const estatu = await this.estatusService.findOne(2);
 
-        await this.applicationRepository.save(application);
+      const sourcecode = await this.sourcecodeService.create({
+        nom_codigo_fuente: this.encryptionService.encrypt(repoName),
+        nom_directorio: this.encryptionService.encrypt(this.downloadPath)
+      });
 
-        const scan = new Scan();
-        scan.nom_escaneo =  this.encryptionService.encrypt(file.filename);
-        scan.nom_directorio =  this.encryptionService.encrypt(file.destination);
-        scan.application = application;
-        await this.scanRepository.save(scan);
+      const application = new Application();
+      application.nom_aplicacion = this.encryptionService.encrypt(repoName);
+      application.applicationstatus = estatu;
+      application.sourcecode = sourcecode;
+      application.user = user;
 
-        application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+      await this.applicationRepository.save(application);
 
-        return application;
+      const scan = new Scan();
+      scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
+      scan.nom_directorio = this.encryptionService.encrypt(file.destination);
+      scan.application = application;
+      await this.scanRepository.save(scan);
 
-      } catch (error) {
-        this.handleDBExceptions( error );
-      }
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
-      
+      return application;
+
+    } catch (error) {
+      this.handleDBExceptions(error);
     }
+
+
+  }
 
   private getRepoName(url: string): string {
     const regex = /([^\/]+)\.git$/;
@@ -146,11 +145,10 @@ export class ApplicationsService {
     return '';
   }
 
-  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File, user: User){
+  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File, user: User) {
 
     try {
-      // console.log("zipFile services ", zipFile)
-      // console.log("pdfFile services ", pdfFile)
+
       const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
 
@@ -159,7 +157,7 @@ export class ApplicationsService {
         .pipe(unzipper.Extract({ path: zipFile.destination }))
         .promise();
 
-      const pathDelete = join( zipFile.destination, zipFile.filename );
+      const pathDelete = join(zipFile.destination, zipFile.filename);
       unlinkSync(pathDelete);
 
       const sourcecode = await this.sourcecodeService.create({
@@ -178,8 +176,8 @@ export class ApplicationsService {
       await this.applicationRepository.save(application);
 
       const scan = new Scan();
-      scan.nom_escaneo =  this.encryptionService.encrypt(pdfFile.filename);
-      scan.nom_directorio =  this.encryptionService.encrypt(pdfFile.destination);
+      scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
+      scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
       scan.application = application;
       await this.scanRepository.save(scan);
 
@@ -187,10 +185,10 @@ export class ApplicationsService {
 
       return application;
 
-   } catch (error) {
+    } catch (error) {
 
-      this.handleDBExceptions( error );
-   }
+      this.handleDBExceptions(error);
+    }
 
   }
 
@@ -198,14 +196,14 @@ export class ApplicationsService {
 
     try {
       const application = await this.applicationRepository.findOne({
-        where: { idu_aplicacion:id },
+        where: { idu_aplicacion: id },
         relations: ['applicationstatus', 'user']
       });
-      if( !application ) throw new NotFoundException(`Application with ${id} not found `);
-  
-  
+      if (!application) throw new NotFoundException(`Application with ${id} not found `);
+
+
       const estatu = await this.estatusService.findOne(estatusId);
-  
+
       if (!estatu) {
         throw new Error(`Estatus with ID ${estatusId} not found`);
       }
@@ -229,48 +227,48 @@ export class ApplicationsService {
       where: { idu_aplicacion: id },
       relations: ['applicationstatus', 'user']
     });
-  
+
     // Verificar si la aplicación existe
     if (!application) {
       throw new NotFoundException(`Application with ID ${id} not found`);
     }
-  
+
     // Desencriptar el nombre de la aplicación para obtener el nombre de la carpeta
     const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
     const directoryPath = join(this.downloadPath, decryptedAppName);
-  
+
     // Verificar si el directorio existe
     if (!existsSync(directoryPath)) {
       throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
     }
-  
+
     // Configurar el encabezado de la respuesta para descarga de archivo ZIP
     response.setHeader('Content-Type', 'application/zip');
     response.setHeader('Content-Disposition', `attachment; filename="${decryptedAppName}.zip"`);
-  
+
     // Crear un archivo ZIP y transmitirlo a la respuesta
     const archive = archiver('zip', { zlib: { level: 9 } });
-  
+
     archive.on('error', (err) => {
       throw new BadRequestException(`Error while archiving: ${err.message}`);
     });
-  
+
     // Pipe the archive data to the response
     archive.pipe(response);
-  
+
     // Agregar el directorio al archivo ZIP
     archive.directory(directoryPath, false);
-  
+
     // Finalizar el archivo ZIP
     await archive.finalize();
   }
 
 
-  private handleDBExceptions( error:any ){
-    if( error.code === '23505' )
+  private handleDBExceptions(error: any) {
+    if (error.code === '23505')
       throw new BadRequestException(error.detail);
 
-    if( error.response )
+    if (error.response)
       throw new BadRequestException(error.message);
 
     this.logger.error(error);

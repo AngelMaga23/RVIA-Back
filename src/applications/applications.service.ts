@@ -74,14 +74,13 @@ export class ApplicationsService {
     return aplicaciones;
   }
 
-    async createGitFile(createApplicationDto: CreateApplicationDto, user: User)
+    async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file)
     {
-
+  
       try {
         const repoName = this.getRepoName(createApplicationDto.url);
         const repoUserName = this.getUserName(createApplicationDto.url);
 
-        // Generar una carpeta para el repositorio
         const repoFolderPath = join(this.downloadPath,repoName);
         mkdirSync(repoFolderPath, { recursive: true });
 
@@ -94,10 +93,8 @@ export class ApplicationsService {
             }),
           ),
         );
-
      
         await response.data.pipe(unzipper.Extract({ path: repoFolderPath })).promise();
-
 
         const estatu = await this.estatusService.findOne(2);
 
@@ -113,6 +110,13 @@ export class ApplicationsService {
         application.user = user;
 
         await this.applicationRepository.save(application);
+
+        const scan = new Scan();
+        scan.nom_escaneo =  this.encryptionService.encrypt(file.filename);
+        scan.nom_directorio =  this.encryptionService.encrypt(file.destination);
+        scan.application = application;
+        await this.scanRepository.save(scan);
+
         application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
         return application;

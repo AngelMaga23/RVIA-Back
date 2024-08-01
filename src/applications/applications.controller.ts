@@ -27,8 +27,24 @@ export class ApplicationsController {
 
   @Post('git')
   @Auth()
-  create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User) {
-    return this.applicationsService.createGitFile(createApplicationDto, user);
+  @UseInterceptors( FileInterceptor('file',{
+    fileFilter: fileFilterZip,
+    // limits: { fileSize: 1000 }
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+
+        const folderName = file.originalname.split('.')[0];
+        //const dir = `./static/zip/${folderName}`; // windows
+        const dir = `/tmp/bito`;
+        
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: fileNamerZip
+    })
+  }) )
+  create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User,@UploadedFile() file: Express.Multer.File) {
+    return this.applicationsService.createGitFile(createApplicationDto, user, file);
     // return user;
   }
 

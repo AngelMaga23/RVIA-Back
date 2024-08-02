@@ -284,7 +284,7 @@ export class ApplicationsService {
         const decryptedScanName = this.encryptionService.decrypt(scan.nom_escaneo);
         const scanPath = join(this.downloadPath, decryptedScanName);
         if (existsSync(scanPath)) {
-          archive.file(scanPath, { name: `scans/${decryptedScanName}` });
+          archive.file(scanPath, { name: `escaneo/${decryptedScanName}` });
         }
       }
     }

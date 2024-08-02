@@ -9,7 +9,7 @@ import { join } from 'path';
 import * as unzipper from 'unzipper';
 import * as seven from '7zip-min';
 
-import { CreateApplicationDto,CreateFileDto } from './dto';
+import { CreateApplicationDto, CreateFileDto } from './dto';
 import { Application } from './entities/application.entity';
 import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
 import { SourcecodeService } from '../sourcecode/sourcecode.service';
@@ -114,14 +114,14 @@ export class ApplicationsService {
 
       await this.applicationRepository.save(application);
 
-      if(file){
+      if (file) {
 
         const scan = new Scan();
         scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
         scan.nom_directorio = this.encryptionService.encrypt(file.destination);
         scan.application = application;
         await this.scanRepository.save(scan);
-        
+
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -165,13 +165,13 @@ export class ApplicationsService {
       //   .pipe(unzipper.Extract({ path: zipFile.destination }))
       //   .promise();
       const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
-      ? new Promise<void>((resolve, reject) => {
+        ? new Promise<void>((resolve, reject) => {
           seven.unpack(zipFile.path, zipFile.destination, err => {
             if (err) return reject(err);
             resolve();
           });
         })
-      : createReadStream(zipFile.path)
+        : createReadStream(zipFile.path)
           .pipe(unzipper.Extract({ path: zipFile.destination }))
           .promise();
 
@@ -247,7 +247,7 @@ export class ApplicationsService {
     // Buscar la aplicación en el repositorio
     const application = await this.applicationRepository.findOne({
       where: { idu_aplicacion: id },
-      relations: ['applicationstatus', 'user']
+      relations: ['applicationstatus', 'user', 'scans']
     });
 
     // Verificar si la aplicación existe
@@ -275,14 +275,25 @@ export class ApplicationsService {
       throw new BadRequestException(`Error while archiving: ${err.message}`);
     });
 
-    // Pipe the archive data to the response
     archive.pipe(response);
 
-    // Agregar el directorio al archivo ZIP
     archive.directory(directoryPath, false);
 
-    // Finalizar el archivo ZIP
-    await archive.finalize();
+    if (application.scans && application.scans.length > 0) {
+      for (const scan of application.scans) {
+        const decryptedScanName = this.encryptionService.decrypt(scan.nom_escaneo);
+        const scanPath = join(this.downloadPath, decryptedScanName);
+        if (existsSync(scanPath)) {
+          archive.file(scanPath, { name: `scans/${decryptedScanName}` });
+        }
+      }
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      archive.finalize()
+        .then(() => resolve())
+        .catch((err) => reject(err));
+    });
   }
 
 

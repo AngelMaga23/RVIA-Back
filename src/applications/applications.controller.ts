@@ -76,14 +76,17 @@ export class ApplicationsController {
       throw new BadRequestException('No files uploaded');
     }
 
-    const zipFile = files.find(file => file.mimetype.includes('zip'));
+    // const zipFile = files.find(file => file.mimetype.includes('zip'));
+    const zipOr7zFile = files.find(file => 
+      file.mimetype.includes('zip') || file.mimetype.includes('x-7z-compressed') || file.mimetype.includes('x-zip-compressed')
+    );
     const pdfFile = files.find(file => file.mimetype.includes('pdf'));  
 
-    if ( !zipFile ) {
+    if ( !zipOr7zFile ) {
       throw new BadRequestException('You must upload one ZIP file and one PDF file');
     }
 
-    return this.applicationsService.createFiles(createFileDto, zipFile, pdfFile, user);
+    return this.applicationsService.createFiles(createFileDto, zipOr7zFile, pdfFile, user);
 
   }
 

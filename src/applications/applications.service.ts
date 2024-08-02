@@ -7,6 +7,7 @@ import { createReadStream, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { catchError, lastValueFrom } from 'rxjs';
 import { join } from 'path';
 import * as unzipper from 'unzipper';
+import * as seven from '7zip-min';
 
 import { CreateApplicationDto,CreateFileDto } from './dto';
 import { Application } from './entities/application.entity';
@@ -160,9 +161,22 @@ export class ApplicationsService {
       const estatu = await this.estatusService.findOne(2);
 
 
-      await createReadStream(zipFile.path)
-        .pipe(unzipper.Extract({ path: zipFile.destination }))
-        .promise();
+      // await createReadStream(zipFile.path)
+      //   .pipe(unzipper.Extract({ path: zipFile.destination }))
+      //   .promise();
+      const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
+      ? new Promise<void>((resolve, reject) => {
+          seven.unpack(zipFile.path, zipFile.destination, err => {
+            if (err) return reject(err);
+            resolve();
+          });
+        })
+      : createReadStream(zipFile.path)
+          .pipe(unzipper.Extract({ path: zipFile.destination }))
+          .promise();
+
+
+      await unzipPromise;
 
       const pathDelete = join(zipFile.destination, zipFile.filename);
       unlinkSync(pathDelete);

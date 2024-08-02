@@ -74,7 +74,7 @@ export class ApplicationsService {
     return aplicaciones;
   }
 
-  async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file) {
+  async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file?) {
 
     try {
       const repoName = this.getRepoName(createApplicationDto.url);
@@ -110,11 +110,15 @@ export class ApplicationsService {
 
       await this.applicationRepository.save(application);
 
-      const scan = new Scan();
-      scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
-      scan.nom_directorio = this.encryptionService.encrypt(file.destination);
-      scan.application = application;
-      await this.scanRepository.save(scan);
+      if(file){
+
+        const scan = new Scan();
+        scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
+        scan.nom_directorio = this.encryptionService.encrypt(file.destination);
+        scan.application = application;
+        await this.scanRepository.save(scan);
+        
+      }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 

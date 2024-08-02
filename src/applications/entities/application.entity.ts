@@ -4,6 +4,8 @@ import { Sourcecode } from '../../sourcecode/entities/sourcecode.entity';
 import { Scan } from '../../scans/entities/scan.entity';
 import { User } from '../../auth/entities/user.entity';
 import { UsersApplication } from "src/users-applications/entities/users-application.entity";
+import { IsNumber } from "class-validator";
+import { Type } from "class-transformer";
 
 @Entity('aplicaciones')
 export class Application {
@@ -14,6 +16,10 @@ export class Application {
     @Column({type: 'varchar', length:255})
     nom_aplicacion: string;
 
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    num_accion: number;
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;
   

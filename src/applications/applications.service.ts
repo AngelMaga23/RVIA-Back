@@ -1,20 +1,22 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
-import { CreateApplicationDto } from './dto/create-application.dto';
-import { Application } from './entities/application.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
-import { SourcecodeService } from '../sourcecode/sourcecode.service';
-import { catchError, lastValueFrom } from 'rxjs';
 import { createReadStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { catchError, lastValueFrom } from 'rxjs';
 import { join } from 'path';
 import * as unzipper from 'unzipper';
+
+import { CreateApplicationDto,CreateFileDto } from './dto';
+import { Application } from './entities/application.entity';
+import { ApplicationstatusService } from '../applicationstatus/applicationstatus.service';
+import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';
+
 
 @Injectable()
 export class ApplicationsService {
@@ -104,6 +106,7 @@ export class ApplicationsService {
 
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
+      application.num_accion = createApplicationDto.num_accion;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -149,7 +152,7 @@ export class ApplicationsService {
     return '';
   }
 
-  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
+  async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
     try {
 
@@ -171,6 +174,7 @@ export class ApplicationsService {
 
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
+      application.num_accion = createFileDto.num_accion;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import { Response } from 'express';
 
 import { ApplicationsService } from './applications.service';
-import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilterZip, fileNamerZip } from './helper/ZIP';
@@ -14,6 +13,7 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators';
 import { basename } from 'path';
+import { CreateApplicationDto, CreateFileDto } from './dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -67,6 +67,7 @@ export class ApplicationsController {
     })
   }))
   uploadFileZip(
+    @Body() createFileDto: CreateFileDto,
     @UploadedFiles() files: Express.Multer.File[],
     @GetUser() user: User
   ) {
@@ -82,7 +83,7 @@ export class ApplicationsController {
       throw new BadRequestException('You must upload one ZIP file and one PDF file');
     }
 
-    return this.applicationsService.createFiles(zipFile, pdfFile, user);
+    return this.applicationsService.createFiles(createFileDto, zipFile, pdfFile, user);
 
   }
 

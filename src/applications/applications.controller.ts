@@ -71,14 +71,14 @@ export class ApplicationsController {
     @GetUser() user: User
   ) {
 
-    if (files.length !== 2) {
+    if (files.length === 0) {
       throw new BadRequestException('No files uploaded');
     }
 
     const zipFile = files.find(file => file.mimetype.includes('zip'));
-    const pdfFile = files.find(file => file.mimetype.includes('pdf'));
+    const pdfFile = files.find(file => file.mimetype.includes('pdf'));  
 
-    if (!zipFile || !pdfFile) {
+    if ( !zipFile ) {
       throw new BadRequestException('You must upload one ZIP file and one PDF file');
     }
 

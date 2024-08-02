@@ -145,7 +145,7 @@ export class ApplicationsService {
     return '';
   }
 
-  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File, user: User) {
+  async createFiles(zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
     try {
 
@@ -171,15 +171,15 @@ export class ApplicationsService {
       application.sourcecode = sourcecode;
       application.user = user;
 
-
-
       await this.applicationRepository.save(application);
 
-      const scan = new Scan();
-      scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
-      scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
-      scan.application = application;
-      await this.scanRepository.save(scan);
+      if (pdfFile) {
+        const scan = new Scan();
+        scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
+        scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
+        scan.application = application;
+        await this.scanRepository.save(scan);
+      }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 

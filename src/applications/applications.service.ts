@@ -97,7 +97,7 @@ export class ApplicationsService {
       // mkdirSync(repoFolderPath, { recursive: true });
 
       const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
-      console.log(zipUrl)
+
       const response = await lastValueFrom(
         this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
           catchError((err) => {

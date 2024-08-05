@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ApplicationstatusService } from './applicationstatus.service';
 import { ApplicationstatusController } from './applicationstatus.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Applicationstatus } from './entities/applicationstatus.entity';
 import { CommonModule } from 'src/common/common.module';
 

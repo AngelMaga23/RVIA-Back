@@ -3,7 +3,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CreateScanDto } from './dto/create-scan.dto';
-import { UpdateScanDto } from './dto/update-scan.dto';
 import { Scan } from './entities/scan.entity';
 
 

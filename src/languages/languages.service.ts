@@ -26,6 +26,7 @@ export class LanguagesService {
       const language = this.languageRepository.create(createLanguageDto);
       await this.languageRepository.save(language);
 
+      language.nom_lenguaje = this.encryptionService.decrypt(language.nom_lenguaje);
       return language;
 
    } catch (error) {
@@ -74,6 +75,7 @@ export class LanguagesService {
       language.nom_lenguaje = this.encryptionService.encrypt(language.nom_lenguaje);
       await this.languageRepository.save( language );
 
+      language.nom_lenguaje = this.encryptionService.decrypt(language.nom_lenguaje);
       return language;
 
     } catch (error) {

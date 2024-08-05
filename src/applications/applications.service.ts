@@ -108,6 +108,7 @@ export class ApplicationsService {
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
       application.num_accion = createApplicationDto.num_accion;
+      application.opc_lenguaje = createApplicationDto.opc_lenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -189,6 +190,7 @@ export class ApplicationsService {
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
       application.num_accion = createFileDto.num_accion;
+      application.opc_lenguaje = createFileDto.opc_lenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

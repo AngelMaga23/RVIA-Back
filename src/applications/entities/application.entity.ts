@@ -20,6 +20,11 @@ export class Application {
     @IsNumber()
     @Type(() => Number)
     num_accion: number;
+
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    opc_lenguaje: number;
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;
   

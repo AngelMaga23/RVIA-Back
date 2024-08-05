@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { CreatePositionDto } from './dto/create-position.dto';
+import { UpdatePositionDto } from './dto/update-position.dto';
 import { Position } from './entities/position.entity';
 import { CommonService } from 'src/common/common.service';
 

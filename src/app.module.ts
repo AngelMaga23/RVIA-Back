@@ -13,6 +13,7 @@ import { UsersApplicationsModule } from './users-applications/users-applications
 import { RviaModule } from './rvia/rvia.module';
 import { SeguimientoModule } from './seguimiento/seguimiento.module';
 import { ConfiguracionModule } from './configuracion/configuracion.module';
+import { LanguagesModule } from './languages/languages.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { ConfiguracionModule } from './configuracion/configuracion.module';
     UsersApplicationsModule,
     RviaModule,
     SeguimientoModule,
-    ConfiguracionModule
+    ConfiguracionModule,
+    LanguagesModule
     
   ],
   controllers: [],

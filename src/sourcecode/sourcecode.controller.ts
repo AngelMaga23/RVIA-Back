@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
+
 import { SourcecodeService } from './sourcecode.service';
 import { CreateSourcecodeDto } from './dto/create-sourcecode.dto';
-import { UpdateSourcecodeDto } from './dto/update-sourcecode.dto';
 
 @Controller('sourcecode')
 export class SourcecodeController {
@@ -21,14 +21,4 @@ export class SourcecodeController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.sourcecodeService.findOne(id);
   }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateSourcecodeDto: UpdateSourcecodeDto) {
-  //   return this.sourcecodeService.update(+id, updateSourcecodeDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.sourcecodeService.remove(+id);
-  // }
 }

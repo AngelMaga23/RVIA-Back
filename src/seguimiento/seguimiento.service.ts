@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSeguimientoDto } from './dto/create-seguimiento.dto';
-import { UpdateSeguimientoDto } from './dto/update-seguimiento.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Seguimiento } from './entities/seguimiento.entity';
 import { Repository } from 'typeorm';
+
+import { CreateSeguimientoDto } from './dto/create-seguimiento.dto';
+import { Seguimiento } from './entities/seguimiento.entity';
+
 
 @Injectable()
 export class SeguimientoService {

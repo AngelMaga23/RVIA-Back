@@ -1,18 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, ParseIntPipe, Res, HttpException, HttpStatus, UploadedFiles } from '@nestjs/common';
 import * as fs from 'fs';
 import { Response } from 'express';
+import { diskStorage } from 'multer';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 import { ApplicationsService } from './applications.service';
-import { UpdateApplicationDto } from './dto/update-application.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilterZip, fileNamerZip } from './helper/ZIP';
-import { diskStorage } from 'multer';
-import { DeepPartial } from 'typeorm';
-import { Application } from './entities/application.entity';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators';
-import { basename } from 'path';
 import { CreateApplicationDto, CreateFileDto } from './dto';
 
 @Controller('applications')
@@ -45,7 +41,6 @@ export class ApplicationsController {
   }))
   create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.applicationsService.createGitFile(createApplicationDto, user, file);
-    // return user;
   }
 
   @Post('files')
@@ -76,7 +71,6 @@ export class ApplicationsController {
       throw new BadRequestException('No files uploaded');
     }
 
-    // const zipFile = files.find(file => file.mimetype.includes('zip'));
     const zipOr7zFile = files.find(file => 
       file.mimetype.includes('zip') || file.mimetype.includes('x-7z-compressed') || file.mimetype.includes('x-zip-compressed')
     );
@@ -103,19 +97,8 @@ export class ApplicationsController {
     @Param('id') id: number
   ) {
 
-    // const path = await this.applicationsService.getStaticFileZip( id, res );
-
-    // const fileName = basename(path); 
     await this.applicationsService.getStaticFileZip(id, res);
-    // res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    // res.sendFile(path, (err) => {
-    //   if (err) {
-    //     throw new HttpException('Error sending file', HttpStatus.INTERNAL_SERVER_ERROR);
-    //   }
-    // });
 
-    // res.sendFile( path );
-    // return path;
   }
 
 }

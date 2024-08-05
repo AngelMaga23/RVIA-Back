@@ -3,12 +3,15 @@ import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createReadStream, createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { createReadStream, createWriteStream, existsSync, unlinkSync } from 'fs';
 import { catchError, lastValueFrom } from 'rxjs';
 import { join } from 'path';
 import * as unzipper from 'unzipper';
 import * as seven from '7zip-min';
 import { v4 as uuid } from 'uuid'
+import { promisify } from 'util';
+import { pipeline } from 'stream';
+import * as fsExtra from 'fs-extra';
 
 import { CreateApplicationDto, CreateFileDto } from './dto';
 import { Application } from './entities/application.entity';
@@ -18,9 +21,7 @@ import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';
-import { promisify } from 'util';
-import { pipeline } from 'stream';
-import * as fsExtra from 'fs-extra';
+
 
 @Injectable()
 export class ApplicationsService {

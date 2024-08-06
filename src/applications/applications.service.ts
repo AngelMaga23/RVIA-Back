@@ -43,9 +43,11 @@ export class ApplicationsService {
 
   async findAll(user: User) {
 
-    if (user.position !== null && user.position.nom_puesto == ValidRoles.admin) {
-
-      const aplicaciones = await this.applicationRepository.find();
+    try {
+      
+      const aplicaciones = user.position?.nom_puesto === ValidRoles.admin
+      ? await this.applicationRepository.find()
+      : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
 
       aplicaciones.map(aplicacion => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
@@ -53,26 +55,14 @@ export class ApplicationsService {
         aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
         aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
         aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
-        return aplicaciones;
       });
 
       return aplicaciones;
+
+    } catch (error) {
+      this.handleDBExceptions(error);
     }
 
-    const aplicaciones = await this.applicationRepository.find({
-      where: { user: { idu_usuario: user.idu_usuario } },
-    });
-
-    aplicaciones.map(aplicacion => {
-      aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
-      aplicacion.applicationstatus.des_estatus_aplicacion = this.encryptionService.decrypt(aplicacion.applicationstatus.des_estatus_aplicacion);
-      aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
-      aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-      aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
-      return aplicaciones;
-    });
-
-    return aplicaciones;
   }
 
   async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file?) {

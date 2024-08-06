@@ -12,12 +12,6 @@ export class Sourcecode {
     @Column({type: 'varchar', length:20})
     nom_directorio: string;
 
-    // @CreateDateColumn({ type: 'timestamp' })
-    // created_at: Date;
-  
-    // @UpdateDateColumn({ type: 'timestamp' })
-    // updated_at: Date;
-
     @OneToMany(
         () => Application, application => application.applicationstatus,
     )

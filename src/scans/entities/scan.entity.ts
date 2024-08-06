@@ -12,12 +12,6 @@ export class Scan {
     @Column({type: 'varchar', length:20})
     nom_directorio: string;
 
-    // @CreateDateColumn({ type: 'timestamp' })
-    // created_at: Date;
-  
-    // @UpdateDateColumn({ type: 'timestamp' })
-    // updated_at: Date;
-
     @ManyToOne(() => Application, application => application.scans, { nullable: false })
     @JoinColumn({ name: 'idu_aplicacion' })
     application: Application;

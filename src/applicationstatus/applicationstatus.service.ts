@@ -18,21 +18,20 @@ export class ApplicationstatusService {
     @InjectRepository(Applicationstatus)
     private readonly applicationStatusRepository: Repository<Applicationstatus>,
     private readonly encryptionService: CommonService
-  ){}
+  ) { }
 
   async create(createApplicationstatusDto: CreateApplicationstatusDto) {
     try {
 
-    
       createApplicationstatusDto.des_estatus_aplicacion = this.encryptionService.encrypt(createApplicationstatusDto.des_estatus_aplicacion);
-        
+
       const status = this.applicationStatusRepository.create(createApplicationstatusDto);
       await this.applicationStatusRepository.save(status);
 
       return status;
 
     } catch (error) {
-      this.handleDBExceptions( error ); 
+      this.handleDBExceptions(error);
     }
   }
 
@@ -47,19 +46,18 @@ export class ApplicationstatusService {
         }
         return status;
       });
-  
+
       return decryptedStatuses;
     } catch (error) {
-      this.handleDBExceptions( error ); 
+      this.handleDBExceptions(error);
     }
-
 
   }
 
   async findOne(id: number) {
-    const status = await this.applicationStatusRepository.findOneBy({ idu_estatus_aplicacion:id });
+    const status = await this.applicationStatusRepository.findOneBy({ idu_estatus_aplicacion: id });
 
-    if( !status )
+    if (!status)
       throw new NotFoundException(`status with ${id} not found `);
 
     status.des_estatus_aplicacion = this.encryptionService.decrypt(status.des_estatus_aplicacion);
@@ -72,12 +70,12 @@ export class ApplicationstatusService {
       ...updateApplicationstatusDto
     });
 
-    if( !statu ) throw new NotFoundException(`Position with ${id} not found `);
+    if (!statu) throw new NotFoundException(`Position with ${id} not found `);
 
     try {
 
       statu.des_estatus_aplicacion = this.encryptionService.encrypt(updateApplicationstatusDto.des_estatus_aplicacion);
-      await this.applicationStatusRepository.save( statu );
+      await this.applicationStatusRepository.save(statu);
       return statu;
 
     } catch (error) {
@@ -90,8 +88,8 @@ export class ApplicationstatusService {
     return `This action removes a #${id} applicationstatus`;
   }
 
-  private handleDBExceptions( error:any ){
-    if( error.code === '23505' )
+  private handleDBExceptions(error: any) {
+    if (error.code === '23505')
       throw new BadRequestException(error.detail);
 
     this.logger.error(error);

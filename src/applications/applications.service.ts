@@ -110,7 +110,6 @@ export class ApplicationsService {
     
       const tempZipPath = join(tempFolderPath, `${repoName}.zip`);
       await streamPipeline(response.data, createWriteStream(tempZipPath));
-      // await response.data.pipe(unzipper.Extract({ path: repoFolderPath })).promise();
 
       await unzipper.Open.file(tempZipPath)
       .then(d => d.extract({ path: tempFolderPath }))
@@ -161,7 +160,6 @@ export class ApplicationsService {
     } catch (error) {
       this.handleDBExceptions(error);
     }
-
 
   }
 
@@ -281,25 +279,21 @@ export class ApplicationsService {
       relations: ['applicationstatus', 'user', 'scans']
     });
 
-    // Verificar si la aplicación existe
     if (!application) {
       throw new NotFoundException(`Application with ID ${id} not found`);
     }
 
-    // Desencriptar el nombre de la aplicación para obtener el nombre de la carpeta
     const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
     const directoryPath = join(this.downloadPath, decryptedAppName);
 
-    // Verificar si el directorio existe
     if (!existsSync(directoryPath)) {
       throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
     }
 
-    // Configurar el encabezado de la respuesta para descarga de archivo ZIP
+
     response.setHeader('Content-Type', 'application/zip');
     response.setHeader('Content-Disposition', `attachment; filename="${decryptedAppName}.zip"`);
 
-    // Crear un archivo ZIP y transmitirlo a la respuesta
     const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.on('error', (err) => {

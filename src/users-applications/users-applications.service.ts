@@ -1,9 +1,9 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateUsersApplicationDto } from './dto/create-users-application.dto';
-import { UpdateUsersApplicationDto } from './dto/update-users-application.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersApplication } from './entities/users-application.entity';
 import { Repository } from 'typeorm';
+
+import { CreateUsersApplicationDto } from './dto/create-users-application.dto';
+import { UsersApplication } from './entities/users-application.entity';
 import { Application } from 'src/applications/entities/application.entity';
 import { User } from 'src/auth/entities/user.entity';
 

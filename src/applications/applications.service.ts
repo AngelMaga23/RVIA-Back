@@ -190,10 +190,6 @@ export class ApplicationsService {
       const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
 
-
-      // await createReadStream(zipFile.path)
-      //   .pipe(unzipper.Extract({ path: zipFile.destination }))
-      //   .promise();
       const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
         ? new Promise<void>((resolve, reject) => {
           seven.unpack(zipFile.path, zipFile.destination, err => {

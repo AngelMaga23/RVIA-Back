@@ -44,14 +44,6 @@ export class SourcecodeService {
     return source; 
   }
 
-  // update(id: number, updateSourcecodeDto: UpdateSourcecodeDto) {
-  //   return `This action updates a #${id} sourcecode`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} sourcecode`;
-  // }
-
   private handleDBExceptions( error:any ){
     if( error.code === '23505' )
       throw new BadRequestException(error.detail);

@@ -8,7 +8,7 @@ import { catchError, lastValueFrom } from 'rxjs';
 import { join } from 'path';
 import * as unzipper from 'unzipper';
 import * as seven from '7zip-min';
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
 import * as fsExtra from 'fs-extra';

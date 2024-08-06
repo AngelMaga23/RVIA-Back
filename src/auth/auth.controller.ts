@@ -8,62 +8,56 @@ import { ValidRoles } from './interfaces';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
-// Rutas POST
-@Post('register')
-createUser(@Body() createUserDto: CreateUserDto) {
-  return this.authService.create(createUserDto);
-}
+  // Rutas POST
+  @Post('register')
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.authService.create(createUserDto);
+  }
 
-@Post('login')
-loginUser(@Body() loginUserDto: LoginUserDto) {
-  return this.authService.login(loginUserDto);
-}
+  @Post('login')
+  loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
+  }
 
-// Rutas GET más específicas
-@Get('check-status')
-@Auth()
-checkAuthStatus(@GetUser() user: User) {
-  return this.authService.checkAuthStatus(user);
-}
+  // Rutas GET más específicas
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkAuthStatus(user);
+  }
 
-@Get('private')
-@Auth(ValidRoles.admin, ValidRoles.autorizador)
-testingPrivateRoute(@GetUser() user: User) {
-  return { user };
-}
+  @Get('private')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  testingPrivateRoute(@GetUser() user: User) {
+    return { user };
+  }
 
-@Get(':id')
-@Auth(ValidRoles.admin)
-findById(@Param('id') id: string) {
-  return this.authService.findUserById(id);
-}
+  @Get(':id')
+  @Auth(ValidRoles.admin)
+  findById(@Param('id') id: string) {
+    return this.authService.findUserById(id);
+  }
 
-// Rutas GET más generales
-@Get()
-@Auth(ValidRoles.admin)
-findAllActive() {
-  return this.authService.findAllActiveUsers();
-}
+  // Rutas GET más generales
+  @Get()
+  @Auth(ValidRoles.admin)
+  findAllActive() {
+    return this.authService.findAllActiveUsers();
+  }
 
-// @Get()
-// @Auth(ValidRoles.admin)
-// findAll() {
-//   return this.authService.findAll();
-// }
+  // Rutas PATCH
+  @Patch(':id')
+  @Auth(ValidRoles.admin)
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
+    return this.authService.update(id, updateUserDto, user);
+  }
 
-// Rutas PATCH
-@Patch(':id')
-@Auth(ValidRoles.admin)
-update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
-  return this.authService.update(id, updateUserDto, user);
-}
-
-// Rutas DELETE
-@Delete(':id')
-@Auth(ValidRoles.admin)
-remove(@Param('id') id: string, @GetUser() user: User) {
-  return this.authService.delete(id, user);
-}
+  // Rutas DELETE
+  @Delete(':id')
+  @Auth(ValidRoles.admin)
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.authService.delete(id, user);
+  }
 }

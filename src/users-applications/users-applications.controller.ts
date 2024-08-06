@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+
 import { UsersApplicationsService } from './users-applications.service';
 import { CreateUsersApplicationDto } from './dto/create-users-application.dto';
-import { UpdateUsersApplicationDto } from './dto/update-users-application.dto';
-import { ApplicationsService } from 'src/applications/applications.service';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 

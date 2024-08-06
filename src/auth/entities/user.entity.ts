@@ -1,4 +1,5 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+
 import { Position } from "../../positions/entities/position.entity";
 import { Application } from '../../applications/entities/application.entity';
 import { UsersApplication } from "src/users-applications/entities/users-application.entity";

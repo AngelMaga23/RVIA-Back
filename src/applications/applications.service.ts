@@ -32,7 +32,7 @@ export class ApplicationsService {
   // private readonly basePath = join(__dirname, '..', '..', '');
   private readonly basePath = '';
 
-  
+
 
   constructor(
     @InjectRepository(Application)
@@ -107,22 +107,22 @@ export class ApplicationsService {
           }),
         ),
       );
-    
+
       const tempZipPath = join(tempFolderPath, `${repoName}.zip`);
       await streamPipeline(response.data, createWriteStream(tempZipPath));
 
       await unzipper.Open.file(tempZipPath)
-      .then(d => d.extract({ path: tempFolderPath }))
-      .then(async () => {
-        // Obtener el nombre del directorio extraído
-        const extractedFolders = await fsExtra.readdir(tempFolderPath);
-        const extractedFolder = join(tempFolderPath, extractedFolders.find(folder => folder.includes(repoName)));
+        .then(d => d.extract({ path: tempFolderPath }))
+        .then(async () => {
+          // Obtener el nombre del directorio extraído
+          const extractedFolders = await fsExtra.readdir(tempFolderPath);
+          const extractedFolder = join(tempFolderPath, extractedFolders.find(folder => folder.includes(repoName)));
 
-        await fsExtra.ensureDir(repoFolderPath);
-        await fsExtra.copy(extractedFolder, repoFolderPath);
-        await fsExtra.remove(tempZipPath);
-        await fsExtra.remove(tempFolderPath);
-      });
+          await fsExtra.ensureDir(repoFolderPath);
+          await fsExtra.copy(extractedFolder, repoFolderPath);
+          await fsExtra.remove(tempZipPath);
+          await fsExtra.remove(tempFolderPath);
+        });
 
       const estatu = await this.estatusService.findOne(2);
 

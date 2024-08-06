@@ -148,41 +148,26 @@ export class ApplicationsService {
   private getRepoName(url: string): string {
     const regex = /([^\/]+)\.git$/;
     const match = url.match(regex);
-    if (match) {
-      return match[1];
-    }
-    return '';
+    return match ? match[1] : '';
   }
 
   private getUserName(url: string): string {
     const regex = /github\.com\/([^\/]+)\/[^\/]+\.git$/;
     const match = url.match(regex);
-    if (match) {
-      return match[1];
-    }
-    return '';
+    return match ? match[1] : '';
   }
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
-
     try {
-
       const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
-
-      if (!estatu) throw new NotFoundException(`Estatus not found `);
+      if (!estatu) throw new NotFoundException('Estatus not found');
 
       const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
         ? new Promise<void>((resolve, reject) => {
-          seven.unpack(zipFile.path, zipFile.destination, err => {
-            if (err) return reject(err);
-            resolve();
-          });
+          seven.unpack(zipFile.path, zipFile.destination, err => (err ? reject(err) : resolve()));
         })
-        : createReadStream(zipFile.path)
-          .pipe(unzipper.Extract({ path: zipFile.destination }))
-          .promise();
-
+        : createReadStream(zipFile.path).pipe(unzipper.Extract({ path: zipFile.destination })).promise();
 
       await unzipPromise;
 
@@ -191,7 +176,7 @@ export class ApplicationsService {
 
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
-        nom_directorio: this.encryptionService.encrypt(zipFile.destination)
+        nom_directorio: this.encryptionService.encrypt(zipFile.destination),
       });
 
       const application = new Application();
@@ -213,16 +198,13 @@ export class ApplicationsService {
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-
       return application;
-
     } catch (error) {
       if (zipFile && zipFile.destination) {
         await fsExtra.remove(zipFile.destination);
       }
       this.handleDBExceptions(error);
     }
-
   }
 
   async update(id: number, estatusId: number) {

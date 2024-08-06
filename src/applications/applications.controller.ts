@@ -90,7 +90,7 @@ export class ApplicationsController {
     return this.applicationsService.update(id, estatusId);
   }
 
-  // @Auth()
+  @Auth()
   @Get('zip/:id')
   async findFileZip(
     @Res() res: Response,

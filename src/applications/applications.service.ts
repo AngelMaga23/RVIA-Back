@@ -27,12 +27,7 @@ import { Scan } from 'src/scans/entities/scan.entity';
 export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
-
   private downloadPath = '/tmp/bito';
-  // private readonly basePath = join(__dirname, '..', '..', '');
-  private readonly basePath = '';
-
-
 
   constructor(
     @InjectRepository(Application)
@@ -40,13 +35,10 @@ export class ApplicationsService {
     private readonly estatusService: ApplicationstatusService,
     private readonly sourcecodeService: SourcecodeService,
     private readonly httpService: HttpService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
     private readonly encryptionService: CommonService,
     @InjectRepository(Scan)
     private scanRepository: Repository<Scan>,
   ) {
-    // this.ensureDirectoryExists(this.downloadPath);
   }
 
   async findAll(user: User) {

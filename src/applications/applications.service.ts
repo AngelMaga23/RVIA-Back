@@ -127,6 +127,8 @@ export class ApplicationsService {
 
       const estatu = await this.estatusService.findOne(2);
 
+      if (!estatu) throw new NotFoundException(`Estatus not found `);
+
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(repoName),
         nom_directorio: this.encryptionService.encrypt(this.downloadPath)

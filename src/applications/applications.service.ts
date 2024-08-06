@@ -262,13 +262,10 @@ export class ApplicationsService {
   }
 
   private handleDBExceptions(error: any) {
-    if (error.code === '23505')
-      throw new BadRequestException(error.detail);
-
-    if (error.response)
-      throw new BadRequestException(error.message);
+    if (error.code === '23505') throw new BadRequestException(error.detail);
+    if (error.response) throw new BadRequestException(error.message);
 
     this.logger.error(error);
-    throw new InternalServerErrorException("Unexpected error, check server logs");
+    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }

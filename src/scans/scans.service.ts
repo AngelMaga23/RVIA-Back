@@ -42,14 +42,6 @@ export class ScansService {
     return scan; 
   }
 
-  // update(id: number, updateScanDto: UpdateScanDto) {
-  //   return `This action updates a #${id} scan`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} scan`;
-  // }
-
   private handleDBExceptions( error:any ){
     if( error.code === '23505' )
       throw new BadRequestException(error.detail);

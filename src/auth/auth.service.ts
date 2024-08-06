@@ -1,13 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { PositionsService } from '../positions/positions.service';
-import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
 import { SeguimientoService } from 'src/seguimiento/seguimiento.service';
 import { CreateSeguimientoDto } from 'src/seguimiento/dto/create-seguimiento.dto';

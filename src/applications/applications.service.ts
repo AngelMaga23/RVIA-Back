@@ -229,35 +229,23 @@ export class ApplicationsService {
   }
 
   async getStaticFileZip(id: number, response): Promise<void> {
-    // Buscar la aplicación en el repositorio
     const application = await this.applicationRepository.findOne({
       where: { idu_aplicacion: id },
-      relations: ['applicationstatus', 'user', 'scans']
+      relations: ['applicationstatus', 'user', 'scans'],
     });
-
-    if (!application) {
-      throw new NotFoundException(`Application with ID ${id} not found`);
-    }
+    if (!application) throw new NotFoundException(`Application with ID ${id} not found`);
 
     const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
     const directoryPath = join(this.downloadPath, decryptedAppName);
-
-    if (!existsSync(directoryPath)) {
-      throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
-    }
-
+    if (!existsSync(directoryPath)) throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
 
     response.setHeader('Content-Type', 'application/zip');
     response.setHeader('Content-Disposition', `attachment; filename="${decryptedAppName}.zip"`);
 
     const archive = archiver('zip', { zlib: { level: 9 } });
-
-    archive.on('error', (err) => {
-      throw new BadRequestException(`Error while archiving: ${err.message}`);
-    });
+    archive.on('error', err => { throw new BadRequestException(`Error while archiving: ${err.message}`); });
 
     archive.pipe(response);
-
     archive.directory(directoryPath, false);
 
     if (application.scans && application.scans.length > 0) {
@@ -270,13 +258,8 @@ export class ApplicationsService {
       }
     }
 
-    await new Promise<void>((resolve, reject) => {
-      archive.finalize()
-        .then(() => resolve())
-        .catch((err) => reject(err));
-    });
+    await archive.finalize();
   }
-
 
   private handleDBExceptions(error: any) {
     if (error.code === '23505')

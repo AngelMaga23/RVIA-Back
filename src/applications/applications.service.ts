@@ -20,7 +20,7 @@ import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
-import { Scan } from 'src/scans/entities/scan.entity';
+import { Scan } from 'src/scans/entities/scan.entity';  
 
 
 @Injectable()

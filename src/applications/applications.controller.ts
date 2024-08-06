@@ -29,8 +29,6 @@ export class ApplicationsController {
     storage: diskStorage({
       destination: (req, file, cb) => {
 
-        const folderName = file.originalname.split('.')[0];
-        //const dir = `./static/zip/${folderName}`; // windows
         const dir = `/tmp/bito`;
 
         fs.mkdirSync(dir, { recursive: true });
@@ -51,8 +49,6 @@ export class ApplicationsController {
     storage: diskStorage({
       destination: (req, file, cb) => {
 
-        const folderName = file.originalname.split('.')[0];
-        //const dir = `./static/zip/${folderName}`; // windows
         const dir = `/tmp/bito`;
 
         fs.mkdirSync(dir, { recursive: true });

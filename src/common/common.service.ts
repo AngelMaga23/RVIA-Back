@@ -31,23 +31,5 @@ export class CommonService {
     decrypted += decipher.final('utf8');
     return decrypted;
   }
-  create(createCommonDto: CreateCommonDto) {
-    return 'This action adds a new common';
-  }
-
-  findAll() {
-    return `This action returns all common`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} common`;
-  }
-
-  update(id: number, updateCommonDto: UpdateCommonDto) {
-    return `This action updates a #${id} common`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} common`;
-  }
+  
 }

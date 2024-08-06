@@ -237,7 +237,9 @@ export class ApplicationsService {
       return application;
 
     } catch (error) {
-
+      if (zipFile && zipFile.destination) {
+        await fsExtra.remove(zipFile.destination);
+      }
       this.handleDBExceptions(error);
     }
 

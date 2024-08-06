@@ -12,7 +12,7 @@ import { CommonModule } from './common/common.module';
 import { UsersApplicationsModule } from './users-applications/users-applications.module';
 import { RviaModule } from './rvia/rvia.module';
 import { SeguimientoModule } from './seguimiento/seguimiento.module';
-import { ConfiguracionModule } from './configuracion/configuracion.module';
+import { ConfigurationModule } from './configuration/configuration.module';
 import { LanguagesModule } from './languages/languages.module';
 
 @Module({
@@ -44,7 +44,7 @@ import { LanguagesModule } from './languages/languages.module';
     UsersApplicationsModule,
     RviaModule,
     SeguimientoModule,
-    ConfiguracionModule,
+    ConfigurationModule,
     LanguagesModule
     
   ],

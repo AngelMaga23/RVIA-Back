@@ -268,4 +268,124 @@ export class ApplicationsService {
     this.logger.error(error);
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
+
+  async createGitLabFile(createApplicationDto: CreateApplicationDto, user: User, file?) {
+    try {
+      const streamPipeline = promisify(pipeline);
+      const repoInfo = this.getRepoInfo(createApplicationDto.url);
+
+      if (!repoInfo) {
+        throw new BadRequestException('Invalid repository URL');
+      }
+      
+      const { userName, groupName, repoName } = repoInfo;
+  
+      const branches = ['main', 'master'];
+      let zipUrl: string | null = null;
+  
+      for (const branch of branches) {
+        const potentialUrl = `https://gitlab.com/${userName}/${groupName}/${repoName}/-/archive/${branch}/${repoName}-${branch}.zip`;
+        try {
+          await lastValueFrom(this.httpService.head(potentialUrl));
+          zipUrl = potentialUrl;
+          break;
+        } catch (error) {
+          continue;
+        }
+      }
+  
+      if (!zipUrl) {
+        throw new InternalServerErrorException('No se encontró ninguna rama válida (main o master)');
+      }
+  
+      const uniqueTempFolderName = `temp-${uuid()}`;
+      const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
+      const repoFolderPath = join(this.downloadPath, repoName);
+  
+      await fsExtra.ensureDir(tempFolderPath);
+  
+      const response = await lastValueFrom(
+        this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
+          catchError(() => {
+            fsExtra.remove(tempFolderPath);
+            throw new InternalServerErrorException('Error al descargar el repositorio');
+          }),
+        ),
+      );
+  
+      const tempZipPath = join(tempFolderPath, `${repoName}.zip`);
+      await streamPipeline(response.data, createWriteStream(tempZipPath));
+  
+      await unzipper.Open.file(tempZipPath)
+        .then(d => d.extract({ path: tempFolderPath }))
+        .then(async () => {
+          const extractedFolders = await fsExtra.readdir(tempFolderPath);
+          const extractedFolder = join(tempFolderPath, extractedFolders.find(folder => folder.includes(repoName)) || '');
+          
+          await fsExtra.ensureDir(repoFolderPath);
+          await fsExtra.copy(extractedFolder, repoFolderPath);
+          await fsExtra.remove(tempZipPath);
+          await fsExtra.remove(tempFolderPath);
+        });
+  
+      const estatu = await this.estatusService.findOne(2);
+      if (!estatu) throw new NotFoundException('Estatus not found');
+  
+      const sourcecode = await this.sourcecodeService.create({
+        nom_codigo_fuente: this.encryptionService.encrypt(repoName),
+        nom_directorio: this.encryptionService.encrypt(this.downloadPath)
+      });
+  
+      const application = new Application();
+      application.nom_aplicacion = this.encryptionService.encrypt(repoName);
+      application.num_accion = createApplicationDto.num_accion;
+      application.opc_lenguaje = createApplicationDto.opc_lenguaje;
+      application.applicationstatus = estatu;
+      application.sourcecode = sourcecode;
+      application.user = user;
+  
+      await this.applicationRepository.save(application);
+  
+      if (file) {
+        const scan = new Scan();
+        scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
+        scan.nom_directorio = this.encryptionService.encrypt(file.destination);
+        scan.application = application;
+        await this.scanRepository.save(scan);
+      }
+  
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+  
+      return application;
+  
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+  
+
+  private getRepoInfo(url: string): { userName: string, groupName: string, repoName: string } | null {
+    try {
+      const { pathname } = new URL(url);
+      
+      const pathSegments = pathname.split('/').filter(segment => segment);
+
+      if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].endsWith('.git')) {
+        const repoName = pathSegments.pop()!.replace('.git', '');
+        const groupName = pathSegments.pop()!;
+        const userName = pathSegments.join('/');
+    
+        return {
+          userName,
+          groupName,
+          repoName
+        };
+      }
+    } catch (error) {
+      console.error('Error parsing URL:', error);
+    }
+  
+    return null;
+  }
+
 }

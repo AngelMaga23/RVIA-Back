@@ -41,6 +41,26 @@ export class ApplicationsController {
     return this.applicationsService.createGitFile(createApplicationDto, user, file);
   }
 
+  @Post('gitlab')
+  @Auth()
+  @UseInterceptors(FileInterceptor('file', {
+    fileFilter: fileFilterZip,
+    // limits: { fileSize: 1000 }
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+
+        const dir = `/tmp/bito`;
+
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: fileNamerZip
+    })
+  }))
+  createGitLab(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
+    return this.applicationsService.createGitLabFile(createApplicationDto, user, file);
+  }
+
   @Post('files')
   @Auth()
   @UseInterceptors(FilesInterceptor('files', 2, {
@@ -67,12 +87,12 @@ export class ApplicationsController {
       throw new BadRequestException('No files uploaded');
     }
 
-    const zipOr7zFile = files.find(file =>
+    const zipOr7zFile = files.find(file => 
       file.mimetype.includes('zip') || file.mimetype.includes('x-7z-compressed') || file.mimetype.includes('x-zip-compressed')
     );
-    const pdfFile = files.find(file => file.mimetype.includes('pdf'));
+    const pdfFile = files.find(file => file.mimetype.includes('pdf'));  
 
-    if (!zipOr7zFile) {
+    if ( !zipOr7zFile ) {
       throw new BadRequestException('You must upload one ZIP file and one PDF file');
     }
 

@@ -1,5 +1,4 @@
-import { Type } from "class-transformer";
-import { IsDate, IsJSON, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsJSON, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateSeguimientoDto {
 

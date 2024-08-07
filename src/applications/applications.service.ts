@@ -77,9 +77,25 @@ export class ApplicationsService {
       const repoFolderPath = join(this.downloadPath, repoName);
 
       await fsExtra.ensureDir(tempFolderPath);
-      // mkdirSync(repoFolderPath, { recursive: true });
 
-      const zipUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/main.zip`;
+      const branches = ['main', 'master'];
+      let zipUrl: string | null = null;
+
+      for (const branch of branches) {
+        const potentialUrl = `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/${branch}.zip`;
+
+        try {
+          await lastValueFrom(this.httpService.head(potentialUrl));
+          zipUrl = potentialUrl;
+          break;
+        } catch (error) {
+          continue;
+        }
+      }
+      
+      if (!zipUrl) {
+        throw new InternalServerErrorException('No se encontró ninguna rama válida (main o master)');
+      }
 
       const response = await lastValueFrom(
         this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(

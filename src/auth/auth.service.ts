@@ -44,14 +44,17 @@ export class AuthService {
 
     const usuarios = await this.userRepository.find({ where: { esActivo: true }});
 
-    usuarios.map(usuario => {
-      usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
-      usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
-      usuario.position.nom_puesto = this.encryptionService.decrypt(usuario.position.nom_puesto);
-      return usuarios;
-    });
+    const usuariosDesencriptados = usuarios.map(usuario => ({
+      ...usuario,
+      nom_correo: this.encryptionService.decrypt(usuario.nom_correo),
+      nom_usuario: this.encryptionService.decrypt(usuario.nom_usuario),
+      position: {
+        ...usuario.position,
+        nom_puesto: this.encryptionService.decrypt(usuario.position.nom_puesto),
+      }
+    }));
 
-    return usuarios;
+    return usuariosDesencriptados;
   }
 
   async findUserById(id: string) {
@@ -221,10 +224,10 @@ export class AuthService {
 
     if ( error.code === '23505' ) 
       throw new BadRequestException( error.detail );
-    if ( error.status == '404' ) 
-      throw new BadRequestException( error.response.message );
-
-
+    
+    if ( error instanceof NotFoundException )
+      throw error;
+   
     throw new InternalServerErrorException('Please check server logs');
 
   }

@@ -44,14 +44,17 @@ export class AuthService {
 
     const usuarios = await this.userRepository.find({ where: { esActivo: true }});
 
-    usuarios.map(usuario => {
-      usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
-      usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
-      usuario.position.nom_puesto = this.encryptionService.decrypt(usuario.position.nom_puesto);
-      return usuarios;
-    });
+    const usuariosDesencriptados = usuarios.map(usuario => ({
+      ...usuario,
+      nom_correo: this.encryptionService.decrypt(usuario.nom_correo),
+      nom_usuario: this.encryptionService.decrypt(usuario.nom_usuario),
+      position: {
+        ...usuario.position,
+        nom_puesto: this.encryptionService.decrypt(usuario.position.nom_puesto),
+      }
+    }));
 
-    return usuarios;
+    return usuariosDesencriptados;
   }
 
   async findUserById(id: string) {

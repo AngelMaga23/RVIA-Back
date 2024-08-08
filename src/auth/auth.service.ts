@@ -221,10 +221,10 @@ export class AuthService {
 
     if ( error.code === '23505' ) 
       throw new BadRequestException( error.detail );
-    if ( error.status == '404' ) 
-      throw new BadRequestException( error.response.message );
-
-
+    
+    if ( error instanceof NotFoundException )
+      throw error;
+   
     throw new InternalServerErrorException('Please check server logs');
 
   }

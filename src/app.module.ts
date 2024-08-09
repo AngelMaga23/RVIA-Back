@@ -44,7 +44,7 @@ import { LanguagesModule } from './languages/languages.module';
     UsersApplicationsModule,
     RviaModule,
     SeguimientoModule,
-    ConfigurationModule,
+    // ConfigurationModule,
     LanguagesModule
     
   ],

@@ -222,7 +222,7 @@ export class ApplicationsService {
     try {
       const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
-      if (!estatu) throw new NotFoundException('Estatus not found');
+      if (!estatu) throw new NotFoundException('Estatus no encontrado');
 
       const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
         ? new Promise<void>((resolve, reject) => {
@@ -274,10 +274,10 @@ export class ApplicationsService {
         where: { idu_aplicacion: id },
         relations: ['applicationstatus', 'user'],
       });
-      if (!application) throw new NotFoundException(`Application with ID ${id} not found`);
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
       const estatu = await this.estatusService.findOne(estatusId);
-      if (!estatu) throw new NotFoundException(`Estatus with ID ${estatusId} not found`);
+      if (!estatu) throw new NotFoundException(`Estatus con ID ${estatusId} no encontrado`);
 
       application.applicationstatus = estatu;
       await this.applicationRepository.save(application);
@@ -294,7 +294,7 @@ export class ApplicationsService {
       where: { idu_aplicacion: id },
       relations: ['applicationstatus', 'user', 'scans'],
     });
-    if (!application) throw new NotFoundException(`Application with ID ${id} not found`);
+    if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
     const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
     const directoryPath = join(this.downloadPath, decryptedAppName);

@@ -58,7 +58,7 @@ export class PositionsService {
     const position = await this.positionRepository.findOneBy({ idu_rol:id });
 
     if( !position )
-      throw new NotFoundException(`Position with ${id} not found `);
+      throw new NotFoundException(`Rol con ${id} no encontrado `);
     position.nom_rol = this.encryptionService.decrypt(position.nom_rol);
     return position; 
   }
@@ -70,7 +70,7 @@ export class PositionsService {
       ...updatePositionDto
     });
 
-    if( !position ) throw new NotFoundException(`Position with ${id} not found `);
+    if( !position ) throw new NotFoundException(`Rol con ${id} no encontrado `);
 
     try {
       position.nom_rol = this.encryptionService.encrypt(position.nom_rol);

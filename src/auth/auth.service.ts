@@ -75,7 +75,7 @@ export class AuthService {
 
       const { nom_contrasena,nom_correo, nom_usuario, ...userData } = createUserDto;
       
-      const position = await this.positionService.findOne( createUserDto.idu_puesto );
+      const position = await this.positionService.findOne( createUserDto.idu_rol );
 
       const user = this.userRepository.create({
         ...userData,
@@ -182,16 +182,16 @@ export class AuthService {
         
       }
   
-      if (updateUserDto.idu_puesto) {
-        const position = await this.positionService.findOne( updateUserDto.idu_puesto );
-        if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_puesto} not found `);
+      if (updateUserDto.idu_rol) {
+        const position = await this.positionService.findOne( updateUserDto.idu_rol );
+        if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_rol} not found `);
         user.position = position;
       }
 
       if(updateUserDto.nom_correo) updateUserDto.nom_correo = this.encryptionService.encrypt(updateUserDto.nom_correo);
       if(updateUserDto.nom_usuario) updateUserDto.nom_usuario = this.encryptionService.encrypt(updateUserDto.nom_usuario);
 
-      const { nom_contrasena, idu_puesto, ...otherUpdates } = updateUserDto;
+      const { nom_contrasena, idu_rol, ...otherUpdates } = updateUserDto;
       Object.assign(user, otherUpdates);
 
       const seguimientoDto: CreateSeguimientoDto = {

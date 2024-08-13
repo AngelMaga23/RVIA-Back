@@ -52,7 +52,7 @@ export class CreateUserDto {
 
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))
-    idu_puesto: number;
+    idu_rol: number;
 
     @IsOptional()
     fec_creacion?: Date;

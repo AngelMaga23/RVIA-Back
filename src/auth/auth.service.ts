@@ -143,7 +143,7 @@ export class AuthService {
 
     const userData = await this.userRepository.findOneBy({ idu_usuario:id });
     if( !userData )
-      throw new NotFoundException(`Aplicación con ${id} no encontrado `);
+      throw new NotFoundException(`application with ${id} not found `);
 
     const seguimientoDto: CreateSeguimientoDto = {
       nom_tabla: 'cat_colaboladores',

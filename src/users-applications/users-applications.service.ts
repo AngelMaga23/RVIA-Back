@@ -38,7 +38,7 @@ export class UsersApplicationsService {
       where: { idu_aplicacion:iduAplicacionNumber, idu_usuario:iduUserNumber },
     });
 
-    if( !application || !user) throw new NotFoundException(`Application or user not found `);
+    if( !application || !user) throw new NotFoundException(`Aplicación o Usuario no encontrado `);
 
     if( createUsersApplicationDto.idu_usuario == application.user.idu_usuario || existingAssignment ) throw new ConflictException('Application is already assigned to this user');
 

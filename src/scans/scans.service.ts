@@ -37,7 +37,7 @@ export class ScansService {
     const scan = await this.scanRepository.findOneBy({ idu_escaneo:id });
 
     if( !scan )
-      throw new NotFoundException(`scan with ${id} not found `);
+      throw new NotFoundException(`Escaneo con ${id} no encontrado `);
 
     return scan; 
   }

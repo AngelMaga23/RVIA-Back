@@ -58,7 +58,7 @@ export class ApplicationstatusService {
     const status = await this.applicationStatusRepository.findOneBy({ idu_estatus_aplicacion: id });
 
     if (!status)
-      throw new NotFoundException(`status with ${id} not found `);
+      throw new NotFoundException(`Estatus con ${id} no encontrado `);
 
     status.des_estatus_aplicacion = this.encryptionService.decrypt(status.des_estatus_aplicacion);
     return status;
@@ -70,7 +70,7 @@ export class ApplicationstatusService {
       ...updateApplicationstatusDto
     });
 
-    if (!statu) throw new NotFoundException(`Position with ${id} not found `);
+    if (!statu) throw new NotFoundException(`Rol con ${id} no encontrado `);
 
     try {
 

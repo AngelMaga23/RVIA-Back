@@ -56,7 +56,7 @@ export class LanguagesService {
     const language = await this.languageRepository.findOneBy({ idu_lenguaje:id });
 
     if( !language )
-      throw new NotFoundException(`Language with ${id} not found `);
+      throw new NotFoundException(`Lenguaje con ${id} no encontrado `);
     language.nom_lenguaje = this.encryptionService.decrypt(language.nom_lenguaje);
     
     return language; 
@@ -68,7 +68,7 @@ export class LanguagesService {
       ...updateLanguageDto
     });
 
-    if( !language ) throw new NotFoundException(`Language with ${id} not found `);
+    if( !language ) throw new NotFoundException(`Lenguaje con ${id} no encontrado `);
 
     try {
 

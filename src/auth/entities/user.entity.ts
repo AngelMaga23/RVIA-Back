@@ -5,7 +5,7 @@ import { Application } from '../../applications/entities/application.entity';
 import { UsersApplication } from "src/users-applications/entities/users-application.entity";
 
 
-@Entity('cat_colaboladores')
+@Entity('cat_colaboradores')
 export class User {
 
     @PrimaryGeneratedColumn('identity')

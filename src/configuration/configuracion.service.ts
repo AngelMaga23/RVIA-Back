@@ -26,7 +26,7 @@ export class ConfiguracionService {
   get(key: string): string {
     const value = this.config.get(key);
     if (!value) {
-      this.logger.error(`Configuration key ${key} not found`);
+      this.logger.error(`Configuración key ${key} not found`);
       throw new Error(`Configuration key ${key} not found`);
     }
     return value;

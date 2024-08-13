@@ -60,7 +60,7 @@ export class AuthService {
   async findUserById(id: string) {
     const user = await this.userRepository.findOneBy({ idu_usuario:id });
     if( !user )
-      throw new NotFoundException(`User with ${id} not found `);
+      throw new NotFoundException(`Usuario con ${id} no encontrado `);
 
     user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
     user.nom_correo = this.encryptionService.decrypt(user.nom_correo);
@@ -143,7 +143,7 @@ export class AuthService {
 
     const userData = await this.userRepository.findOneBy({ idu_usuario:id });
     if( !userData )
-      throw new NotFoundException(`application with ${id} not found `);
+      throw new NotFoundException(`Aplicación con ${id} no encontrado `);
 
     const seguimientoDto: CreateSeguimientoDto = {
       nom_tabla: 'cat_colaboladores',
@@ -170,7 +170,7 @@ export class AuthService {
       const user = await this.userRepository.findOneBy({ idu_usuario:id });
      
       if( !user || user === null || user === undefined) 
-        throw new NotFoundException(`User with ${id} not found `);
+        throw new NotFoundException(`Usuario con ${id} no encontrado `);
       
       const usuario_anterior = {...user};
       if (updateUserDto.nom_contrasena) {
@@ -181,7 +181,7 @@ export class AuthService {
   
       if (updateUserDto.idu_rol) {
         const position = await this.positionService.findOne( updateUserDto.idu_rol );
-        if( !position ) throw new NotFoundException(`Position with ${updateUserDto.idu_rol} not found `);
+        if( !position ) throw new NotFoundException(`Rol con ${updateUserDto.idu_rol} no encontrado `);
         user.position = position;
       }
 

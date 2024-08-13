@@ -1,13 +1,13 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "../../auth/entities/user.entity";
 
-@Entity('puestos')
+@Entity('roles')
 export class Position {
     @PrimaryGeneratedColumn('identity')
-    idu_puesto: number;
+    idu_rol: number;
 
     @Column({type: 'varchar', length:255})
-    nom_puesto: string;
+    nom_rol: string;
 
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;

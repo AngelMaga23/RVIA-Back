@@ -5,7 +5,7 @@ import { Application } from '../../applications/entities/application.entity';
 import { UsersApplication } from "src/users-applications/entities/users-application.entity";
 
 
-@Entity('usuarios')
+@Entity('cat_colaboladores')
 export class User {
 
     @PrimaryGeneratedColumn('identity')
@@ -51,7 +51,7 @@ export class User {
         () => Position, position => position.user,
         { eager:true }
     )
-    @JoinColumn({ name: 'idu_puesto' })
+    @JoinColumn({ name: 'idu_rol' })
     position: Position
 
     @OneToMany(

@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity('estatus_aplicaciones')
+@Entity('tcl_estatusaplicaciones')
 export class Applicationstatus {
 
     @PrimaryGeneratedColumn('identity')

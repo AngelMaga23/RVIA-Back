@@ -33,7 +33,7 @@ export class AuthService {
     usuarios.map(usuario => {
       usuario.nom_correo = this.encryptionService.decrypt(usuario.nom_correo);
       usuario.nom_usuario = this.encryptionService.decrypt(usuario.nom_usuario);
-      usuario.position.nom_puesto = this.encryptionService.decrypt(usuario.position.nom_puesto);
+      usuario.position.nom_rol = this.encryptionService.decrypt(usuario.position.nom_rol);
       return usuarios;
     });
 
@@ -50,7 +50,7 @@ export class AuthService {
       nom_usuario: this.encryptionService.decrypt(usuario.nom_usuario),
       position: {
         ...usuario.position,
-        nom_puesto: this.encryptionService.decrypt(usuario.position.nom_puesto),
+        nom_rol: this.encryptionService.decrypt(usuario.position.nom_rol),
       }
     }));
 
@@ -64,7 +64,7 @@ export class AuthService {
 
     user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
     user.nom_correo = this.encryptionService.decrypt(user.nom_correo);
-    user.position.nom_puesto = this.encryptionService.decrypt(user.position.nom_puesto);
+    user.position.nom_rol = this.encryptionService.decrypt(user.position.nom_rol);
     
     return user;
   }
@@ -146,7 +146,7 @@ export class AuthService {
       throw new NotFoundException(`application with ${id} not found `);
 
     const seguimientoDto: CreateSeguimientoDto = {
-      nom_tabla: 'usuarios',
+      nom_tabla: 'cat_colaboladores',
       nom_accion: 'DELETE',
       idu_usuario: user.idu_usuario,
       identificador_registro: { idu_usuario: user.idu_usuario },

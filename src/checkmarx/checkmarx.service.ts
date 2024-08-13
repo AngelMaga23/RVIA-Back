@@ -9,6 +9,7 @@ import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
 import { CommonService } from 'src/common/common.service';
 import { Checkmarx } from './entities/checkmarx.entity';
+import { log } from 'console';
 
 @Injectable()
 export class CheckmarxService {
@@ -30,7 +31,7 @@ export class CheckmarxService {
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
       const nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
       const fileName = `checkmarx_${nom_aplicacion}.csv`;
-      const finalFilePath = join(this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio), fileName);
+      const finalFilePath = join(`/tmp/bito/${nom_aplicacion}`, fileName);
 
       await rename(`/tmp/bito/${file.filename}`, finalFilePath);
  
@@ -39,7 +40,7 @@ export class CheckmarxService {
       checkmarx.nom_directorio = this.encryptionService.encrypt(finalFilePath);
       checkmarx.application = aplicacion;
 
-      await this.checkmarxRepository.save(checkmarx);
+      await this.checkmarxRepository.save(checkmarx); 
 
       checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
       checkmarx.nom_directorio = this.encryptionService.decrypt(checkmarx.nom_directorio);

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,7 +33,6 @@ export class CheckmarxService {
       const finalFilePath = join(this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio), fileName);
 
       await rename(`/tmp/bito/${file.filename}`, finalFilePath);
-      // renameSync("/tmp/bito/"+file.filename, finalFilePath);
  
       const checkmarx = new Checkmarx();
       checkmarx.nom_checkmarx = this.encryptionService.encrypt(fileName);
@@ -53,14 +52,25 @@ export class CheckmarxService {
 
   }
 
-  
-
   findAll() {
     return `This action returns all checkmarx`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} checkmarx`;
+  async findOneByApplication(id: number) {
+
+    const aplicacion = await this.applicationService.findOne(id);
+
+    const checkmarx = await this.checkmarxRepository.findOneBy({ application: aplicacion });
+
+    // if(!checkmarx)
+    //   throw new NotFoundException(`Csv no encontrado `);
+    if(checkmarx){
+      checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
+      checkmarx.nom_directorio = this.encryptionService.decrypt(checkmarx.nom_directorio);
+    }
+
+
+    return !checkmarx ? [] : checkmarx;
   }
 
   update(id: number, updateCheckmarxDto: UpdateCheckmarxDto) {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -140,10 +140,13 @@ export class AuthService {
   }
 
   async delete( id: string, user: User ){
+    
+    if( `${user.idu_usuario}` === id)
+      throw new ForbiddenException(`Cannot delete self. ${id}`);
 
     const userData = await this.userRepository.findOneBy({ idu_usuario:id });
     if( !userData )
-      throw new NotFoundException(`application with ${id} not found `);
+      throw new NotFoundException(`User with ${id} not found `);
 
     const seguimientoDto: CreateSeguimientoDto = {
       nom_tabla: 'cat_colaboladores',

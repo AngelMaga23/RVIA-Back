@@ -45,7 +45,7 @@ export class ApplicationsService {
 
     try {
       
-      const aplicaciones = user.position?.nom_puesto === ValidRoles.admin
+      const aplicaciones = user.position?.nom_rol === ValidRoles.admin
       ? await this.applicationRepository.find()
       : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
 

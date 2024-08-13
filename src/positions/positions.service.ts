@@ -22,7 +22,7 @@ export class PositionsService {
     
      try {
         
-        createPositionDto.nom_puesto = this.encryptionService.encrypt(createPositionDto.nom_puesto);
+        createPositionDto.nom_rol = this.encryptionService.encrypt(createPositionDto.nom_rol);
         const position = this.positionRepository.create(createPositionDto);
         await this.positionRepository.save(position);
 
@@ -41,7 +41,7 @@ export class PositionsService {
       const puestos = await this.positionRepository.find();
 
       const decryptedStatuses = puestos.map(puesto => {
-        puesto.nom_puesto = this.encryptionService.decrypt(puesto.nom_puesto);
+        puesto.nom_rol = this.encryptionService.decrypt(puesto.nom_rol);
         return puestos;
       });
   
@@ -55,25 +55,25 @@ export class PositionsService {
 
   async findOne(id: number) {
 
-    const position = await this.positionRepository.findOneBy({ idu_puesto:id });
+    const position = await this.positionRepository.findOneBy({ idu_rol:id });
 
     if( !position )
       throw new NotFoundException(`Position with ${id} not found `);
-    position.nom_puesto = this.encryptionService.decrypt(position.nom_puesto);
+    position.nom_rol = this.encryptionService.decrypt(position.nom_rol);
     return position; 
   }
 
   async update(id: number, updatePositionDto: UpdatePositionDto) {
 
     const position = await this.positionRepository.preload({
-      idu_puesto: id,
+      idu_rol: id,
       ...updatePositionDto
     });
 
     if( !position ) throw new NotFoundException(`Position with ${id} not found `);
 
     try {
-      position.nom_puesto = this.encryptionService.encrypt(position.nom_puesto);
+      position.nom_rol = this.encryptionService.encrypt(position.nom_rol);
       await this.positionRepository.save( position );
       return position;
 

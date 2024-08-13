@@ -14,6 +14,7 @@ import { RviaModule } from './rvia/rvia.module';
 import { SeguimientoModule } from './seguimiento/seguimiento.module';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { LanguagesModule } from './languages/languages.module';
+import { CheckmarxModule } from './checkmarx/checkmarx.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { LanguagesModule } from './languages/languages.module';
     RviaModule,
     SeguimientoModule,
     // ConfigurationModule,
-    LanguagesModule
+    LanguagesModule,
+    CheckmarxModule
     
   ],
   controllers: [],

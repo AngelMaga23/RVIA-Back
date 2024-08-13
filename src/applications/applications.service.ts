@@ -65,6 +65,15 @@ export class ApplicationsService {
 
   }
 
+  async findOne(id: number) {
+    const aplicacion = await this.applicationRepository.findOneBy({ idu_aplicacion:id });
+
+    if( !aplicacion )
+      throw new NotFoundException(`Aplicación con ${id} no encontrado `);
+
+    return aplicacion; 
+  }
+
   async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file?) {
     try {
       const repoInfo = this.parseGitHubURL(createApplicationDto.url);

@@ -52,8 +52,9 @@ export class CheckmarxController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.checkmarxService.findOne(+id);
+  @Auth()
+  findOne(@Param('id') id: number) {
+    return this.checkmarxService.findOneByApplication(id);
   }
 
   @Patch(':id')

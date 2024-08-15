@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Res, StreamableFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
@@ -10,7 +10,7 @@ import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
 import { fileFilter, fileNamer } from './helper';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
-
+import { Response } from 'express';
 
 
 @Controller('checkmarx')
@@ -57,9 +57,9 @@ export class CheckmarxController {
     return this.checkmarxService.findOneByApplication(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCheckmarxDto: UpdateCheckmarxDto) {
-    return this.checkmarxService.update(+id, updateCheckmarxDto);
+  @Get('download/:id')
+  downloadCsv(@Param('id') id: number, @Res() res: Response) {
+    return this.checkmarxService.downloadCsvFile(id,res);
   }
 
   @Delete(':id')

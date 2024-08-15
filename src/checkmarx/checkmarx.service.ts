@@ -1,15 +1,19 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { rename } from 'fs/promises';
+import { promises as fsPromises } from 'fs';
 
 import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
 import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
-import { ApplicationsService } from 'src/applications/applications.service';
+import { ApplicationsService } from '../applications/applications.service';
 import { CommonService } from 'src/common/common.service';
 import { Checkmarx } from './entities/checkmarx.entity';
 import { log } from 'console';
+import { promisify } from 'util';
+import { exec } from 'child_process';
+import { Application } from 'src/applications/entities/application.entity';
 
 @Injectable()
 export class CheckmarxService {
@@ -19,6 +23,7 @@ export class CheckmarxService {
 
     @InjectRepository(Checkmarx)
     private readonly checkmarxRepository: Repository<Checkmarx>,
+    @Inject(forwardRef(() => ApplicationsService)) // Usamos forwardRef aquí
     private readonly applicationService: ApplicationsService,
     private readonly encryptionService: CommonService,
 
@@ -82,5 +87,46 @@ export class CheckmarxService {
     return `This action removes a #${id} checkmarx`;
   }
 
+  async callPython(nameApplication:string, namePdf:string, application: Application){
+
+    const scriptPath = join(__dirname, '../..', 'src/python-scripts','recovery.py');
+    const requirementsPath = join(__dirname, '../..', 'src/python-scripts', 'requirements.txt');
+
+    const execPromise = promisify(exec);
+    const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+    const fileName = `checkmarx_${nom_aplicacion}.csv`;
+    const finalFilePath = join(`/tmp/bito/${nom_aplicacion}`, fileName);
+
+    try {
+      await fsPromises.access(scriptPath, fsPromises.constants.F_OK | fsPromises.constants.R_OK);
+
+      // await execPromise(`sudo pip3 install -r ${requirementsPath}`);
+
+      const escapedFileName1 = `"${nom_aplicacion.replace(/"/g, '\\"')}"`;
+      const escapedFileName2 = `"${namePdf.replace(/"/g, '\\"')}"`;
+  
+      const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2}`;
+  
+      const { stdout, stderr } = await execPromise(command);
+      console.log(stdout)
+      console.log(stderr)
+      console.log(command)
+  
+      if (stderr) {
+        return { message: 'Error al ejecutar el script.', error: stderr };
+      }
+
+      const checkmarx = new Checkmarx();
+      checkmarx.nom_checkmarx = this.encryptionService.encrypt(fileName);
+      checkmarx.nom_directorio = this.encryptionService.encrypt(finalFilePath);
+      checkmarx.application = application;
+
+      await this.checkmarxRepository.save(checkmarx); 
+  
+      return { message: 'Script ejecutado con éxito.', output: stdout };
+    } catch (error) {
+      return { message: 'Error al ejecutar el comando.', error: error.message };
+    }
+  }
 
 }

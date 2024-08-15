@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
 import { Repository } from 'typeorm';
@@ -21,7 +21,7 @@ import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';  
-
+import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 
 @Injectable()
 export class ApplicationsService {
@@ -38,6 +38,8 @@ export class ApplicationsService {
     private readonly encryptionService: CommonService,
     @InjectRepository(Scan)
     private scanRepository: Repository<Scan>,
+    @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
+    private readonly checkmarxService: CheckmarxService,
   ) {
   }
 
@@ -175,6 +177,17 @@ export class ApplicationsService {
       application.user = user;
 
       await this.applicationRepository.save(application);
+
+      if (file) {
+        const scan = new Scan();
+        scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
+        scan.nom_directorio = this.encryptionService.encrypt(file.destination);
+        scan.application = application;
+        await this.scanRepository.save(scan);
+        
+        await this.checkmarxService.callPython( application.nom_aplicacion, file.filename, application );
+      }
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
       return application;
     } catch (error) {
@@ -256,6 +269,9 @@ export class ApplicationsService {
         scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
         scan.application = application;
         await this.scanRepository.save(scan);
+        
+        await this.checkmarxService.callPython( application.nom_aplicacion, pdfFile.filename, application );
+
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -330,4 +346,15 @@ export class ApplicationsService {
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 
+  // async test() {
+
+  //   // const directoryPath = join(this.downloadPath);
+  //   const fileName1 = "Project-Sample";
+  //   // const fileName2 = "0d56048c-908b-43a3-912d-a8a4a1109d4a.dsfdsfds.pdf";
+  //   const fileName2 = "0d56048c-908b-43a3-912d-a8a4a1109d4a.dsfdsfds.pdf";
+
+
+  //   return await this.callPython(fileName1, fileName2);
+
+  // }
 }

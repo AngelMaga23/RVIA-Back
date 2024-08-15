@@ -1,19 +1,21 @@
-import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { rename } from 'fs/promises';
-import { promises as fsPromises } from 'fs';
+import { createReadStream, existsSync, promises as fsPromises } from 'fs';
+import { promisify } from 'util';
+import { exec } from 'child_process';
+
 
 import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
 import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
 import { ApplicationsService } from '../applications/applications.service';
 import { CommonService } from 'src/common/common.service';
 import { Checkmarx } from './entities/checkmarx.entity';
-import { log } from 'console';
-import { promisify } from 'util';
-import { exec } from 'child_process';
+
 import { Application } from 'src/applications/entities/application.entity';
+
 
 @Injectable()
 export class CheckmarxService {
@@ -38,7 +40,7 @@ export class CheckmarxService {
       const fileName = `checkmarx_${nom_aplicacion}.csv`;
       const finalFilePath = join(`/tmp/bito/${nom_aplicacion}`, fileName);
 
-      await rename(`/tmp/bito/${file.filename}`, finalFilePath);
+      await rename(`/tmp/bito/${file.filename}`, finalFilePath);  
  
       const checkmarx = new Checkmarx();
       checkmarx.nom_checkmarx = this.encryptionService.encrypt(fileName);
@@ -79,8 +81,34 @@ export class CheckmarxService {
     return !checkmarx ? [] : checkmarx;
   }
 
-  update(id: number, updateCheckmarxDto: UpdateCheckmarxDto) {
-    return `This action updates a #${id} checkmarx`;
+  async downloadCsvFile(id: number, response): Promise<void> {
+
+    const checkmarx = await this.checkmarxRepository.findOneBy({ idu_checkmarx:id });
+
+    if (!checkmarx) {
+      throw new NotFoundException('Archivo no encontrado');
+    }
+    
+    checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
+    checkmarx.nom_directorio = this.encryptionService.decrypt(checkmarx.nom_directorio);
+
+    const filePath = join(checkmarx.nom_directorio);
+
+    if (!existsSync(filePath)) {
+      throw new NotFoundException('El archivo no existe en el servidor');
+    }
+
+    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader('Content-Disposition', `attachment; filename="${checkmarx.nom_checkmarx}"`);
+
+    const fileStream = createReadStream(filePath);
+
+    fileStream.on('error', (error) => {
+      console.error('Error al leer el archivo:', error);
+      response.status(500).send('Error al leer el archivo');
+    });
+
+    fileStream.pipe(response);
   }
 
   remove(id: number) {

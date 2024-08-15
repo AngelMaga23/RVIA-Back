@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CheckmarxService } from './checkmarx.service';
@@ -9,8 +9,17 @@ import { CommonModule } from 'src/common/common.module';
 import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports:[ TypeOrmModule.forFeature([ Checkmarx ]), ApplicationsModule, CommonModule,AuthModule ],
   controllers: [CheckmarxController],
   providers: [CheckmarxService],
+  imports:[ 
+    TypeOrmModule.forFeature([ Checkmarx ]),
+    forwardRef(() => ApplicationsModule),
+    CommonModule,
+    AuthModule 
+  ],
+  exports:[ 
+    CheckmarxService, 
+    TypeOrmModule 
+  ]
 })
 export class CheckmarxModule {}

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 
@@ -11,6 +11,7 @@ import { SourcecodeModule } from '../sourcecode/sourcecode.module';
 import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
 import { ScansModule } from 'src/scans/scans.module';
+import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -22,7 +23,8 @@ import { ScansModule } from 'src/scans/scans.module';
     HttpModule,
     AuthModule,
     CommonModule,
-    ScansModule
+    ScansModule,
+    forwardRef(() => CheckmarxModule),
   ],
   exports:[ ApplicationsService,TypeOrmModule ]
 })

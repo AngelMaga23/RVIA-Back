@@ -65,6 +65,10 @@ export class CheckmarxService {
     try {
 
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
+
+      if(aplicacion.num_accion != 2)
+        throw new NotFoundException(` La aplicación debe tener la acción de Sanitización `);
+
       
       const res = await this.callPython( aplicacion.nom_aplicacion, file.filename, aplicacion );
  

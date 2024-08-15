@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createReadStream, createWriteStream, existsSync, unlinkSync } from 'fs';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, unlinkSync } from 'fs';
 import { catchError, lastValueFrom } from 'rxjs';
 import { join } from 'path';
 import * as unzipper from 'unzipper';
@@ -82,7 +82,7 @@ export class ApplicationsService {
       if (!repoInfo) {
         throw new BadRequestException('Invalid GitHub repository URL');
       }
-
+   
       return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitHub');
       
     } catch (error) {
@@ -115,7 +115,7 @@ export class ApplicationsService {
 
     const branches = ['main', 'master'];
     let zipUrl: string | null = null;
-
+ 
     for (const branch of branches) {
       const potentialUrl = platform === 'GitHub' 
         ? `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/${branch}.zip`
@@ -131,6 +131,8 @@ export class ApplicationsService {
     }
 
     if (!zipUrl) {
+      await fsExtra.remove(tempFolderPath);
+      await fsExtra.remove(file.path);
       throw new InternalServerErrorException('No se encontró ninguna rama válida (main o master)');
     }
 
@@ -138,6 +140,7 @@ export class ApplicationsService {
       this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
         catchError(() => {
           fsExtra.remove(tempFolderPath);
+       
           throw new InternalServerErrorException('Error al descargar el repositorio');
         }),
       ),
@@ -233,15 +236,19 @@ export class ApplicationsService {
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
     try {
+
       const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
 
+      const newFolderPath = join(zipFile.destination, nameApplication);
+      mkdirSync(newFolderPath, { recursive: true });
+
       const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
         ? new Promise<void>((resolve, reject) => {
-          seven.unpack(zipFile.path, zipFile.destination, err => (err ? reject(err) : resolve()));
+          seven.unpack(zipFile.path, newFolderPath, err => (err ? reject(err) : resolve()));
         })
-        : createReadStream(zipFile.path).pipe(unzipper.Extract({ path: zipFile.destination })).promise();
+        : createReadStream(zipFile.path).pipe(unzipper.Extract({ path: newFolderPath })).promise();
 
       await unzipPromise;
 
@@ -250,7 +257,7 @@ export class ApplicationsService {
 
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
-        nom_directorio: this.encryptionService.encrypt(zipFile.destination),
+        nom_directorio: this.encryptionService.encrypt(newFolderPath),
       });
 
       const application = new Application();
@@ -276,9 +283,20 @@ export class ApplicationsService {
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
       return application;
+
     } catch (error) {
-      if (zipFile && zipFile.destination) {
-        await fsExtra.remove(zipFile.destination);
+
+      if (pdfFile){
+        await fsExtra.remove(pdfFile.path);
+      }
+
+      if (zipFile && zipFile.path) {
+        const nameApplication = zipFile.originalname.split('.')[0];
+        const newFolderPath = join(zipFile.destination, nameApplication);
+
+        await fsExtra.remove(zipFile.path);
+        await fsExtra.remove(newFolderPath);
+       
       }
       this.handleDBExceptions(error);
     }

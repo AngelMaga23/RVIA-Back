@@ -235,31 +235,47 @@ export class ApplicationsService {
   }
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
+    const nameApplication = zipFile.originalname.split('.')[0];
+    const uniqueTempFolderName = `temp-${uuid()}`;
+    const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
+    const tempZipPath = join(tempFolderPath, zipFile.filename);
+    const repoFolderPath = join(zipFile.destination, nameApplication);
+  
     try {
-
-      const nameApplication = zipFile.originalname.split('.')[0];
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
+  
+      await fsExtra.ensureDir(tempFolderPath);
+      await fsExtra.move(zipFile.path, tempZipPath);
+  
+      try {
+        // Descomprimir el archivo .zip
+        await unzipper.Open.file(tempZipPath)
+          .then(async (directory) => {
+            // Limpiar el directorio de destino antes de descomprimir
+            await fsExtra.remove(repoFolderPath);
+            await fsExtra.ensureDir(repoFolderPath);
+            
+            // Extraer el archivo
+            await directory.extract({ path: repoFolderPath });
+          })
+          .then(async () => {
+            await fsExtra.remove(tempZipPath);
+          });
+      } catch (error) {
+        throw new InternalServerErrorException(`Error al descomprimir el archivo .zip: ${error.message}`);
+      }
 
-      const newFolderPath = join(zipFile.destination, nameApplication);
-      mkdirSync(newFolderPath, { recursive: true });
-
-      const unzipPromise = zipFile.mimetype.includes('x-7z-compressed')
-        ? new Promise<void>((resolve, reject) => {
-          seven.unpack(zipFile.path, newFolderPath, err => (err ? reject(err) : resolve()));
-        })
-        : createReadStream(zipFile.path).pipe(unzipper.Extract({ path: newFolderPath })).promise();
-
-      await unzipPromise;
-
-      const pathDelete = join(zipFile.destination, zipFile.filename);
-      unlinkSync(pathDelete);
-
+      await fsExtra.remove(tempZipPath);
+      await fsExtra.remove(tempFolderPath);
+  
+      // Crear el registro de código fuente
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
-        nom_directorio: this.encryptionService.encrypt(newFolderPath),
+        nom_directorio: this.encryptionService.encrypt(repoFolderPath),
       });
-
+  
+      // Crear el registro de la aplicación
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
       application.num_accion = createFileDto.num_accion;
@@ -267,40 +283,40 @@ export class ApplicationsService {
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
-
+  
       await this.applicationRepository.save(application);
-
+  
+      // Procesar el archivo PDF (si existe)
       if (pdfFile) {
         const scan = new Scan();
         scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
         scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
         scan.application = application;
         await this.scanRepository.save(scan);
-        
-        await this.checkmarxService.callPython( application.nom_aplicacion, pdfFile.filename, application );
-
+  
+        await this.checkmarxService.callPython(application.nom_aplicacion, pdfFile.filename, application);
       }
-
+  
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
       return application;
-
+  
     } catch (error) {
-
-      if (pdfFile){
+      console.error('Error al procesar el archivo .zip:', error);
+      if (pdfFile) {
         await fsExtra.remove(pdfFile.path);
       }
-
+  
       if (zipFile && zipFile.path) {
-        const nameApplication = zipFile.originalname.split('.')[0];
-        const newFolderPath = join(zipFile.destination, nameApplication);
-
-        await fsExtra.remove(zipFile.path);
-        await fsExtra.remove(newFolderPath);
-       
+        await fsExtra.remove(tempZipPath);
+        await fsExtra.remove(tempFolderPath);
       }
       this.handleDBExceptions(error);
+      throw error; // Re-lanzar el error para que se propague
     }
   }
+  
+  
+  
 
   async update(id: number, estatusId: number) {
     try {

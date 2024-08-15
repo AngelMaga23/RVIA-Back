@@ -11,6 +11,7 @@ import { fileFilter, fileNamer } from './helper';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { Response } from 'express';
+import { fileFilterPDF } from './helper/fileFilterpdf';
 
 
 @Controller('checkmarx')
@@ -44,6 +45,28 @@ export class CheckmarxController {
     }
 
     return this.checkmarxService.create(createCheckmarxDto, file);
+  }
+
+  @Post('recoverypdf')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  @UseInterceptors(FileInterceptor('file', {
+    fileFilter: fileFilterPDF,
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const dir = `/tmp/bito`;
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: fileNamer
+    })
+  }))
+  async uploadPDF(@Body() createCheckmarxDto: CreateCheckmarxDto, @UploadedFile() file: Express.Multer.File) {
+
+    if ( !file ) {
+      throw new BadRequestException('Debes cargar un archivo Csv');
+    }
+
+    return this.checkmarxService.convertPDF(createCheckmarxDto, file);
   }
   
   @Get()

@@ -60,6 +60,22 @@ export class CheckmarxService {
 
   }
 
+  async convertPDF(createCheckmarxDto: CreateCheckmarxDto, file) {
+
+    try {
+
+      const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
+      
+      const res = await this.callPython( aplicacion.nom_aplicacion, file.filename, aplicacion );
+ 
+
+      return res;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al subir csv', error.message);
+    }
+
+  }
+
   findAll() {
     return `This action returns all checkmarx`;
   }
@@ -136,9 +152,6 @@ export class CheckmarxService {
       const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2}`;
   
       const { stdout, stderr } = await execPromise(command);
-      console.log(stdout)
-      console.log(stderr)
-      console.log(command)
   
       if (stderr) {
         return { message: 'Error al ejecutar el script.', error: stderr };
@@ -149,9 +162,11 @@ export class CheckmarxService {
       checkmarx.nom_directorio = this.encryptionService.encrypt(finalFilePath);
       checkmarx.application = application;
 
-      await this.checkmarxRepository.save(checkmarx); 
+      await this.checkmarxRepository.save(checkmarx);
+
+      checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
   
-      return { message: 'Script ejecutado con éxito.', output: stdout };
+      return checkmarx;
     } catch (error) {
       return { message: 'Error al ejecutar el comando.', error: error.message };
     }

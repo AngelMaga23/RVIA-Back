@@ -249,7 +249,7 @@ export class ApplicationsService {
       await fsExtra.move(zipFile.path, tempZipPath);
   
       try {
-        if (zipFile.mimetype === 'application/zip') {
+        if (zipFile.mimetype === 'application/zip' || zipFile.mimetype === 'application/x-zip-compressed') {
           // Descomprimir archivo .zip
           await unzipper.Open.file(tempZipPath)
             .then(async (directory) => {

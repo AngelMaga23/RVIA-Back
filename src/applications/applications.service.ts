@@ -27,7 +27,7 @@ import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
-  private downloadPath = '/tmp/bito';
+  private downloadPath = '/sysx/bito/projects';
 
   constructor(
     @InjectRepository(Application)

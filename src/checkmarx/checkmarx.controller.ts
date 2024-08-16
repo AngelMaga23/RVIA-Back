@@ -31,7 +31,7 @@ export class CheckmarxController {
     },
     storage: diskStorage({
       destination: (req, file, cb) => {
-        const dir = `/tmp/bito`;
+        const dir = `/sysx/bito/projects`;
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
@@ -53,7 +53,7 @@ export class CheckmarxController {
     fileFilter: fileFilterPDF,
     storage: diskStorage({
       destination: (req, file, cb) => {
-        const dir = `/tmp/bito`;
+        const dir = `/sysx/bito/projects`;
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },

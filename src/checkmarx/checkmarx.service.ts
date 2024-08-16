@@ -38,9 +38,9 @@ export class CheckmarxService {
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
       const nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
       const fileName = `checkmarx_${nom_aplicacion}.csv`;
-      const finalFilePath = join(`/tmp/bito/${nom_aplicacion}`, fileName);
+      const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
 
-      await rename(`/tmp/bito/${file.filename}`, finalFilePath);  
+      await rename(`/sysx/bito/projects/${file.filename}`, finalFilePath);  
  
       const checkmarx = new Checkmarx();
       checkmarx.nom_checkmarx = this.encryptionService.encrypt(fileName);
@@ -142,7 +142,7 @@ export class CheckmarxService {
     const execPromise = promisify(exec);
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
     const fileName = `checkmarx_${nom_aplicacion}.csv`;
-    const finalFilePath = join(`/tmp/bito/${nom_aplicacion}`, fileName);
+    const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
 
     try {
       await fsPromises.access(scriptPath, fsPromises.constants.F_OK | fsPromises.constants.R_OK);

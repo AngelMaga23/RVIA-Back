@@ -29,7 +29,7 @@ export class ApplicationsController {
     storage: diskStorage({
       destination: (req, file, cb) => {
 
-        const dir = `/tmp/bito`;
+        const dir = `/sysx/bito/projects`;
 
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
@@ -49,7 +49,7 @@ export class ApplicationsController {
     storage: diskStorage({
       destination: (req, file, cb) => {
 
-        const dir = `/tmp/bito`;
+        const dir = `/sysx/bito/projects`;
 
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
@@ -69,7 +69,7 @@ export class ApplicationsController {
     storage: diskStorage({
       destination: (req, file, cb) => {
 
-        const dir = `/tmp/bito`;
+        const dir = `/sysx/bito/projects`;
 
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);

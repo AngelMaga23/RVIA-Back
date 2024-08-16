@@ -158,7 +158,7 @@ export class CheckmarxService {
       const { stdout, stderr } = await execPromise(command);
   
       if (stderr) {
-        return { message: 'Error al ejecutar el script.', error: stderr };
+        throw new InternalServerErrorException('Error al ejecutar el script');
       }
 
       const checkmarx = new Checkmarx();
@@ -172,7 +172,8 @@ export class CheckmarxService {
   
       return checkmarx;
     } catch (error) {
-      return { message: 'Error al ejecutar el comando.', error: error.message };
+      // return { message: 'Error al ejecutar el comando.', error: error.message };
+      throw new InternalServerErrorException('Error al ejecutar el script');
     }
   }
 

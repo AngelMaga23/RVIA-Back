@@ -235,7 +235,7 @@ export class ApplicationsService {
   }
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
-    const nameApplication = zipFile.originalname.split('.')[0];
+    const nameApplication = zipFile.originalname.split('.')[0].replace(/\s+/g, '-');
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
@@ -300,6 +300,7 @@ export class ApplicationsService {
   
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
+
         const scan = new Scan();
         scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
         scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);

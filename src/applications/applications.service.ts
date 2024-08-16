@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnsupportedMediaTypeException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import * as archiver from 'archiver';
 import { Repository } from 'typeorm';
@@ -249,23 +249,35 @@ export class ApplicationsService {
       await fsExtra.move(zipFile.path, tempZipPath);
   
       try {
-        // Descomprimir el archivo .zip
-        await unzipper.Open.file(tempZipPath)
-          .then(async (directory) => {
-            // Limpiar el directorio de destino antes de descomprimir
-            await fsExtra.remove(repoFolderPath);
-            await fsExtra.ensureDir(repoFolderPath);
-            
-            // Extraer el archivo
-            await directory.extract({ path: repoFolderPath });
-          })
-          .then(async () => {
-            await fsExtra.remove(tempZipPath);
+        if (zipFile.mimetype === 'application/zip') {
+          // Descomprimir archivo .zip
+          await unzipper.Open.file(tempZipPath)
+            .then(async (directory) => {
+              await fsExtra.remove(repoFolderPath);
+              await fsExtra.ensureDir(repoFolderPath);
+  
+              await directory.extract({ path: repoFolderPath });
+            })
+            .then(async () => {
+              await fsExtra.remove(tempZipPath);
+            });
+        } else if (zipFile.mimetype === 'application/x-7z-compressed') {
+          // Descomprimir archivo .7z
+          await new Promise<void>((resolve, reject) => {
+            seven.unpack(tempZipPath, repoFolderPath, (err) => {
+              if (err) {
+                return reject(new InternalServerErrorException(`Error al descomprimir el archivo .7z: ${err.message}`));
+              }
+              resolve(); // Aquí pasa el tipo adecuado de `resolve`.
+            });
           });
+        } else {
+          throw new UnsupportedMediaTypeException('Formato de archivo no soportado');
+        }
       } catch (error) {
-        throw new InternalServerErrorException(`Error al descomprimir el archivo .zip: ${error.message}`);
+        throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }
-
+  
       await fsExtra.remove(tempZipPath);
       await fsExtra.remove(tempFolderPath);
   
@@ -301,7 +313,7 @@ export class ApplicationsService {
       return application;
   
     } catch (error) {
-      console.error('Error al procesar el archivo .zip:', error);
+      console.error('Error al procesar el archivo:', error);
       if (pdfFile) {
         await fsExtra.remove(pdfFile.path);
       }

@@ -138,7 +138,6 @@ export class CheckmarxService {
   async callPython(nameApplication:string, namePdf:string, application: Application){
 
     const scriptPath = join(__dirname, '../..', 'src/python-scripts','recovery.py');
-    const requirementsPath = join(__dirname, '../..', 'src/python-scripts', 'requirements.txt');
 
     const execPromise = promisify(exec);
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -147,8 +146,6 @@ export class CheckmarxService {
 
     try {
       await fsPromises.access(scriptPath, fsPromises.constants.F_OK | fsPromises.constants.R_OK);
-
-      // await execPromise(`sudo pip3 install -r ${requirementsPath}`);
 
       const escapedFileName1 = `"${nom_aplicacion.replace(/"/g, '\\"')}"`;
       const escapedFileName2 = `"${namePdf.replace(/"/g, '\\"')}"`;

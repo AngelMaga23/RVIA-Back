@@ -1,7 +1,7 @@
 import { Application } from "src/applications/entities/application.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('checkmarx')
+@Entity('tbl_checkmarx')
 export class Checkmarx {
 
     @PrimaryGeneratedColumn('identity')

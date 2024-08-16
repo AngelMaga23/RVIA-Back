@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity('escaneos')
+@Entity('tbl_escaneos')
 export class Scan {
     @PrimaryGeneratedColumn('identity')
     idu_escaneo: number;

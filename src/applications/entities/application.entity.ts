@@ -7,7 +7,7 @@ import { UsersApplication } from "src/users-applications/entities/users-applicat
 import { IsNumber } from "class-validator";
 import { Type } from "class-transformer";
 
-@Entity('aplicaciones')
+@Entity('tbl_aplicaciones')
 export class Application {
 
     @PrimaryGeneratedColumn('identity')

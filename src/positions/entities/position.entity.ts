@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "../../auth/entities/user.entity";
 
-@Entity('roles')
+@Entity('tbl_roles')
 export class Position {
     @PrimaryGeneratedColumn('identity')
     idu_rol: number;

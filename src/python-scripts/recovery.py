@@ -150,7 +150,7 @@ def main():
     nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
     nombre_pdf = sys.argv[2]
     
-    ruta = '/tmp/bito'
+    ruta = '/sysx/bito/projects'
     pdf_path = obtener_ultimo_pdf(ruta,nombre_pdf)
 
     

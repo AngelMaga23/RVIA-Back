@@ -118,7 +118,7 @@ export class CheckmarxService {
       throw new NotFoundException('El archivo no existe en el servidor');
     }
 
-    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader('Content-Type', 'text/csv');
     response.setHeader('Content-Disposition', `attachment; filename="${checkmarx.nom_checkmarx}"`);
 
     const fileStream = createReadStream(filePath);

@@ -153,9 +153,6 @@ export class CheckmarxService {
       const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2}`;
   
       const { stdout, stderr } = await execPromise(command);
-      console.log("stdout ",stdout)
-      console.log("stderr ",stderr)
-      console.log("command ",command)
 
       if (stderr) {
         return { message: 'Error al ejecutar el script.', error: stderr, isValid:false };

@@ -111,6 +111,9 @@ export class ApplicationsService {
     const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
     const repoFolderPath = join(this.downloadPath, repoName);
 
+    const isSanitizacion = numAccion == 2 ? true:false;
+    let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+
     await fsExtra.ensureDir(tempFolderPath);
 
     const branches = ['main', 'master'];
@@ -187,12 +190,19 @@ export class ApplicationsService {
         scan.nom_directorio = this.encryptionService.encrypt(file.destination);
         scan.application = application;
         await this.scanRepository.save(scan);
-        
-        await this.checkmarxService.callPython( application.nom_aplicacion, file.filename, application );
+ 
+        if(isSanitizacion){
+          dataCheckmarx = await this.checkmarxService.callPython( application.nom_aplicacion, file.filename, application );
+        }
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-      return application;
+      return {
+        application,
+        checkmarx: isSanitizacion ? dataCheckmarx.checkmarx : [],
+        esSanitizacion: isSanitizacion,
+      };
+
     } catch (error) {
       throw new InternalServerErrorException('Error al procesar el repositorio');
     } finally {
@@ -312,7 +322,6 @@ export class ApplicationsService {
         await this.scanRepository.save(scan);
         if(isSanitizacion){
           dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFile.filename, application);
-          console.log(dataCheckmarx)
         }
       }
   

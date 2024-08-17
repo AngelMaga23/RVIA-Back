@@ -240,9 +240,13 @@ export class ApplicationsService {
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
     const repoFolderPath = join(zipFile.destination, nameApplication);
-  
+    const isSanitizacion = createFileDto.num_accion == 2 ? true:false;
+    let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+
     try {
       const estatu = await this.estatusService.findOne(2);
+      
+
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
   
       await fsExtra.ensureDir(tempFolderPath);
@@ -306,12 +310,19 @@ export class ApplicationsService {
         scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
         scan.application = application;
         await this.scanRepository.save(scan);
-  
-        await this.checkmarxService.callPython(application.nom_aplicacion, pdfFile.filename, application);
+        if(isSanitizacion){
+          dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFile.filename, application);
+          console.log(dataCheckmarx)
+        }
       }
   
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-      return application;
+      
+      return {
+        application,
+        checkmarx: isSanitizacion ? dataCheckmarx.checkmarx : [],
+        esSanitizacion: isSanitizacion,
+      };
   
     } catch (error) {
       console.error('Error al procesar el archivo:', error);

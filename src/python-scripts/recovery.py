@@ -23,12 +23,12 @@ def extraer_texto_de_pdf(ruta_pdf):
             for pagina in range(numero_de_paginas):
                 pagina_objeto = lector_pdf.pages[pagina]
                 texto_pagina = pagina_objeto.extract_text() if pagina_objeto.extract_text() else ""
-                texto_pagina = texto_pagina.replace("'", '"') # Cambiar todas las comillas simples a dobles
+                texto_pagina = texto_pagina.replace("'", '"')  # Cambiar todas las comillas simples a dobles
                 texto_completo += texto_pagina
             
             return texto_completo
     except Exception as e:
-        return f"Error al extraer texto: {e}"
+        raise RuntimeError(f"Error al extraer texto: {e}")
 
 def split_by_frags(txt):
     frags = []
@@ -47,7 +47,8 @@ def split_by_frags(txt):
 
 def get_info_frags(frags):
     info_all_frags = []
-    
+    valid_fragments = True  # Variable para verificar la validez de los fragmentos
+
     for frag in frags:
         info_frag = {}
         
@@ -80,10 +81,14 @@ def get_info_frags(frags):
             elif RGX_OBJECT.match(line):
                 info_frag['Object'] = RGX_OBJECT.match(line).group(1).split()[0]
             
+        # Verificación de validaciones esenciales
+        if not info_frag.get('Type') or not info_frag.get('Severity') or not info_frag.get('Description'):
+            valid_fragments = False
+        
         if info_frag:
             info_all_frags.append(info_frag)
-    
-    return info_all_frags
+
+    return info_all_frags, valid_fragments
 
 def clean_info(info):
     for frag in info:
@@ -96,16 +101,36 @@ def clean_info(info):
         frag['Type'] = tmp[0]
     return info
 
-def save_to_csv(info, file_name):
+def save_to_csv(info, base_path, file_name):
     if not info:
-        print("No data to save.")
-        return
+        raise ValueError("No hay datos para guardar.")
+
+    # Extraer el nombre de la carpeta desde el nombre del archivo CSV
+    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
+
+    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    folder_path = os.path.join(base_path, folder_name)
+
+    # Crear la carpeta si no existe
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
+    full_file_path = os.path.join(folder_path, file_name)
 
     keys = info[0].keys()
-    with open(file_name, 'w', newline='', encoding='utf-8') as output_file:
-        dict_writer = csv.DictWriter(output_file, fieldnames=keys, delimiter=DELIMITER, quoting=csv.QUOTE_NONE, escapechar='\\')
+    
+    with open(full_file_path, 'w', newline='', encoding='utf-8') as output_file:
+        dict_writer = csv.DictWriter(output_file, fieldnames=keys, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
         dict_writer.writeheader()
-        dict_writer.writerows(info)
+        for row in info:
+            for key in row:
+                # Asegurar que el valor es una cadena de texto antes de aplicar replace
+                value = str(row[key])  # Convertir a cadena
+                row[key] = value.replace('|', '\\|')  # Escapar pipes dentro del contenido
+            dict_writer.writerow(row)
+
+    print(f"CSV guardado en {full_file_path}")
 
 def group_by_file_name(info):
     groups = {}
@@ -140,49 +165,42 @@ def obtener_ultimo_pdf(ruta,nombre_pdf):
         archivos.sort(key=lambda f: os.path.getmtime(os.path.join(ruta, f)), reverse=True)
         return os.path.join(ruta, nombre_pdf)
     except Exception as e:
-        print(f"Error al obtener el último PDF: {e}")
-        sys.exit()
+        raise RuntimeError(f"Error al obtener el último PDF: {e}")
 
 def extraer_nombre_aplicacion(pdf_file_name):
     return pdf_file_name.split('.', 1)[-1]  # Extrae todo lo que sigue después del primer punto
 
 def main():
-    nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
-    nombre_pdf = sys.argv[2]
-    
-    ruta = '/sysx/bito/projects'
-    pdf_path = obtener_ultimo_pdf(ruta,nombre_pdf)
+    try:
+        
+        nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
+        nombre_pdf = sys.argv[2]
+        
+        ruta = '/sysx/bito/projects'
+        pdf_path = obtener_ultimo_pdf(ruta,nombre_pdf)
+        
+        # Generar el nombre del archivo CSV
+        csv_file_name = f'checkmarx_{nombre_aplicacion}.csv'
+        
+        txt_from_pdf = extraer_texto_de_pdf(pdf_path)
 
-    
-    # Ruta de la carpeta donde se guardará el CSV
-    carpeta_destino = os.path.join(ruta, nombre_aplicacion)
-    
-    # Verifica si la carpeta existe
-    if not os.path.exists(carpeta_destino):
-        print(f"ERROR: La carpeta {carpeta_destino} no existe.")
+        position_txt = txt_from_pdf.find("Scan Results Details")
+        if position_txt != -1:
+            useful_txt = txt_from_pdf[position_txt:]
+        else:
+            raise RuntimeError("ERROR - 'Scan Results Details' not found")
+
+        all_frags = split_by_frags(useful_txt)
+        all_dic_frags, valid_fragments = get_info_frags(all_frags)
+
+        all_dic_clean = clean_info(all_dic_frags)
+        groups = group_by_file_name(all_dic_clean)
+
+        save_to_csv(groups, ruta, csv_file_name)
+
+    except Exception as e:
+        print(f"Error crítico: {e}")
         sys.exit(1)
-    
-    # Generar el nombre del archivo CSV
-    csv_file_name = f'checkmarx_{nombre_aplicacion}.csv'
-    csv_file_path = os.path.join(carpeta_destino, csv_file_name)
-    
-    txt_from_pdf = extraer_texto_de_pdf(pdf_path)
-
-    position_txt = txt_from_pdf.find("Scan Results Details")
-    if position_txt != -1:
-        useful_txt = txt_from_pdf[position_txt:]
-    else:
-        print("ERROR - 'Scan Results Details' not found ")
-        sys.exit()
-
-    all_frags = split_by_frags(useful_txt)
-    all_dic_frags = get_info_frags(all_frags)
-    all_dic_clean = clean_info(all_dic_frags)
-    groups = group_by_file_name(all_dic_clean)
-
-    save_to_csv(groups, csv_file_path)
-
-    print(f"CSV guardado en {csv_file_path}")
 
 if __name__ == '__main__':
     main()

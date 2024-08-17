@@ -143,7 +143,7 @@ export class CheckmarxService {
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
     const fileName = `checkmarx_${nom_aplicacion}.csv`;
     const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
-
+    
     try {
       await fsPromises.access(scriptPath, fsPromises.constants.F_OK | fsPromises.constants.R_OK);
 
@@ -153,9 +153,12 @@ export class CheckmarxService {
       const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2}`;
   
       const { stdout, stderr } = await execPromise(command);
-  
+      console.log("stdout ",stdout)
+      console.log("stderr ",stderr)
+      console.log("command ",command)
+
       if (stderr) {
-        throw new InternalServerErrorException('Error al ejecutar el script');
+        return { message: 'Error al ejecutar el script.', error: stderr, isValid:false };
       }
 
       const checkmarx = new Checkmarx();
@@ -167,10 +170,11 @@ export class CheckmarxService {
 
       checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
   
-      return checkmarx;
+      // return checkmarx;
+      return { message: 'CSV Generado', isValid:true, checkmarx };
     } catch (error) {
-      // return { message: 'Error al ejecutar el comando.', error: error.message };
-      throw new InternalServerErrorException('Error al ejecutar el script');
+    
+      return { message: 'Error al ejecutar el script.', error, isValid:false };
     }
   }
 

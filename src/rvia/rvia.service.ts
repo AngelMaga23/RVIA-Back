@@ -1,14 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
+import { ApplicationsService } from 'src/applications/applications.service';
+import { CommonService } from 'src/common/common.service';
 // const addon = require('/sysx/progs/rvia/bin/rvia');
 
 @Injectable()
 export class RviaService {
-  create(createRviaDto: CreateRviaDto) {
 
+  constructor(
+
+    private readonly applicationService: ApplicationsService,
+    private readonly encryptionService: CommonService,
+
+  ) {}
+
+  async create(createRviaDto: CreateRviaDto) {
+
+    const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
     // const obj = new addon.CIAJASR(200, 2);
-    return 'This action adds a new rvia';
+    // const lID = obj.createIDProject();
+
+    //  -------------------------------- Parámetros de Entrada --------------------------------
+    // const lIdProject = aplicacion.idu_aplicacion;
+    // const lEmployee = aplicacion.user.numero_empleado;
+    // const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    // const tipo_proyecto = aplicacion.num_accion;
+    // const iConIA = createRviaDto.conIA;
+    // const Bd = 1 = Producion 2 = Desarrollo
+
+    // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, 2);
+    // console.log(" Valor de retorno: " + initProcessResult);
+
+    return aplicacion;
   }
 
   findAll() {

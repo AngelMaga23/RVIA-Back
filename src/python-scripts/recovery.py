@@ -23,7 +23,8 @@ def extraer_texto_de_pdf(ruta_pdf):
             for pagina in range(numero_de_paginas):
                 pagina_objeto = lector_pdf.pages[pagina]
                 texto_pagina = pagina_objeto.extract_text() if pagina_objeto.extract_text() else ""
-                texto_pagina = texto_pagina.replace("'", '"')  # Cambiar todas las comillas simples a dobles
+                # texto_pagina = texto_pagina.replace("'", '"')  # Cambiar todas las comillas simples a dobles
+                texto_pagina = texto_pagina.replace('"', "").replace("'", "") #Eliminar todas las comillas
                 texto_completo += texto_pagina
             
             return texto_completo

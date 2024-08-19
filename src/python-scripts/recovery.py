@@ -23,8 +23,7 @@ def extraer_texto_de_pdf(ruta_pdf):
             for pagina in range(numero_de_paginas):
                 pagina_objeto = lector_pdf.pages[pagina]
                 texto_pagina = pagina_objeto.extract_text() if pagina_objeto.extract_text() else ""
-                # texto_pagina = texto_pagina.replace("'", '"')  # Cambiar todas las comillas simples a dobles
-                texto_pagina = texto_pagina.replace('"', "").replace("'", "") #Eliminar todas las comillas
+                texto_pagina = texto_pagina.replace('"', "").replace("'", "")  # Eliminar todas las comillas
                 texto_completo += texto_pagina
             
             return texto_completo
@@ -102,6 +101,61 @@ def clean_info(info):
         frag['Type'] = tmp[0]
     return info
 
+def buscar_archivo(base_path, relative_path):
+    """Buscar un archivo de forma recursiva en la carpeta base."""
+    for dirpath, dirnames, filenames in os.walk(base_path):
+        for filename in filenames:
+            if filename == os.path.basename(relative_path):
+                return os.path.join(dirpath, filename)
+    print(f"Archivo {relative_path} no encontrado.")
+    return None
+
+def obtener_tamano_archivo(base_path, relative_path):
+    """Obtener el tamaño del archivo buscando recursivamente en la carpeta base."""
+    ruta_completa = buscar_archivo(base_path, relative_path)
+    if ruta_completa:
+        try:
+            return os.path.getsize(ruta_completa)
+        except FileNotFoundError:
+            print(f"Archivo no encontrado: {ruta_completa}")
+            return 0
+    else:
+        return 0
+
+def actualizar_csv_con_tamano(base_path, csv_path):
+    """Leer un CSV, buscar las rutas de archivo en 'File Name', calcular el tamaño de esos archivos y actualizar el CSV."""
+    
+    # Crear una lista para almacenar las filas actualizadas
+    filas_actualizadas = []
+    
+    # Leer el CSV existente
+    with open(csv_path, mode='r', newline='', encoding='utf-8') as archivo_csv:
+        lector_csv = csv.DictReader(archivo_csv, delimiter='|')
+        fieldnames = lector_csv.fieldnames + ['Tamaño del archivo (bytes)']
+        
+        for row in lector_csv:
+            # Obtener el nombre del archivo desde la columna 'File Name'
+            file_name = row['File Name']
+            
+            # Obtener el tamaño del archivo, buscando desde la carpeta base
+            file_size = obtener_tamano_archivo(base_path, file_name)
+            print(f"Tamaño del archivo '{file_name}': {file_size} bytes")
+            
+            # Añadir el tamaño del archivo a la fila actual
+            row['Tamaño del archivo (bytes)'] = file_size
+            
+            # Agregar la fila actualizada a la lista
+            filas_actualizadas.append(row)
+    
+    # Escribir las filas actualizadas en un nuevo CSV o sobrescribir el existente
+    with open(csv_path, mode='w', newline='', encoding='utf-8') as archivo_csv:
+        escritor_csv = csv.DictWriter(archivo_csv, fieldnames=fieldnames, delimiter='|', quoting=csv.QUOTE_MINIMAL, escapechar='\\')
+        escritor_csv.writeheader()
+        for row in filas_actualizadas:
+            escritor_csv.writerow(row)
+
+    print(f"CSV actualizado guardado en {csv_path}")
+
 def save_to_csv(info, base_path, file_name):
     if not info:
         raise ValueError("No hay datos para guardar.")
@@ -119,8 +173,9 @@ def save_to_csv(info, base_path, file_name):
     # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
     full_file_path = os.path.join(folder_path, file_name)
 
-    keys = info[0].keys()
-    
+    # Agregar la información al CSV
+    keys = list(info[0].keys())
+
     with open(full_file_path, 'w', newline='', encoding='utf-8') as output_file:
         dict_writer = csv.DictWriter(output_file, fieldnames=keys, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
         dict_writer.writeheader()
@@ -129,9 +184,13 @@ def save_to_csv(info, base_path, file_name):
                 # Asegurar que el valor es una cadena de texto antes de aplicar replace
                 value = str(row[key])  # Convertir a cadena
                 row[key] = value.replace('|', '\\|')  # Escapar pipes dentro del contenido
+            
             dict_writer.writerow(row)
 
     print(f"CSV guardado en {full_file_path}")
+
+    # Actualizar el CSV con el tamaño de los archivos
+    actualizar_csv_con_tamano(base_path, full_file_path)
 
 def group_by_file_name(info):
     groups = {}
@@ -151,14 +210,13 @@ def group_by_file_name(info):
         final_groups.append(
             {
                 'File Name': group,
-                'Description': '\n'.join(total_des),
-                'Total': len(total_des)
+                'Description': '\n'.join(total_des)
             }
         )
 
     return final_groups
 
-def obtener_ultimo_pdf(ruta,nombre_pdf):
+def obtener_ultimo_pdf(ruta, nombre_pdf):
     try:
         archivos = [f for f in os.listdir(ruta) if f.endswith('.pdf')]
         if not archivos:
@@ -173,12 +231,11 @@ def extraer_nombre_aplicacion(pdf_file_name):
 
 def main():
     try:
-        
         nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
         nombre_pdf = sys.argv[2]
         
         ruta = '/sysx/bito/projects'
-        pdf_path = obtener_ultimo_pdf(ruta,nombre_pdf)
+        pdf_path = obtener_ultimo_pdf(ruta, nombre_pdf)
         
         # Generar el nombre del archivo CSV
         csv_file_name = f'checkmarx_{nombre_aplicacion}.csv'

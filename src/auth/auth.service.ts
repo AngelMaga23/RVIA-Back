@@ -231,6 +231,7 @@ export class AuthService {
     if ( error instanceof NotFoundException )
       throw error;
    
+    console.log(error)
     throw new InternalServerErrorException('Please check server logs');
 
   }

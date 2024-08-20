@@ -195,8 +195,7 @@ export class ApplicationsService {
         // await this.scanRepository.save(scan);
  
         if(isSanitizacion){
-          dataCheckmarx = await this.checkmarxService.callPython( application.nom_aplicacion, file.filename, application );
-        
+          dataCheckmarx = await this.checkmarxService.callPython( application.nom_aplicacion, pdfFileRename, application );
           if( dataCheckmarx.isValid )
           {
             const scan = new Scan();

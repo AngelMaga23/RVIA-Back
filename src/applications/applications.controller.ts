@@ -11,6 +11,8 @@ import { User } from '../auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators';
 import { CreateApplicationDto, CreateFileDto } from './dto';
 
+import { ValidationInterceptor } from './validation-file/validation-file.interceptor';
+
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) { }
@@ -75,8 +77,14 @@ export class ApplicationsController {
         cb(null, dir);
       },
       filename: fileNamerZip
-    })
-  }))
+    }),
+
+  }),
+  new ValidationInterceptor((dto: CreateFileDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
+  })
+  )
   uploadFileZip(
     @Body() createFileDto: CreateFileDto,
     @UploadedFiles() files: Express.Multer.File[],

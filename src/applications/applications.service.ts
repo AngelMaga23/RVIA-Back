@@ -185,21 +185,42 @@ export class ApplicationsService {
       await this.applicationRepository.save(application);
 
       if (file) {
-        const scan = new Scan();
-        scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
-        scan.nom_directorio = this.encryptionService.encrypt(file.destination);
-        scan.application = application;
-        await this.scanRepository.save(scan);
+
+        const pdfFileRename = await this.moveAndRenamePdfFile( file, repoFolderPath, repoName );
+
+        // const scan = new Scan();
+        // scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
+        // scan.nom_directorio = this.encryptionService.encrypt(file.destination);
+        // scan.application = application;
+        // await this.scanRepository.save(scan);
  
         if(isSanitizacion){
           dataCheckmarx = await this.checkmarxService.callPython( application.nom_aplicacion, file.filename, application );
+        
+          if( dataCheckmarx.isValid )
+          {
+            const scan = new Scan();
+            scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
+            scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
+            scan.application = application;
+            await this.scanRepository.save(scan);
+          }
         }
+
+        if( numAccion != 2 ){
+          const scan = new Scan();
+          scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
+          scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
+          scan.application = application;
+          await this.scanRepository.save(scan);
+        }
+
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
       return {
         application,
-        checkmarx: isSanitizacion ? dataCheckmarx.checkmarx : [],
+        checkmarx: isSanitizacion && file ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
       };
 
@@ -315,21 +336,39 @@ export class ApplicationsService {
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
 
-        const scan = new Scan();
-        scan.nom_escaneo = this.encryptionService.encrypt(pdfFile.filename);
-        scan.nom_directorio = this.encryptionService.encrypt(pdfFile.destination);
-        scan.application = application;
-        await this.scanRepository.save(scan);
+        const pdfFileRename = await this.moveAndRenamePdfFile( pdfFile, repoFolderPath, nameApplication );
+
         if(isSanitizacion){
-          dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFile.filename, application);
+          dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFileRename, application);
+
+          if( dataCheckmarx.isValid )
+          {
+            const scan = new Scan();
+            scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
+            scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
+            scan.application = application;
+            await this.scanRepository.save(scan);
+          }
+
         }
+
+        if( createFileDto.num_accion != 2 ){
+          const scan = new Scan();
+          scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
+          scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
+          scan.application = application;
+          await this.scanRepository.save(scan);
+        }
+
+        
+
       }
   
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
       
       return {
         application,
-        checkmarx: isSanitizacion ? dataCheckmarx.checkmarx : [],
+        checkmarx: isSanitizacion && pdfFile ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
       };
   
@@ -348,9 +387,6 @@ export class ApplicationsService {
     }
   }
   
-  
-  
-
   async update(id: number, estatusId: number) {
     try {
       const application = await this.applicationRepository.findOne({
@@ -405,6 +441,22 @@ export class ApplicationsService {
     await archive.finalize();
   }
 
+  private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, repoFolderPath: string, project: string): Promise<string> {
+    const newPdfFileName = `checkmarx_${project}.pdf`;
+    const newPdfFilePath = join(repoFolderPath, newPdfFileName);
+  
+    try {
+
+      await fsExtra.move(pdfFile.path, newPdfFilePath); // Mueve y renombra el archivo
+      return newPdfFileName; // Devuelve el nuevo nombre del archivo
+
+    } catch (error) {
+
+      throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
+    }
+  }
+  
+
   private handleDBExceptions(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
     if (error.response) throw new BadRequestException(error.message);
@@ -413,15 +465,4 @@ export class ApplicationsService {
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 
-  // async test() {
-
-  //   // const directoryPath = join(this.downloadPath);
-  //   const fileName1 = "Project-Sample";
-  //   // const fileName2 = "0d56048c-908b-43a3-912d-a8a4a1109d4a.dsfdsfds.pdf";
-  //   const fileName2 = "0d56048c-908b-43a3-912d-a8a4a1109d4a.dsfdsfds.pdf";
-
-
-  //   return await this.callPython(fileName1, fileName2);
-
-  // }
 }

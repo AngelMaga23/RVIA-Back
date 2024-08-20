@@ -164,7 +164,7 @@ def save_to_csv(info, base_path, file_name):
     folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
 
     # Crear la ruta completa de la carpeta bajo /tmp/bito
-    folder_path = os.path.join(base_path, folder_name)
+    folder_path = os.path.join(base_path)
 
     # Crear la carpeta si no existe
     if not os.path.exists(folder_path):
@@ -234,7 +234,7 @@ def main():
         nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
         nombre_pdf = sys.argv[2]
         
-        ruta = '/sysx/bito/projects'
+        ruta = '/sysx/bito/projects/'+nombre_aplicacion
         pdf_path = obtener_ultimo_pdf(ruta, nombre_pdf)
         
         # Generar el nombre del archivo CSV

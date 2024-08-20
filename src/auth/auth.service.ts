@@ -42,7 +42,7 @@ export class AuthService {
 
   async findAllActiveUsers(){
 
-    const usuarios = await this.userRepository.find({ where: { esActivo: true }});
+    const usuarios = await this.userRepository.find({ where: { esactivo: true }});
 
     const usuariosDesencriptados = usuarios.map(usuario => ({
       ...usuario,
@@ -153,13 +153,13 @@ export class AuthService {
       nom_accion: 'DELETE',
       idu_usuario: user.idu_usuario,
       identificador_registro: { idu_usuario: user.idu_usuario },
-      valores_anteriores: { esActivo: userData.esActivo },
-      valores_nuevos: { esActivo: !userData.esActivo }
+      valores_anteriores: { esactivo: userData.esactivo },
+      valores_nuevos: { esactivo: !userData.esactivo }
     };
 
     await this.seguimientoService.create(seguimientoDto);
 
-    userData.esActivo = !userData.esActivo;
+    userData.esactivo = !userData.esactivo;
 
     const appDelete =  await this.userRepository.save(userData);
 
@@ -225,7 +225,7 @@ export class AuthService {
 
   private handleDBErrors( error: any ): never {
 
-    if ( error.code === '23505' ) 
+    if ( error.code === '23505' || error.code === '42703' ) 
       throw new BadRequestException( error.detail );
     
     if ( error instanceof NotFoundException )

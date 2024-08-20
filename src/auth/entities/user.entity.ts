@@ -39,7 +39,7 @@ export class User {
     @Column('bool', {
         default: true
     })
-    esActivo: boolean;
+    esactivo: boolean;
 
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;

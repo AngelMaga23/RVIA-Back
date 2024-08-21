@@ -29,6 +29,7 @@ export class CreateUserDto {
 
     @IsString()
     @IsEmail()
+    @Matches(/^[^\s@]+@coppel\.com$/, { message: 'El correo debe ser del dominio @coppel.com.' })
     nom_correo: string;
 
     @IsString()

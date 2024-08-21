@@ -6,7 +6,7 @@ import { rename } from 'fs/promises';
 import { createReadStream, existsSync, promises as fsPromises } from 'fs';
 import { promisify } from 'util';
 import { exec } from 'child_process';
-
+import * as fsExtra from 'fs-extra';
 
 import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
 import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
@@ -69,8 +69,8 @@ export class CheckmarxService {
       if(aplicacion.num_accion != 2)
         throw new NotFoundException(` La aplicación debe tener la acción de Sanitización `);
 
-      
-      const res = await this.callPython( aplicacion.nom_aplicacion, file.filename, aplicacion );
+      const pdfFileRename = await this.moveAndRenamePdfFile( file, aplicacion );
+      const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
  
 
       return res;
@@ -172,6 +172,25 @@ export class CheckmarxService {
     } catch (error) {
     
       return { message: 'Error al ejecutar el script.', error, isValid:false };
+    }
+  }
+
+  private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, application:Application): Promise<string> {
+
+    const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+    const dir_aplicacion = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
+
+    const newPdfFileName = `checkmarx_${nom_aplicacion}.pdf`;
+    const newPdfFilePath = join(dir_aplicacion, newPdfFileName);
+  
+    try {
+
+      await fsExtra.move(pdfFile.path, newPdfFilePath); // Mueve y renombra el archivo
+      return newPdfFileName; // Devuelve el nuevo nombre del archivo
+
+    } catch (error) {
+
+      throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
     }
   }
 

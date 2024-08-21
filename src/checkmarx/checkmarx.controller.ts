@@ -12,7 +12,7 @@ import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { Response } from 'express';
 import { fileFilterPDF } from './helper/fileFilterpdf';
-
+import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 
 @Controller('checkmarx')
 export class CheckmarxController {
@@ -37,6 +37,10 @@ export class CheckmarxController {
       },
       filename: fileNamer
     })
+  }),
+  new ValidationInterceptor((dto: CreateCheckmarxDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
   }))
   async create(@Body() createCheckmarxDto: CreateCheckmarxDto, @UploadedFile() file: Express.Multer.File) {
 
@@ -59,6 +63,10 @@ export class CheckmarxController {
       },
       filename: fileNamer
     })
+  }),
+  new ValidationInterceptor((dto: CreateCheckmarxDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
   }))
   async uploadPDF(@Body() createCheckmarxDto: CreateCheckmarxDto, @UploadedFile() file: Express.Multer.File) {
 

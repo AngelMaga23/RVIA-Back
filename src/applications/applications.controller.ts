@@ -11,7 +11,7 @@ import { User } from '../auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators';
 import { CreateApplicationDto, CreateFileDto } from './dto';
 
-import { ValidationInterceptor } from './validation-file/validation-file.interceptor';
+import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 
 @Controller('applications')
 export class ApplicationsController {

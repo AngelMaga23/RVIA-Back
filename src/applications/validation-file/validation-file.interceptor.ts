@@ -10,29 +10,34 @@ export class ValidationInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    const files = request.files;
+    const files = request.files || [];
+    const file = request.file;
     const body = request.body;
 
     // Validate DTO
     if (!this.validateDto(body)) {
-      files.forEach(file => {
-        if (file.path) {
-          fs.unlinkSync(file.path); // Remove the file if validation fails
-        }
-      });
+      this.cleanupFiles([file, ...files]); // Handle both single and multiple files
       throw new BadRequestException('Invalid DTO');
     }
 
     return next.handle().pipe(
       catchError((error) => {
-        files.forEach(file => {
-          if (file.path) {
-            fs.unlinkSync(file.path); // Clean up files on error
-          }
-        });
- 
+        this.cleanupFiles([file, ...files]); // Handle both single and multiple files
         throw new InternalServerErrorException(error.response ? error.response : error.message);
       })
     );
   }
+
+  private async cleanupFiles(files: Array<Express.Multer.File | undefined>) {
+    const deletionPromises = files
+      .filter(file => file?.path) // Filter out undefined or files without a path
+      .map(file => fs.promises.unlink(file!.path)); // Delete file
+
+    try {
+      await Promise.all(deletionPromises); // Wait for all deletions to complete
+    } catch (error) {
+      console.error('Error cleaning up files:', error);
+    }
+  }
+
 }

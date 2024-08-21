@@ -38,7 +38,12 @@ export class ApplicationsController {
       },
       filename: fileNamerZip
     })
-  }))
+  }),
+  new ValidationInterceptor((dto: CreateApplicationDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
+  })
+  )
   create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.applicationsService.createGitFile(createApplicationDto, user, file);
   }
@@ -58,6 +63,10 @@ export class ApplicationsController {
       },
       filename: fileNamerZip
     })
+  }),
+  new ValidationInterceptor((dto: CreateApplicationDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
   }))
   createGitLab(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.applicationsService.createGitLabFile(createApplicationDto, user, file);

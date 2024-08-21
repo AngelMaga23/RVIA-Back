@@ -7,6 +7,7 @@ import { createReadStream, existsSync, promises as fsPromises } from 'fs';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import * as fsExtra from 'fs-extra';
+import { promises as fs } from 'fs';
 
 import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
 import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
@@ -184,6 +185,10 @@ export class CheckmarxService {
     const newPdfFilePath = join(dir_aplicacion, newPdfFileName);
   
     try {
+
+      if (await fs.access(newPdfFilePath).then(() => true).catch(() => false)) {
+        await fs.unlink(newPdfFilePath);
+      }
 
       await fsExtra.move(pdfFile.path, newPdfFilePath); // Mueve y renombra el archivo
       return newPdfFileName; // Devuelve el nuevo nombre del archivo

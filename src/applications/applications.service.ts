@@ -12,6 +12,7 @@ import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
 import * as fsExtra from 'fs-extra';
+import { promises as fs } from 'fs';
 
 import { CreateApplicationDto, CreateFileDto } from './dto';
 import { Application } from './entities/application.entity';
@@ -445,6 +446,10 @@ export class ApplicationsService {
     const newPdfFilePath = join(repoFolderPath, newPdfFileName);
   
     try {
+
+      if (await fs.access(newPdfFilePath).then(() => true).catch(() => false)) {
+        await fs.unlink(newPdfFilePath);
+      }
 
       await fsExtra.move(pdfFile.path, newPdfFilePath); // Mueve y renombra el archivo
       return newPdfFileName; // Devuelve el nuevo nombre del archivo

@@ -204,6 +204,8 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+          }else{
+            await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
         }
 
@@ -348,6 +350,8 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+          }else{
+            await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
 
         }

@@ -273,17 +273,21 @@ export class ApplicationsService {
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
     const repoFolderPath = join(zipFile.destination, nameApplication);
-    const isSanitizacion = createFileDto.num_accion == 2 ? true:false;
+    const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
-
+  
     try {
       const estatu = await this.estatusService.findOne(2);
-      
-
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
   
       await fsExtra.ensureDir(tempFolderPath);
       await fsExtra.move(zipFile.path, tempZipPath);
+  
+      // Verifica si el archivo se movió correctamente
+      const fileExists = await fsExtra.pathExists(tempZipPath);
+      if (!fileExists) {
+        throw new InternalServerErrorException(`El archivo no se movió correctamente a ${tempZipPath}`);
+      }
   
       try {
         if (zipFile.mimetype === 'application/zip' || zipFile.mimetype === 'application/x-zip-compressed') {
@@ -292,11 +296,10 @@ export class ApplicationsService {
             .then(async (directory) => {
               await fsExtra.remove(repoFolderPath);
               await fsExtra.ensureDir(repoFolderPath);
-  
               await directory.extract({ path: repoFolderPath });
             })
-            .then(async () => {
-              await fsExtra.remove(tempZipPath);
+            .catch(error => {
+              throw new InternalServerErrorException(`Error al descomprimir el archivo .zip: ${error.message}`);
             });
         } else if (zipFile.mimetype === 'application/x-7z-compressed') {
           // Descomprimir archivo .7z
@@ -305,7 +308,7 @@ export class ApplicationsService {
               if (err) {
                 return reject(new InternalServerErrorException(`Error al descomprimir el archivo .7z: ${err.message}`));
               }
-              resolve(); // Aquí pasa el tipo adecuado de `resolve`.
+              resolve();
             });
           });
         } else {
@@ -314,10 +317,7 @@ export class ApplicationsService {
       } catch (error) {
         throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }
-  
-      await fsExtra.remove(tempZipPath);
-      await fsExtra.remove(tempFolderPath);
-  
+    
       // Crear el registro de código fuente
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
@@ -335,41 +335,49 @@ export class ApplicationsService {
   
       await this.applicationRepository.save(application);
   
+      // Renombrar el archivo .zip o .7z con el id y nombre de la aplicación
+      const newZipFileName = `${application.idu_aplicacion}_${nameApplication}.${zipFile.originalname.split('.')[1]}`;
+      const newZipFilePath = join(zipFile.destination, newZipFileName);
+
+      // Verifica si el archivo existe antes de renombrarlo
+      const tempZipExists = await fsExtra.pathExists(tempZipPath);
+      if (tempZipExists) {
+        await fsExtra.rename(tempZipPath, newZipFilePath);
+      } else {
+        throw new InternalServerErrorException(`El archivo a renombrar no existe: ${tempZipPath}`);
+      }
+  
+      await fsExtra.remove(tempFolderPath);
+
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
-
-        const pdfFileRename = await this.moveAndRenamePdfFile( pdfFile, repoFolderPath, nameApplication );
-
-        if(isSanitizacion){
+        const pdfFileRename = await this.moveAndRenamePdfFile(pdfFile, repoFolderPath, nameApplication);
+  
+        if (isSanitizacion) {
           dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFileRename, application);
-
-          if( dataCheckmarx.isValid )
-          {
+  
+          if (dataCheckmarx.isValid) {
             const scan = new Scan();
             scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
-          }else{
+          } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
-
         }
-
-        if( createFileDto.num_accion != 2 ){
+  
+        if (createFileDto.num_accion != 2) {
           const scan = new Scan();
           scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
           scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
           scan.application = application;
           await this.scanRepository.save(scan);
         }
-
-        
-
       }
   
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-      
+  
       return {
         application,
         checkmarx: isSanitizacion && pdfFile ? dataCheckmarx.checkmarx : [],

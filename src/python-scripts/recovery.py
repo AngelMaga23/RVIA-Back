@@ -23,7 +23,10 @@ def extraer_texto_de_pdf(ruta_pdf):
             for pagina in range(numero_de_paginas):
                 pagina_objeto = lector_pdf.pages[pagina]
                 texto_pagina = pagina_objeto.extract_text() if pagina_objeto.extract_text() else ""
-                texto_pagina = texto_pagina.replace('"', "").replace("'", "")  # Eliminar todas las comillas
+                #texto_pagina = texto_pagina.replace('"', "").replace("'", "")  # Eliminar todas las comillas
+                #texto_pagina = texto_pagina.replace('"', "") #Elimina comillas dobles y solo deja comillas simples
+                texto_pagina = texto_pagina.replace("'", '"') # Elimina comillas simples y deja comillas dobles
+
                 texto_completo += texto_pagina
             
             return texto_completo
@@ -210,7 +213,7 @@ def group_by_file_name(info):
         final_groups.append(
             {
                 'File Name': group,
-                'Description': '\n'.join(total_des)
+                'Description': ' '.join(total_des)  # Cambiado de '\n' a ' ' para juntar las descripciones en una sola línea
             }
         )
 

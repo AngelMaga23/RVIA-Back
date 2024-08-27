@@ -236,12 +236,13 @@ def main():
     try:
         nombre_aplicacion = sys.argv[1]  # Quitar la extensión del nombre de la aplicación
         nombre_pdf = sys.argv[2]
+        id_proyecto = sys.argv[3]
         
         ruta = '/sysx/bito/projects/'+nombre_aplicacion
         pdf_path = obtener_ultimo_pdf(ruta, nombre_pdf)
         
         # Generar el nombre del archivo CSV
-        csv_file_name = f'checkmarx_{nombre_aplicacion}.csv'
+        csv_file_name = f'checkmarx_{id_proyecto}_{nombre_aplicacion}.csv'
         
         txt_from_pdf = extraer_texto_de_pdf(pdf_path)
 

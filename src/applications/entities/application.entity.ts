@@ -13,6 +13,9 @@ export class Application {
     @PrimaryGeneratedColumn('identity')
     idu_aplicacion: number;
 
+    @Column({ type: 'bigint' })
+    idu_proyecto: string;
+
     @Column({type: 'varchar', length:255})
     nom_aplicacion: string;
 

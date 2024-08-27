@@ -142,7 +142,7 @@ export class CheckmarxService {
 
     const execPromise = promisify(exec);
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-    console.log(application.idu_proyecto)
+
     const fileName = `checkmarx_${application.idu_proyecto}_${nom_aplicacion}.csv`;
     const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
     

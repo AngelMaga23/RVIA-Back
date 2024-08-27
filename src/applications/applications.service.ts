@@ -21,7 +21,7 @@ import { SourcecodeService } from '../sourcecode/sourcecode.service';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
-import { Scan } from 'src/scans/entities/scan.entity';  
+import { Scan } from 'src/scans/entities/scan.entity';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 
 const addon = require('../../../../../sysx/progs/rvia/build/Release/rvia');
@@ -49,10 +49,10 @@ export class ApplicationsService {
   async findAll(user: User) {
 
     try {
-      
+
       const aplicaciones = user.position?.nom_rol === ValidRoles.admin
-      ? await this.applicationRepository.find()
-      : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
+        ? await this.applicationRepository.find()
+        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
 
       aplicaciones.forEach(aplicacion => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
@@ -71,12 +71,12 @@ export class ApplicationsService {
   }
 
   async findOne(id: number) {
-    const aplicacion = await this.applicationRepository.findOneBy({ idu_aplicacion:id });
+    const aplicacion = await this.applicationRepository.findOneBy({ idu_aplicacion: id });
 
-    if( !aplicacion )
+    if (!aplicacion)
       throw new NotFoundException(`Aplicación con ${id} no encontrado `);
 
-    return aplicacion; 
+    return aplicacion;
   }
 
   async createGitFile(createApplicationDto: CreateApplicationDto, user: User, file?) {
@@ -85,9 +85,9 @@ export class ApplicationsService {
       if (!repoInfo) {
         throw new BadRequestException('Invalid GitHub repository URL');
       }
-   
+
       return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitHub');
-      
+
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -101,14 +101,14 @@ export class ApplicationsService {
       }
 
       return await this.processRepository(repoInfo.repoName, `${repoInfo.userName}/${repoInfo.groupName}`, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitLab');
-      
+
     } catch (error) {
       this.handleDBExceptions(error);
     }
   }
 
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string) {
-    
+
     const obj = new addon.CRvia();
     const streamPipeline = promisify(pipeline);
     const uniqueTempFolderName = `temp-${uuid()}`;
@@ -116,16 +116,16 @@ export class ApplicationsService {
     const repoFolderPath = join(this.downloadPath, repoName);
     const iduProject = obj.createIDProject();
 
-    const isSanitizacion = numAccion == 2 ? true:false;
+    const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
 
     await fsExtra.ensureDir(tempFolderPath);
 
     const branches = ['main', 'master'];
     let zipUrl: string | null = null;
- 
+
     for (const branch of branches) {
-      const potentialUrl = platform === 'GitHub' 
+      const potentialUrl = platform === 'GitHub'
         ? `https://github.com/${repoUserName}/${repoName}/archive/refs/heads/${branch}.zip`
         : `https://gitlab.com/${repoUserName}/${repoName}/-/archive/${branch}/${repoName}-${branch}.zip`;
 
@@ -148,16 +148,18 @@ export class ApplicationsService {
       this.httpService.get(zipUrl, { responseType: 'stream' }).pipe(
         catchError(() => {
           fsExtra.remove(tempFolderPath);
-       
+
           throw new InternalServerErrorException('Error al descargar el repositorio');
         }),
       ),
     );
 
     const tempZipPath = join(tempFolderPath, `${repoName}.zip`);
+    const zipGit = join(this.downloadPath, `${iduProject}_${repoName}.zip`);
+   
 
     try {
-      
+
       await streamPipeline(response.data, createWriteStream(tempZipPath));
 
       await unzipper.Open.file(tempZipPath)
@@ -181,6 +183,7 @@ export class ApplicationsService {
       const estatu = await this.estatusService.findOne(2);
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
+      application.idu_proyecto = iduProject;
       application.num_accion = numAccion;
       application.opc_lenguaje = opcLenguaje;
       application.applicationstatus = estatu;
@@ -191,29 +194,22 @@ export class ApplicationsService {
 
       if (file) {
 
-        const pdfFileRename = await this.moveAndRenamePdfFile( file, repoFolderPath, repoName, iduProject );
+        const pdfFileRename = await this.moveAndRenamePdfFile(file, repoFolderPath, repoName, iduProject);
 
-        // const scan = new Scan();
-        // scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
-        // scan.nom_directorio = this.encryptionService.encrypt(file.destination);
-        // scan.application = application;
-        // await this.scanRepository.save(scan);
- 
-        if(isSanitizacion){
-          dataCheckmarx = await this.checkmarxService.callPython( application.nom_aplicacion, pdfFileRename, application );
-          if( dataCheckmarx.isValid )
-          {
+        if (isSanitizacion) {
+          dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFileRename, application);
+          if (dataCheckmarx.isValid) {
             const scan = new Scan();
             scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
-          }else{
+          } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
         }
 
-        if( numAccion != 2 ){
+        if (numAccion != 2) {
           const scan = new Scan();
           scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
           scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
@@ -223,7 +219,9 @@ export class ApplicationsService {
 
       }
 
+      await streamPipeline(response.data, createWriteStream(zipGit));
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
       return {
         application,
         checkmarx: isSanitizacion && file ? dataCheckmarx.checkmarx : [],
@@ -250,14 +248,14 @@ export class ApplicationsService {
   private getRepoInfo(url: string): { userName: string, groupName: string, repoName: string } | null {
     try {
       const { pathname } = new URL(url);
-      
+
       const pathSegments = pathname.split('/').filter(segment => segment);
 
       if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].endsWith('.git')) {
         const repoName = pathSegments.pop()!.replace('.git', '');
         const groupName = pathSegments.pop()!;
         const userName = pathSegments.join('/');
-    
+
         return {
           userName,
           groupName,
@@ -267,7 +265,7 @@ export class ApplicationsService {
     } catch (error) {
       console.error('Error parsing URL:', error);
     }
-  
+
     return null;
   }
 
@@ -282,20 +280,20 @@ export class ApplicationsService {
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
     const iduProject = obj.createIDProject();
-  
+
     try {
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
-  
+
       await fsExtra.ensureDir(tempFolderPath);
       await fsExtra.move(zipFile.path, tempZipPath);
-  
+
       // Verifica si el archivo se movió correctamente
       const fileExists = await fsExtra.pathExists(tempZipPath);
       if (!fileExists) {
         throw new InternalServerErrorException(`El archivo no se movió correctamente a ${tempZipPath}`);
       }
-  
+
       try {
         if (zipFile.mimetype === 'application/zip' || zipFile.mimetype === 'application/x-zip-compressed') {
           // Descomprimir archivo .zip
@@ -324,13 +322,13 @@ export class ApplicationsService {
       } catch (error) {
         throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }
-    
+
       // Crear el registro de código fuente
       const sourcecode = await this.sourcecodeService.create({
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
         nom_directorio: this.encryptionService.encrypt(repoFolderPath),
       });
-  
+
       // Crear el registro de la aplicación
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
@@ -340,9 +338,9 @@ export class ApplicationsService {
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
-  
+
       await this.applicationRepository.save(application);
-  
+
       // Renombrar el archivo .zip o .7z con el id y nombre de la aplicación
       const newZipFileName = `${application.idu_proyecto}_${nameApplication}.${zipFile.originalname.split('.')[1]}`;
       const newZipFilePath = join(zipFile.destination, newZipFileName);
@@ -354,16 +352,16 @@ export class ApplicationsService {
       } else {
         throw new InternalServerErrorException(`El archivo a renombrar no existe: ${tempZipPath}`);
       }
-  
+
       await fsExtra.remove(tempFolderPath);
 
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
         const pdfFileRename = await this.moveAndRenamePdfFile(pdfFile, repoFolderPath, nameApplication, iduProject);
-  
+
         if (isSanitizacion) {
           dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFileRename, application);
-  
+
           if (dataCheckmarx.isValid) {
             const scan = new Scan();
             scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
@@ -374,7 +372,7 @@ export class ApplicationsService {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
         }
-  
+
         if (createFileDto.num_accion != 2) {
           const scan = new Scan();
           scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
@@ -383,21 +381,21 @@ export class ApplicationsService {
           await this.scanRepository.save(scan);
         }
       }
-  
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-  
+
       return {
         application,
         checkmarx: isSanitizacion && pdfFile ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
       };
-  
+
     } catch (error) {
       console.error('Error al procesar el archivo:', error);
       if (pdfFile) {
         await fsExtra.remove(pdfFile.path);
       }
-  
+
       if (zipFile && zipFile.path) {
         await fsExtra.remove(tempZipPath);
         await fsExtra.remove(tempFolderPath);
@@ -406,7 +404,7 @@ export class ApplicationsService {
       throw error; // Re-lanzar el error para que se propague
     }
   }
-  
+
   async update(id: number, estatusId: number) {
     try {
       const application = await this.applicationRepository.findOne({
@@ -464,7 +462,7 @@ export class ApplicationsService {
   private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, repoFolderPath: string, project: string, idu_project: string): Promise<string> {
     const newPdfFileName = `checkmarx_${idu_project}_${project}.pdf`;
     const newPdfFilePath = join(repoFolderPath, newPdfFileName);
-  
+
     try {
 
       if (await fs.access(newPdfFilePath).then(() => true).catch(() => false)) {
@@ -479,7 +477,7 @@ export class ApplicationsService {
       throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
     }
   }
-  
+
 
   private handleDBExceptions(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);

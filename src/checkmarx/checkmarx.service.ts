@@ -142,7 +142,8 @@ export class CheckmarxService {
 
     const execPromise = promisify(exec);
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
-    const fileName = `checkmarx_${nom_aplicacion}.csv`;
+    console.log(application.idu_proyecto)
+    const fileName = `checkmarx_${application.idu_proyecto}_${nom_aplicacion}.csv`;
     const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
     
     try {
@@ -151,7 +152,7 @@ export class CheckmarxService {
       const escapedFileName1 = `"${nom_aplicacion.replace(/"/g, '\\"')}"`;
       const escapedFileName2 = `"${namePdf.replace(/"/g, '\\"')}"`;
   
-      const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2}`;
+      const command = `python3 ${scriptPath} ${escapedFileName1} ${escapedFileName2} ${application.idu_proyecto}`;
   
       const { stdout, stderr } = await execPromise(command);
 

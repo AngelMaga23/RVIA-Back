@@ -24,6 +24,8 @@ import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';  
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 
+const addon = require('../../../../../sysx/progs/rvia/build/Release/rvia');
+
 @Injectable()
 export class ApplicationsService {
 
@@ -107,10 +109,12 @@ export class ApplicationsService {
 
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string) {
     
+    const obj = new addon.CRvia();
     const streamPipeline = promisify(pipeline);
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
     const repoFolderPath = join(this.downloadPath, repoName);
+    const iduProject = obj.createIDProject();
 
     const isSanitizacion = numAccion == 2 ? true:false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
@@ -187,7 +191,7 @@ export class ApplicationsService {
 
       if (file) {
 
-        const pdfFileRename = await this.moveAndRenamePdfFile( file, repoFolderPath, repoName );
+        const pdfFileRename = await this.moveAndRenamePdfFile( file, repoFolderPath, repoName, iduProject );
 
         // const scan = new Scan();
         // scan.nom_escaneo = this.encryptionService.encrypt(file.filename);
@@ -268,6 +272,8 @@ export class ApplicationsService {
   }
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
+
+    const obj = new addon.CRvia();
     const nameApplication = zipFile.originalname.split('.')[0].replace(/\s+/g, '-');
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
@@ -275,6 +281,7 @@ export class ApplicationsService {
     const repoFolderPath = join(zipFile.destination, nameApplication);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+    const iduProject = obj.createIDProject();
   
     try {
       const estatu = await this.estatusService.findOne(2);
@@ -327,6 +334,7 @@ export class ApplicationsService {
       // Crear el registro de la aplicación
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
+      application.idu_proyecto = iduProject;
       application.num_accion = createFileDto.num_accion;
       application.opc_lenguaje = createFileDto.opc_lenguaje;
       application.applicationstatus = estatu;
@@ -336,7 +344,7 @@ export class ApplicationsService {
       await this.applicationRepository.save(application);
   
       // Renombrar el archivo .zip o .7z con el id y nombre de la aplicación
-      const newZipFileName = `${application.idu_aplicacion}_${nameApplication}.${zipFile.originalname.split('.')[1]}`;
+      const newZipFileName = `${application.idu_proyecto}_${nameApplication}.${zipFile.originalname.split('.')[1]}`;
       const newZipFilePath = join(zipFile.destination, newZipFileName);
 
       // Verifica si el archivo existe antes de renombrarlo
@@ -351,7 +359,7 @@ export class ApplicationsService {
 
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
-        const pdfFileRename = await this.moveAndRenamePdfFile(pdfFile, repoFolderPath, nameApplication);
+        const pdfFileRename = await this.moveAndRenamePdfFile(pdfFile, repoFolderPath, nameApplication, iduProject);
   
         if (isSanitizacion) {
           dataCheckmarx = await this.checkmarxService.callPython(application.nom_aplicacion, pdfFileRename, application);
@@ -453,8 +461,8 @@ export class ApplicationsService {
     await archive.finalize();
   }
 
-  private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, repoFolderPath: string, project: string): Promise<string> {
-    const newPdfFileName = `checkmarx_${project}.pdf`;
+  private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, repoFolderPath: string, project: string, idu_project: string): Promise<string> {
+    const newPdfFileName = `checkmarx_${idu_project}_${project}.pdf`;
     const newPdfFilePath = join(repoFolderPath, newPdfFileName);
   
     try {

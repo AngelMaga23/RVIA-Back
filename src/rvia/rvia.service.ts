@@ -18,7 +18,7 @@ export class RviaService {
   async create(createRviaDto: CreateRviaDto) {
 
     const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
-    // const obj = new addon.CIAJASR(200, 2);
+    // const obj = new addon.CRvia();
     // const lID = obj.createIDProject();
 
     //  -------------------------------- Parámetros de Entrada --------------------------------

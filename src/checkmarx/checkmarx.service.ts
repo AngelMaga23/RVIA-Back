@@ -38,7 +38,7 @@ export class CheckmarxService {
 
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
       const nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
-      const fileName = `checkmarx_${nom_aplicacion}.csv`;
+      const fileName = `checkmarx_${aplicacion.idu_proyecto}_${nom_aplicacion}.csv`;
       const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
 
       await rename(`/sysx/bito/projects/${file.filename}`, finalFilePath);  
@@ -182,7 +182,7 @@ export class CheckmarxService {
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
     const dir_aplicacion = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
 
-    const newPdfFileName = `checkmarx_${nom_aplicacion}.pdf`;
+    const newPdfFileName = `checkmarx_${application.idu_proyecto}_${nom_aplicacion}.pdf`;
     const newPdfFilePath = join(dir_aplicacion, newPdfFileName);
   
     try {

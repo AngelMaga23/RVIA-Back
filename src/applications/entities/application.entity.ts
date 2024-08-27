@@ -6,6 +6,7 @@ import { User } from '../../auth/entities/user.entity';
 import { UsersApplication } from "src/users-applications/entities/users-application.entity";
 import { IsNumber } from "class-validator";
 import { Type } from "class-transformer";
+import { Checkmarx } from "src/checkmarx/entities/checkmarx.entity";
 
 @Entity('tbl_aplicaciones')
 export class Application {
@@ -60,5 +61,8 @@ export class Application {
 
     @OneToMany(() => Scan, scan => scan.application)
     scans: Scan[];
+
+    @OneToMany(() => Checkmarx, checkmarx => checkmarx.application)
+    checkmarx: Checkmarx[];
 
 }

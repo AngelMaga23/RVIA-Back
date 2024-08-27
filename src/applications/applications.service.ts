@@ -51,8 +51,10 @@ export class ApplicationsService {
     try {
 
       const aplicaciones = user.position?.nom_rol === ValidRoles.admin
-        ? await this.applicationRepository.find()
-        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
+        ? await this.applicationRepository.find({
+          relations: ['checkmarx']
+        })
+        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx'] });
 
       aplicaciones.forEach(aplicacion => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);

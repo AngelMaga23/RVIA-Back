@@ -51,8 +51,10 @@ export class ApplicationsService {
     try {
 
       const aplicaciones = user.position?.nom_rol === ValidRoles.admin
-        ? await this.applicationRepository.find()
-        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } } });
+        ? await this.applicationRepository.find({
+          relations: ['checkmarx']
+        })
+        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx'] });
 
       aplicaciones.forEach(aplicacion => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
@@ -60,6 +62,13 @@ export class ApplicationsService {
         aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
         aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
         aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
+     
+        if (aplicacion.checkmarx && aplicacion.checkmarx.length > 0){
+          aplicacion.checkmarx.forEach(checkmarx => {
+            checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
+          });
+        }
+
       });
 
       return aplicaciones;

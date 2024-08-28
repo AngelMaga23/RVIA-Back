@@ -77,6 +77,9 @@ export class AuthService {
       
       const position = await this.positionService.findOne( createUserDto.idu_rol );
 
+      if( await this.checkEmailExist( nom_correo ) )
+        throw new BadRequestException('El Correo Ya Existe');
+
       const user = this.userRepository.create({
         ...userData,
         nom_correo: this.encryptionService.encrypt(createUserDto.nom_correo),
@@ -223,15 +226,36 @@ export class AuthService {
 
   }
 
-  private handleDBErrors( error: any ): never {
+  private async checkEmailExist(correo: string): Promise<boolean> {
+    try {
 
+      const users = await this.userRepository.find();
+
+      const emailExists = users.some(user => 
+        this.encryptionService.decrypt(user.nom_correo) === correo
+      );
+
+      return emailExists;
+  
+    } catch (error) {
+
+      this.handleDBErrors(error);
+      return false;
+    }
+  }
+  
+
+  private handleDBErrors( error: any ): never {
+    console.log(error)
     if ( error.code === '23505' || error.code === '42703' ) 
       throw new BadRequestException( error.detail );
     
     if ( error instanceof NotFoundException )
       throw error;
-   
-    console.log(error)
+
+    if( error.status && error.status == 400)
+      throw new BadRequestException( error.response );
+
     throw new InternalServerErrorException('Please check server logs');
 
   }

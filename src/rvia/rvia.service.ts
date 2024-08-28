@@ -3,7 +3,7 @@ import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
 import { CommonService } from 'src/common/common.service';
-// const addon = require('/sysx/progs/rvia/bin/rvia');
+const addon = require('../../../../../sysx/progs/rvia/build/Release/rvia');
 
 @Injectable()
 export class RviaService {
@@ -33,6 +33,13 @@ export class RviaService {
     // console.log(" Valor de retorno: " + initProcessResult);
 
     return aplicacion;
+  }
+
+  getVersion() {
+
+    const obj = new addon.CRvia();
+    return obj.getVersionAddons();
+
   }
 
   findAll() {

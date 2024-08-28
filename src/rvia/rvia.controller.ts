@@ -14,7 +14,7 @@ export class RviaController {
 
   @Get()
   findAll() {
-    return this.rviaService.findAll();
+    return this.rviaService.getVersion();
   }
 
   @Get(':id')

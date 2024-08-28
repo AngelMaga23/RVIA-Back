@@ -56,13 +56,13 @@ export class ApplicationsService {
         })
         : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx'] });
 
-      aplicaciones.forEach(aplicacion => {
+      aplicaciones.forEach((aplicacion, index) => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
         aplicacion.applicationstatus.des_estatus_aplicacion = this.encryptionService.decrypt(aplicacion.applicationstatus.des_estatus_aplicacion);
         aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
         aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
         aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
-     
+        (aplicacion as any).sequentialId = index + 1;
         if (aplicacion.checkmarx && aplicacion.checkmarx.length > 0){
           aplicacion.checkmarx.forEach(checkmarx => {
             checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);

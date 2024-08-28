@@ -1,20 +1,32 @@
 import { Application } from "src/applications/entities/application.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('tbl_costos')
+@Entity('tbl_costos_proyectos')
 export class Cost {
 
-    @PrimaryGeneratedColumn('identity')
-    idu_costo: number;
+    @PrimaryGeneratedColumn()
+    keyx: number;
 
-    @Column({type: 'varchar', length:255})
-    des_costo: string;
+    @Column({ type: 'bigint' })
+    num_empleado: bigint;
 
-    @Column({ type: 'numeric', precision: 10, scale: 2 })
-    imp_costo: string;
+    @Column({ type: 'bigint' })
+    id_proyecto: bigint;
+
+    @Column({ type: 'varchar', length: 100 })
+    nom_proyecto: string;
+  
+    @Column({ type: 'character', length: 25 })
+    nom_cliente_ia: string;
+  
+    @Column({ type: 'numeric', precision: 15, scale: 2 })
+    val_monto: string;
+  
+    @Column({ type: 'text' })
+    txt_descripcion: string;
 
     @ManyToOne(() => Application, application => application.cost, { nullable: false })
-    @JoinColumn({ name: 'idu_aplicacion' })
+    @JoinColumn({ name: 'id_proyecto', referencedColumnName: 'idu_proyecto' })
     application: Application;
 
 }

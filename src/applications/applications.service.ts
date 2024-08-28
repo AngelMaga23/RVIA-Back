@@ -23,6 +23,7 @@ import { ValidRoles } from '../auth/interfaces/valid-roles';
 import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
+import { Cost } from 'src/cost/entities/cost.entity';
 
 const addon = require('../../../../../sysx/progs/rvia/build/Release/rvia');
 
@@ -50,12 +51,6 @@ export class ApplicationsService {
 
     try {
 
-      // const aplicaciones = user.position?.nom_rol === ValidRoles.admin
-      //   ? await this.applicationRepository.find({
-      //     relations: ['checkmarx','cost']
-      //   })
-      //   : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx','cost'] });
-
       const queryBuilder = this.applicationRepository.createQueryBuilder('application')
       .leftJoinAndSelect('application.checkmarx', 'checkmarx')
       .leftJoinAndSelect('application.cost', 'cost')
@@ -67,9 +62,8 @@ export class ApplicationsService {
         queryBuilder.where('application.user = :userId', { userId: user.idu_usuario });
       }
 
-      const aplicaciones = await queryBuilder
-        .loadRelationCountAndMap('application.totalCost', 'application.cost', 'cost', qb => qb.select('SUM(cost.imp_costo)', 'total'))
-        .getMany();
+      const aplicaciones = await queryBuilder.getMany();
+
 
       aplicaciones.forEach((aplicacion, index) => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
@@ -77,9 +71,15 @@ export class ApplicationsService {
         aplicacion.sourcecode.nom_codigo_fuente = this.encryptionService.decrypt(aplicacion.sourcecode.nom_codigo_fuente);
         aplicacion.sourcecode.nom_directorio = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
         aplicacion.user.nom_usuario = this.encryptionService.decrypt(aplicacion.user.nom_usuario);
+
         (aplicacion as any).sequentialId = index + 1;
+        (aplicacion as any).totalCost = aplicacion.cost.reduce<number>(
+          (sum, cost) => sum + (cost.val_monto ? parseFloat(cost.val_monto) : 0),
+          0
+        );
+
         if (aplicacion.checkmarx && aplicacion.checkmarx.length > 0){
-          aplicacion.checkmarx.forEach(checkmarx => {
+          aplicacion.checkmarx.forEach(checkmarx => { 
             checkmarx.nom_checkmarx = this.encryptionService.decrypt(checkmarx.nom_checkmarx);
           });
         }

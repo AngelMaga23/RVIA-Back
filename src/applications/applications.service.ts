@@ -171,6 +171,8 @@ export class ApplicationsService {
 
       await streamPipeline(response.data, createWriteStream(tempZipPath));
 
+      await fsExtra.copy(tempZipPath, zipGit);
+
       await unzipper.Open.file(tempZipPath)
         .then(d => d.extract({ path: tempFolderPath }))
         .then(async () => {
@@ -228,7 +230,7 @@ export class ApplicationsService {
 
       }
 
-      await streamPipeline(response.data, createWriteStream(zipGit));
+      
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
@@ -238,6 +240,8 @@ export class ApplicationsService {
       };
 
     } catch (error) {
+      await fsExtra.remove(repoFolderPath);
+      await fsExtra.remove(zipGit);
       throw new InternalServerErrorException('Error al procesar el repositorio');
     } finally {
       await fsExtra.remove(tempFolderPath);

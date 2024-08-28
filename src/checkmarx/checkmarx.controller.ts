@@ -78,7 +78,7 @@ export class CheckmarxController {
   }
 
   @Post('upload-pdf')
-  @Auth(ValidRoles.user, ValidRoles.autorizador, ValidRoles.admin)
+  @Auth(ValidRoles.autorizador, ValidRoles.admin)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({

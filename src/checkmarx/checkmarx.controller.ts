@@ -52,7 +52,7 @@ export class CheckmarxController {
   }
 
   @Post('recoverypdf')
-  @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  @Auth(ValidRoles.admin)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({
@@ -78,7 +78,7 @@ export class CheckmarxController {
   }
 
   @Post('upload-pdf')
-  @Auth(ValidRoles.user)
+  @Auth(ValidRoles.user, ValidRoles.autorizador, ValidRoles.admin)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({

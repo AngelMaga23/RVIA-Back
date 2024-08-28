@@ -15,6 +15,7 @@ import { SeguimientoModule } from './seguimiento/seguimiento.module';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { LanguagesModule } from './languages/languages.module';
 import { CheckmarxModule } from './checkmarx/checkmarx.module';
+import { CostModule } from './cost/cost.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { CheckmarxModule } from './checkmarx/checkmarx.module';
     SeguimientoModule,
     // ConfigurationModule,
     LanguagesModule,
-    CheckmarxModule
+    CheckmarxModule,
+    CostModule
     
   ],
   controllers: [],

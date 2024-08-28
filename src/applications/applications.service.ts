@@ -50,11 +50,26 @@ export class ApplicationsService {
 
     try {
 
-      const aplicaciones = user.position?.nom_rol === ValidRoles.admin
-        ? await this.applicationRepository.find({
-          relations: ['checkmarx']
-        })
-        : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx'] });
+      // const aplicaciones = user.position?.nom_rol === ValidRoles.admin
+      //   ? await this.applicationRepository.find({
+      //     relations: ['checkmarx','cost']
+      //   })
+      //   : await this.applicationRepository.find({ where: { user: { idu_usuario: user.idu_usuario } },relations: ['checkmarx','cost'] });
+
+      const queryBuilder = this.applicationRepository.createQueryBuilder('application')
+      .leftJoinAndSelect('application.checkmarx', 'checkmarx')
+      .leftJoinAndSelect('application.cost', 'cost')
+      .leftJoinAndSelect('application.applicationstatus', 'applicationstatus')
+      .leftJoinAndSelect('application.sourcecode', 'sourcecode')
+      .leftJoinAndSelect('application.user', 'user');
+
+      if (user.position?.nom_rol !== ValidRoles.admin) {
+        queryBuilder.where('application.user = :userId', { userId: user.idu_usuario });
+      }
+
+      const aplicaciones = await queryBuilder
+        .loadRelationCountAndMap('application.totalCost', 'application.cost', 'cost', qb => qb.select('SUM(cost.imp_costo)', 'total'))
+        .getMany();
 
       aplicaciones.forEach((aplicacion, index) => {
         aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);

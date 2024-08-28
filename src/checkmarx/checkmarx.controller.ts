@@ -71,11 +71,38 @@ export class CheckmarxController {
   async uploadPDF(@Body() createCheckmarxDto: CreateCheckmarxDto, @UploadedFile() file: Express.Multer.File) {
 
     if ( !file ) {
-      throw new BadRequestException('Debes cargar un archivo Csv');
+      throw new BadRequestException('Debes cargar un archivo PDF');
     }
 
     return this.checkmarxService.convertPDF(createCheckmarxDto, file);
   }
+
+  @Post('upload-pdf')
+  @Auth(ValidRoles.user)
+  @UseInterceptors(FileInterceptor('file', {
+    fileFilter: fileFilterPDF,
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const dir = `/sysx/bito/projects`;
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: fileNamer
+    })
+  }),
+  new ValidationInterceptor((dto: CreateCheckmarxDto) => {
+    // Implement DTO validation logic here
+    return true; // Replace with actual validation
+  }))
+  async uploadPDFList(@Body() createCheckmarxDto: CreateCheckmarxDto, @UploadedFile() file: Express.Multer.File) {
+
+    if ( !file ) {
+      throw new BadRequestException('Debes cargar un archivo PDF');
+    }
+
+    return this.checkmarxService.convertPDF(createCheckmarxDto, file);
+  }
+
   
   @Get()
   findAll() {

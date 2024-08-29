@@ -25,7 +25,7 @@ import { Scan } from 'src/scans/entities/scan.entity';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 import { Cost } from 'src/cost/entities/cost.entity';
 
-const addon = require('../../../../../sysx/progs/rvia/build/Release/rvia');
+const addon = require('/sysx/progs/rvia/build/Release/rvia');
 
 @Injectable()
 export class ApplicationsService {

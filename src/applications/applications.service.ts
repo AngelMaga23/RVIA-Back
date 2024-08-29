@@ -300,7 +300,9 @@ export class ApplicationsService {
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
     const obj = new addon.CRvia();
-    const nameApplication = zipFile.originalname.split('.')[0].replace(/\s+/g, '-');
+    const tempExtension = zipFile.originalname.split('.');
+
+    const nameApplication = tempExtension.slice(0,-1).join('.').replace(/\s+/g, '-');
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
@@ -369,8 +371,9 @@ export class ApplicationsService {
 
       await this.applicationRepository.save(application);
 
+      
       // Renombrar el archivo .zip o .7z con el id y nombre de la aplicación
-      const newZipFileName = `${application.idu_proyecto}_${nameApplication}.${zipFile.originalname.split('.')[1]}`;
+      const newZipFileName = `${application.idu_proyecto}_${nameApplication}.${ tempExtension[tempExtension.length-1] }`;
       const newZipFilePath = join(zipFile.destination, newZipFileName);
 
       // Verifica si el archivo existe antes de renombrarlo

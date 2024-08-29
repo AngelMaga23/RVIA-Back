@@ -117,10 +117,10 @@ export class AuthService {
     });
 
     if ( !user ) 
-      throw new UnauthorizedException('Credentials are not valid (employee_number)');
+      throw new UnauthorizedException('Número de empleado no válido');
       
     if ( !bcrypt.compareSync( nom_contrasena, user.nom_contrasena ) )
-      throw new UnauthorizedException('Credentials are not valid (password)');
+      throw new UnauthorizedException('Contraseña no válida');
 
 
     const { nom_contrasena: _, ...userWithoutPassword } = user;

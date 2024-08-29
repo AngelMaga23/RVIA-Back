@@ -78,7 +78,7 @@ export class AuthService {
       const position = await this.positionService.findOne( createUserDto.idu_rol );
 
       if( await this.checkEmailExist( nom_correo ) )
-        throw new BadRequestException('El Correo Ya Existe');
+        throw new BadRequestException('El correo ya existe');
 
       const user = this.userRepository.create({
         ...userData,

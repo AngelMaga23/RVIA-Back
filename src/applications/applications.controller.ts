@@ -12,19 +12,20 @@ import { Auth } from 'src/auth/decorators';
 import { CreateApplicationDto, CreateFileDto } from './dto';
 
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) { }
 
   @Get()
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   findAll(@GetUser() user: User) {
     return this.applicationsService.findAll(user);
   }
 
   @Post('git')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
@@ -49,7 +50,7 @@ export class ApplicationsController {
   }
 
   @Post('gitlab')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
@@ -73,7 +74,7 @@ export class ApplicationsController {
   }
 
   @Post('files')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FilesInterceptor('files', 2, {
     fileFilter: fileFilterZip,
     // limits: { fileSize: 1000 }
@@ -118,13 +119,14 @@ export class ApplicationsController {
   }
 
   @Patch(':id')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.autorizador)
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
   }
 
-  @Auth()
+
   @Get('zip/:id')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   async findFileZip(
     @Res() res: Response,
     @Param('id') id: number

@@ -246,10 +246,14 @@ export class AuthService {
   
 
   private handleDBErrors( error: any ): never {
-    console.log(error)
-    if ( error.code === '23505' || error.code === '42703' ) 
+
+    if ( error.code === '23505' || error.code === '42703' ){
+      if(error.detail.includes('numero_empleado')){
+        throw new BadRequestException( "El número de empleado ya existe" );
+      }
       throw new BadRequestException( error.detail );
-    
+    }
+
     if ( error instanceof NotFoundException )
       throw error;
 

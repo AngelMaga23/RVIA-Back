@@ -14,7 +14,7 @@ export class CreateApplicationDto {
     @IsNumber()
     @IsOptional()
     @Transform(({ value }) => parseInt(value, 10))
-    opc_lenguaje: number;
+    opc_lenguaje: number = 0;
     
     @IsOptional()
     fec_creacion?: Date;

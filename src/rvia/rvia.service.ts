@@ -3,7 +3,7 @@ import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
 import { CommonService } from 'src/common/common.service';
-const addon = require('/sysx/progs/rvia/build/Release/rvia');
+const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
 export class RviaService {

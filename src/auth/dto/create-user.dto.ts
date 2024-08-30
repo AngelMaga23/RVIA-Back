@@ -9,7 +9,7 @@ class IsInRange implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments): string {
-    return 'Value must be between 90,000,000 and 100,000,000';
+    return 'El valor debe estar entre 90,000,000 and 100,000,000';
   }
 }
 

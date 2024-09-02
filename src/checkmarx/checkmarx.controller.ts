@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Res, StreamableFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
+
 
 import { CheckmarxService } from './checkmarx.service';
 import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
@@ -13,13 +15,18 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { Response } from 'express';
 import { fileFilterPDF } from './helper/fileFilterpdf';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
+import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
 
+
+@ApiTags('Checkmarx')
 @Controller('checkmarx')
 export class CheckmarxController {
   constructor(private readonly checkmarxService: CheckmarxService) {}
 
   @Post()
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden' })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: (req, file, cb) => {
       const ext = file.originalname.split('.').pop();

@@ -110,7 +110,7 @@ export class ApplicationsService {
         throw new BadRequestException('Invalid GitHub repository URL');
       }
 
-      return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitHub');
+      return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitHub', createApplicationDto.opc_arquitectura);
 
     } catch (error) {
       this.handleDBExceptions(error);
@@ -124,14 +124,14 @@ export class ApplicationsService {
         throw new BadRequestException('Invalid GitLab repository URL');
       }
 
-      return await this.processRepository(repoInfo.repoName, `${repoInfo.userName}/${repoInfo.groupName}`, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitLab');
+      return await this.processRepository(repoInfo.repoName, `${repoInfo.userName}/${repoInfo.groupName}`, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitLab', createApplicationDto.opc_arquitectura);
 
     } catch (error) {
       this.handleDBExceptions(error);
     }
   }
 
-  private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string) {
+  private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
     const obj = new addon.CRvia();
     const streamPipeline = promisify(pipeline);
@@ -211,6 +211,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
       application.idu_proyecto = iduProject;
       application.num_accion = numAccion;
+      application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false};
       application.opc_lenguaje = opcLenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;

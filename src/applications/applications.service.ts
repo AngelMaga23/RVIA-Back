@@ -364,6 +364,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
       application.idu_proyecto = iduProject;
       application.num_accion = createFileDto.num_accion;
+      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;

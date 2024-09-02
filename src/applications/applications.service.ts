@@ -144,6 +144,9 @@ export class ApplicationsService {
     const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
 
+    if( numAccion == 0 && !opcArquitectura )
+      throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
+
     await fsExtra.ensureDir(tempFolderPath);
 
     const branches = ['main', 'master'];
@@ -314,8 +317,12 @@ export class ApplicationsService {
     const iduProject = obj.createIDProject();
 
     try {
+
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
+
+      if( createFileDto.num_accion == 0 && !createFileDto.opc_arquitectura )
+        throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
 
       await fsExtra.ensureDir(tempFolderPath);
       await fsExtra.move(zipFile.path, tempZipPath);

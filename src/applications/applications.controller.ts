@@ -13,6 +13,7 @@ import { CreateApplicationDto, CreateFileDto } from './dto';
 
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 import { ValidRoles } from 'src/auth/interfaces';
+import { CreateArchitecture } from './dto/create-architecture.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -122,6 +123,12 @@ export class ApplicationsController {
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
+  }
+
+  @Patch('architecture/:id')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  addAppArchitecture(@Param('id', ParseIntPipe) id: number, @Body() createArchitecture: CreateArchitecture) {
+    return this.applicationsService.addAppArchitectur(id, createArchitecture);
   }
 
 

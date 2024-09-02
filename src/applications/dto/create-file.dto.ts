@@ -1,10 +1,13 @@
 import { Transform } from "class-transformer";
-import { IsNumber, IsOptional, IsString, MinLength } from "class-validator";
+import { IsIn, IsNumber, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateFileDto {
 
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))
+    @IsIn([0,1, 2, 3], {
+        message: 'El valor de num_accion debe ser 0, 1, 2 o 3',
+    })
     num_accion: number;
 
     @IsNumber()

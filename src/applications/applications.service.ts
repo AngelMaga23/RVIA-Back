@@ -24,6 +24,7 @@ import { CommonService } from 'src/common/common.service';
 import { Scan } from 'src/scans/entities/scan.entity';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 import { Cost } from 'src/cost/entities/cost.entity';
+import { CreateArchitecture } from './dto/create-architecture.dto';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -453,6 +454,32 @@ export class ApplicationsService {
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+      return application;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  async addAppArchitectur(id: number, createArchitecture: CreateArchitecture) {
+    try {
+
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion: id }
+      });
+
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createArchitecture.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
       return application;
     } catch (error) {
       this.handleDBExceptions(error);

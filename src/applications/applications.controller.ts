@@ -126,7 +126,7 @@ export class ApplicationsController {
   }
 
   @Patch('architecture/:id')
-  @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppArchitecture(@Param('id', ParseIntPipe) id: number, @Body() createArchitecture: CreateArchitecture) {
     return this.applicationsService.addAppArchitectur(id, createArchitecture);
   }

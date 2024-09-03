@@ -18,6 +18,7 @@ import { ValidationInterceptor } from '../interceptors/validation-file/validatio
 import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
 import { ForbiddenResponse } from 'src/common/dto/forbidden-response.dto';
 import { BadRequestResponse } from 'src/common/dto/bad-request-response.dto';
+import { InternalServerErrorResponse } from 'src/common/dto/server-error.dto';
 
 
 @ApiTags('Checkmarx')
@@ -31,6 +32,7 @@ export class CheckmarxController {
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: (req, file, cb) => {
       const ext = file.originalname.split('.').pop();

@@ -25,6 +25,9 @@ import { Scan } from 'src/scans/entities/scan.entity';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 import { Cost } from 'src/cost/entities/cost.entity';
 import { CreateArchitecture } from './dto/create-architecture.dto';
+import { CreateDocumentation } from './dto/create-documentation.dto';
+import { CreateTestCases } from './dto/create-testcases.dto';
+import { CreateRateProject } from './dto/create-rateproject.dto';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -467,7 +470,7 @@ export class ApplicationsService {
     }
   }
 
-  async addAppArchitectur(id: number, createArchitecture: CreateArchitecture) {
+  async addAppDocumentation(id: number, createDocumentation: CreateDocumentation) {
     try {
 
       const application = await this.applicationRepository.findOne({
@@ -480,7 +483,59 @@ export class ApplicationsService {
 
       application.opc_arquitectura = {
         ...application.opc_arquitectura,
-        [createArchitecture.opcArquitectura]: true,
+        [createDocumentation.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
+      return application;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  async addAppTestCases(id: number, createTestCases: CreateTestCases) {
+    try {
+
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion: id }
+      });
+
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createTestCases.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
+      return application;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  async addAppRateProject(id: number, createRateProject: CreateRateProject) {
+    try {
+
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion: id }
+      });
+
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createRateProject.opcArquitectura]: true,
       };
 
       await this.applicationRepository.save(application);

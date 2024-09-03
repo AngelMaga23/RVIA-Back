@@ -14,6 +14,9 @@ import { CreateApplicationDto, CreateFileDto } from './dto';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 import { ValidRoles } from 'src/auth/interfaces';
 import { CreateArchitecture } from './dto/create-architecture.dto';
+import { CreateDocumentation } from './dto/create-documentation.dto';
+import { CreateTestCases } from './dto/create-testcases.dto';
+import { CreateRateProject } from './dto/create-rateproject.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -125,10 +128,22 @@ export class ApplicationsController {
     return this.applicationsService.update(id, estatusId);
   }
 
-  @Patch('architecture/:id')
+  @Patch('documentation/:id')
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
-  addAppArchitecture(@Param('id', ParseIntPipe) id: number, @Body() createArchitecture: CreateArchitecture) {
-    return this.applicationsService.addAppArchitectur(id, createArchitecture);
+  addAppDocumentation(@Param('id', ParseIntPipe) id: number, @Body() createDocumentation: CreateDocumentation) {
+    return this.applicationsService.addAppDocumentation(id, createDocumentation);
+  }
+
+  @Patch('test-cases/:id')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
+  addApptestCases(@Param('id', ParseIntPipe) id: number, @Body() createTestCases: CreateTestCases) {
+    return this.applicationsService.addAppTestCases(id, createTestCases);
+  }
+
+  @Patch('rate-project/:id')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
+  addAppRateProject(@Param('id', ParseIntPipe) id: number, @Body() createRateProject: CreateRateProject) {
+    return this.applicationsService.addAppRateProject(id, createRateProject);
   }
 
 

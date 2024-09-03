@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { fileFilterPDF } from './helper/fileFilterpdf';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
+import { ForbiddenResponse } from 'src/common/dto/forbidden-response.dto';
 
 
 @ApiTags('Checkmarx')
@@ -26,7 +27,7 @@ export class CheckmarxController {
   @Post()
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
-  @ApiResponse({ status:403, description:'Forbidden' })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: (req, file, cb) => {
       const ext = file.originalname.split('.').pop();

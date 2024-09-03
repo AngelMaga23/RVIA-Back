@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Res, StreamableFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
 
@@ -17,6 +17,7 @@ import { fileFilterPDF } from './helper/fileFilterpdf';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
 import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
 import { ForbiddenResponse } from 'src/common/dto/forbidden-response.dto';
+import { BadRequestResponse } from 'src/common/dto/bad-request-response.dto';
 
 
 @ApiTags('Checkmarx')
@@ -26,6 +27,8 @@ export class CheckmarxController {
 
   @Post()
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
   @UseInterceptors(FileInterceptor('file', {

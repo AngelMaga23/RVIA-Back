@@ -60,7 +60,8 @@ export class ApplicationsService {
       .leftJoinAndSelect('application.cost', 'cost')
       .leftJoinAndSelect('application.applicationstatus', 'applicationstatus')
       .leftJoinAndSelect('application.sourcecode', 'sourcecode')
-      .leftJoinAndSelect('application.user', 'user');
+      .leftJoinAndSelect('application.user', 'user')
+      .orderBy('application.fec_creacion', 'ASC');
 
       if (user.position?.nom_rol !== ValidRoles.admin) {
         queryBuilder.where('application.user = :userId', { userId: user.idu_usuario });

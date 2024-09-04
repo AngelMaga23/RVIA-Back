@@ -473,12 +473,24 @@ export class ApplicationsService {
 
   async addAppDocumentation(id: number, createDocumentation: CreateDocumentation) {
     try {
+      const obj = new addon.CRvia();
+
+      // lIdProject           : 12345678
+      // lEmployee            : > 90000000 <= 100000000
+      // Ruta del proyecto    : /sysx/bito/projects/[carpeta del proyecto]
 
       const application = await this.applicationRepository.findOne({
         where: { idu_aplicacion: id }
       });
 
       if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+      const lID = application.idu_proyecto;
+      const lEmployee = application.user.numero_empleado;
+      const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
+
+      // const iResult = obj.createOverviewDoc( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
+      // console.log(" Valor de retorno: " + iResult);
 
 
 
@@ -499,6 +511,10 @@ export class ApplicationsService {
 
   async addAppTestCases(id: number, createTestCases: CreateTestCases) {
     try {
+      const obj = new addon.CRvia();
+      //Pendiente 
+      // const iResult3 = obj.createTestCase( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
+      // console.log(" Valor de retorno: " + iResult3);
 
       const application = await this.applicationRepository.findOne({
         where: { idu_aplicacion: id }
@@ -525,7 +541,10 @@ export class ApplicationsService {
 
   async addAppRateProject(id: number, createRateProject: CreateRateProject) {
     try {
-
+      const obj = new addon.CRvia();
+      //Pendiente 
+      // const iResult4 = obj.createCalifica( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
+      // console.log(" Valor de retorno: " + iResult4);
       const application = await this.applicationRepository.findOne({
         where: { idu_aplicacion: id }
       });

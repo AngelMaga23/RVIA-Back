@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
 import { CommonService } from 'src/common/common.service';
+import { ErrorRVIA } from './helpers/errors-rvia';
 const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
@@ -17,6 +18,7 @@ export class RviaService {
 
   async create(createRviaDto: CreateRviaDto) {
 
+    const obj = new addon.CRvia();
     const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);
@@ -33,8 +35,11 @@ export class RviaService {
     const bConTest  = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[2] : false;
     const bCalifica = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[3] : false;
 
-    // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     // console.log(" Valor de retorno: " + initProcessResult);
+
+    if(initProcessResult >= 600 && initProcessResult <= 699)
+      throw new BadRequestException( ErrorRVIA[initProcessResult] );
 
 
     return aplicacion;

@@ -28,6 +28,7 @@ import { CreateArchitecture } from './dto/create-architecture.dto';
 import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
+import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -489,10 +490,11 @@ export class ApplicationsService {
       const lEmployee = application.user.numero_empleado;
       const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
 
-      // const iResult = obj.createOverviewDoc( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
+      const iResult = obj.createOverviewDoc( lID, lEmployee, ruta_proyecto);
       // console.log(" Valor de retorno: " + iResult);
 
-
+      if(iResult >= 600 && iResult <= 699)
+        throw new BadRequestException( ErrorRVIA[iResult] );
 
       application.opc_arquitectura = {
         ...application.opc_arquitectura,

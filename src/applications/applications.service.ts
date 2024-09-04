@@ -339,6 +339,7 @@ export class ApplicationsService {
       }
 
       try {
+        let extractedFolders: string[] = [];
         if (zipFile.mimetype === 'application/zip' || zipFile.mimetype === 'application/x-zip-compressed') {
           // Descomprimir archivo .zip
           await unzipper.Open.file(tempZipPath)
@@ -346,6 +347,7 @@ export class ApplicationsService {
               await fsExtra.remove(repoFolderPath);
               await fsExtra.ensureDir(repoFolderPath);
               await directory.extract({ path: repoFolderPath });
+              extractedFolders = await fsExtra.readdir(repoFolderPath);
             })
             .catch(error => {
               throw new InternalServerErrorException(`Error al descomprimir el archivo .zip: ${error.message}`);
@@ -360,9 +362,18 @@ export class ApplicationsService {
               resolve();
             });
           });
+          extractedFolders = await fsExtra.readdir(repoFolderPath);
         } else {
           throw new UnsupportedMediaTypeException('Formato de archivo no soportado');
         }
+        if (extractedFolders.length === 1 && (await fsExtra.stat(join(repoFolderPath, extractedFolders[0]))).isDirectory()) {
+          const singleFolderPath = join(repoFolderPath, extractedFolders[0]);
+          const filesInside = await fsExtra.readdir(singleFolderPath);
+          for (const file of filesInside) {
+              await fsExtra.move(join(singleFolderPath, file), join(repoFolderPath, file), { overwrite: true });
+          }
+          await fsExtra.remove(singleFolderPath);
+      }
       } catch (error) {
         throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }
@@ -447,7 +458,7 @@ export class ApplicationsService {
         await fsExtra.remove(tempFolderPath);
       }
       this.handleDBExceptions(error);
-      throw error; // Re-lanzar el error para que se propague
+      throw error;
     }
   }
 

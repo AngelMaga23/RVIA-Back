@@ -18,6 +18,8 @@ import { ValidationInterceptor } from '../interceptors/validation-file/validatio
 import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
 import { ForbiddenResponse } from 'src/common/dto/forbidden-response.dto';
 import { BadRequestResponse } from 'src/common/dto/bad-request-response.dto';
+import { InternalServerErrorResponse } from 'src/common/dto/server-error.dto';
+import { Checkmarx } from './entities/checkmarx.entity';
 
 
 @ApiTags('Checkmarx')
@@ -28,9 +30,11 @@ export class CheckmarxController {
   @Post()
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
   @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: (req, file, cb) => {
       const ext = file.originalname.split('.').pop();
@@ -64,6 +68,12 @@ export class CheckmarxController {
 
   @Post('recoverypdf')
   @Auth(ValidRoles.admin)
+  @ApiConsumes('multipart/form-data')
+  // @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({

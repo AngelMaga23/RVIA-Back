@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
 import { CommonService } from 'src/common/common.service';
+import { ErrorRVIA } from './helpers/errors-rvia';
 const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
@@ -17,20 +18,29 @@ export class RviaService {
 
   async create(createRviaDto: CreateRviaDto) {
 
+    const obj = new addon.CRvia();
     const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
-    // const obj = new addon.CRvia();
-    // const lID = obj.createIDProject();
-
+    // Base de datos: 1 = Producción 2 = Desarrollo
+    // const obj = new addon.CRvia(2);
+    const lID = aplicacion.idu_proyecto;
     //  -------------------------------- Parámetros de Entrada --------------------------------
-    // const lIdProject = aplicacion.idu_aplicacion;
-    // const lEmployee = aplicacion.user.numero_empleado;
-    // const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-    // const tipo_proyecto = aplicacion.num_accion;
-    // const iConIA = createRviaDto.conIA;
+    const lIdProject = aplicacion.idu_aplicacion;
+    const lEmployee = aplicacion.user.numero_empleado;
+    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    const tipo_proyecto = aplicacion.num_accion;
+    const iConIA = createRviaDto.conIA;
     // const Bd = 1 = Producion 2 = Desarrollo
+    const bConDoc   = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = false;
+    const bConTest  = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[2] : false;
+    const bCalifica = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[3] : false;
 
-    // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, 2);
+    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     // console.log(" Valor de retorno: " + initProcessResult);
+
+    if(initProcessResult >= 600 && initProcessResult <= 699)
+      throw new BadRequestException( ErrorRVIA[initProcessResult] );
+
 
     return aplicacion;
   }

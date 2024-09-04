@@ -18,19 +18,24 @@ export class RviaService {
   async create(createRviaDto: CreateRviaDto) {
 
     const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
-    // const obj = new addon.CRvia();
-    // const lID = obj.createIDProject();
-
+    // Base de datos: 1 = Producción 2 = Desarrollo
+    // const obj = new addon.CRvia(2);
+    const lID = aplicacion.idu_proyecto;
     //  -------------------------------- Parámetros de Entrada --------------------------------
-    // const lIdProject = aplicacion.idu_aplicacion;
-    // const lEmployee = aplicacion.user.numero_empleado;
-    // const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-    // const tipo_proyecto = aplicacion.num_accion;
-    // const iConIA = createRviaDto.conIA;
+    const lIdProject = aplicacion.idu_aplicacion;
+    const lEmployee = aplicacion.user.numero_empleado;
+    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    const tipo_proyecto = aplicacion.num_accion;
+    const iConIA = createRviaDto.conIA;
     // const Bd = 1 = Producion 2 = Desarrollo
+    const bConDoc   = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = false;
+    const bConTest  = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[2] : false;
+    const bCalifica = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[3] : false;
 
-    // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, 2);
+    // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     // console.log(" Valor de retorno: " + initProcessResult);
+
 
     return aplicacion;
   }

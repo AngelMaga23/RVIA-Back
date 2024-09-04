@@ -68,6 +68,12 @@ export class CheckmarxController {
 
   @Post('recoverypdf')
   @Auth(ValidRoles.admin)
+  @ApiConsumes('multipart/form-data')
+  // @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({

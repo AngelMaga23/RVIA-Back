@@ -139,7 +139,7 @@ export class ApplicationsService {
 
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
-    const obj = new addon.CRvia();
+    const obj = new addon.CRvia(2);
     const streamPipeline = promisify(pipeline);
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
@@ -309,7 +309,7 @@ export class ApplicationsService {
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
-    const obj = new addon.CRvia();
+    const obj = new addon.CRvia(2);
     const tempExtension = zipFile.originalname.split('.');
 
     const nameApplication = tempExtension.slice(0,-1).join('.').replace(/\s+/g, '-');
@@ -485,7 +485,7 @@ export class ApplicationsService {
 
   async addAppDocumentation(id: number, createDocumentation: CreateDocumentation) {
     try {
-      const obj = new addon.CRvia();
+      const obj = new addon.CRvia(2);
 
       // lIdProject           : 12345678
       // lEmployee            : > 90000000 <= 100000000
@@ -524,7 +524,7 @@ export class ApplicationsService {
 
   async addAppTestCases(id: number, createTestCases: CreateTestCases) {
     try {
-      const obj = new addon.CRvia();
+      const obj = new addon.CRvia(2);
       //Pendiente 
       // const iResult3 = obj.createTestCase( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult3);
@@ -554,7 +554,7 @@ export class ApplicationsService {
 
   async addAppRateProject(id: number, createRateProject: CreateRateProject) {
     try {
-      const obj = new addon.CRvia();
+      const obj = new addon.CRvia(2);
       //Pendiente 
       // const iResult4 = obj.createCalifica( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult4);

@@ -18,7 +18,7 @@ export class RviaService {
 
   async create(createRviaDto: CreateRviaDto) {
 
-    const obj = new addon.CRvia();
+    const obj = new addon.CRvia(2);
     const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);

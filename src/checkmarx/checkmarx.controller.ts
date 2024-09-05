@@ -6,8 +6,7 @@ import { diskStorage } from 'multer';
 
 
 import { CheckmarxService } from './checkmarx.service';
-import { CreateCheckmarxDto } from './dto/create-checkmarx.dto';
-import { UpdateCheckmarxDto } from './dto/update-checkmarx.dto';
+import { ErrorOptionApplication, CreateCheckmarxDto, UpdateCheckmarxDto } from './dto';
 
 import { fileFilter, fileNamer } from './helper';
 import { Auth } from 'src/auth/decorators';
@@ -15,11 +14,9 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { Response } from 'express';
 import { fileFilterPDF } from './helper/fileFilterpdf';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
-import { UnauthorizedResponse } from 'src/common/dto/unauthorized-response.dto';
-import { ForbiddenResponse } from 'src/common/dto/forbidden-response.dto';
-import { BadRequestResponse } from 'src/common/dto/bad-request-response.dto';
-import { InternalServerErrorResponse } from 'src/common/dto/server-error.dto';
+import { UnauthorizedResponse, BadRequestResponse, CreateCommonDto, ForbiddenResponse, InternalServerErrorResponse, UpdateCommonDto } from 'src/common/dto';
 import { Checkmarx } from './entities/checkmarx.entity';
+
 
 
 @ApiTags('Checkmarx')
@@ -73,7 +70,10 @@ export class CheckmarxController {
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
-  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
+  @ApiResponse({ status: 422, description: 'Error relacionado con la sanitización: La aplicación debe tener la acción de Sanitización', type: ErrorOptionApplication })
+  @ApiResponse({ status: 500, description: 'Internal server error', type: InternalServerErrorResponse })
+
+  
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterPDF,
     storage: diskStorage({

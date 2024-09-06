@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Res, StreamableFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as fs from 'fs';
 import { diskStorage } from 'multer';
 
@@ -145,6 +145,7 @@ export class CheckmarxController {
   }
 
   @Get('download/:id')
+  @ApiParam({ name: 'id', description: 'ID del archivo Checkmarx' })
   @ApiResponse({ status: 200, description: 'Archivo CSV descargado correctamente', content: { 'text/csv': { schema: { type: 'string', format: 'binary', }, },},})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })

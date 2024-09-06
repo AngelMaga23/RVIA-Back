@@ -135,6 +135,11 @@ export class CheckmarxController {
 
   @Get(':id')
   @Auth()
+  @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   findOne(@Param('id') id: number) {
     return this.checkmarxService.findOneByApplication(id);
   }

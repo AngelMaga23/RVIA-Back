@@ -133,12 +133,6 @@ export class CheckmarxController {
     return this.checkmarxService.convertPDF(createCheckmarxDto, file);
   }
 
-  
-  @Get()
-  findAll() {
-    return this.checkmarxService.findAll();
-  }
-
   @Get(':id')
   @Auth()
   findOne(@Param('id') id: number) {
@@ -150,8 +144,4 @@ export class CheckmarxController {
     return this.checkmarxService.downloadCsvFile(id,res);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.checkmarxService.remove(+id);
-  }
 }

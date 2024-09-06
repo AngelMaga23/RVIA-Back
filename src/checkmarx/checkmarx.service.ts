@@ -89,10 +89,6 @@ export class CheckmarxService {
 
   }
 
-  findAll() {
-    return `This action returns all checkmarx`;
-  }
-
   async findOneByApplication(id: number) {
 
     const aplicacion = await this.applicationService.findOne(id);
@@ -138,10 +134,6 @@ export class CheckmarxService {
     });
 
     fileStream.pipe(response);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} checkmarx`;
   }
 
   async callPython(nameApplication:string, namePdf:string, application: Application){

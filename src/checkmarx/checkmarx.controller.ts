@@ -6,7 +6,7 @@ import { diskStorage } from 'multer';
 
 
 import { CheckmarxService } from './checkmarx.service';
-import { ErrorOptionApplication, CreateCheckmarxDto, UpdateCheckmarxDto } from './dto';
+import { ErrorOptionApplication, CreateCheckmarxDto, UpdateCheckmarxDto, ErrorPDFFile, SuccessResponse } from './dto';
 
 import { fileFilter, fileNamer } from './helper';
 import { Auth } from 'src/auth/decorators';
@@ -66,12 +66,13 @@ export class CheckmarxController {
   @Post('recoverypdf')
   @Auth(ValidRoles.admin)
   @ApiConsumes('multipart/form-data')
-  // @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
+  @ApiResponse({ status:201, description:'CSV se subió correctamente', type: SuccessResponse })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
   @ApiResponse({ status: 422, description: 'Error relacionado con la sanitización: La aplicación debe tener la acción de Sanitización', type: ErrorOptionApplication })
-  @ApiResponse({ status: 500, description: 'Internal server error', type: InternalServerErrorResponse })
+  // @ApiResponse({ status: 500, description: 'Internal server error', type: InternalServerErrorResponse })
+  @ApiResponse({ status: 500, description: 'Error cuándo el pdf no es de checkmarx o tiene el formato incorrecto', type: ErrorPDFFile })
 
   
   @UseInterceptors(FileInterceptor('file', {

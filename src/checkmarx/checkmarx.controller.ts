@@ -14,7 +14,7 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { Response } from 'express';
 import { fileFilterPDF } from './helper/fileFilterpdf';
 import { ValidationInterceptor } from '../interceptors/validation-file/validation-file.interceptor';
-import { UnauthorizedResponse, BadRequestResponse, CreateCommonDto, ForbiddenResponse, InternalServerErrorResponse, UpdateCommonDto } from 'src/common/dto';
+import { UnauthorizedResponse, BadRequestResponse, CreateCommonDto, ForbiddenResponse, InternalServerErrorResponse, UpdateCommonDto, NotFoundExceptionResponse } from 'src/common/dto';
 import { Checkmarx } from './entities/checkmarx.entity';
 
 
@@ -145,6 +145,12 @@ export class CheckmarxController {
   }
 
   @Get('download/:id')
+  @ApiResponse({ status: 200, description: 'Archivo CSV descargado correctamente', content: { 'text/csv': { schema: { type: 'string', format: 'binary', }, },},})
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:404, description:'Ocurre cuándo no existe el dato o archivo', type: NotFoundExceptionResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   downloadCsv(@Param('id') id: number, @Res() res: Response) {
     return this.checkmarxService.downloadCsvFile(id,res);
   }

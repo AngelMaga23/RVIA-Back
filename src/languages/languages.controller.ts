@@ -18,6 +18,7 @@ export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService) {}
 
   @Post()
+  @ApiParam({ name: 'nom_lenguaje', description: 'Nombre del lenguaje de programación' })
   @ApiResponse({ status:200, description:'Objeto creado', type: Language })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })

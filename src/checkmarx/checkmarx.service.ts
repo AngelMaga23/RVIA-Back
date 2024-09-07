@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException, StreamableFile } from '@nestjs/common';
+import { BadRequestException, forwardRef, HttpException, Inject, Injectable, InternalServerErrorException, NotFoundException, StreamableFile, UnprocessableEntityException } from '@nestjs/common';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,7 +39,7 @@ export class CheckmarxService {
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
       const nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
       const fileName = `checkmarx_${aplicacion.idu_proyecto}_${nom_aplicacion}.csv`;
-      const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
+      const finalFilePath = join(`/sysx/bito/projects/${aplicacion.idu_proyecto}_${nom_aplicacion}`, fileName);
 
       await rename(`/sysx/bito/projects/${file.filename}`, finalFilePath);  
  
@@ -68,7 +68,7 @@ export class CheckmarxService {
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
 
       if(aplicacion.num_accion != 2)
-        throw new NotFoundException(` La aplicación debe tener la acción de Sanitización `);
+        throw new UnprocessableEntityException(` La aplicación debe tener la acción de Sanitización `);
 
       const pdfFileRename = await this.moveAndRenamePdfFile( file, aplicacion );
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
@@ -76,13 +76,17 @@ export class CheckmarxService {
 
       return res;
     } catch (error) {
-      throw new InternalServerErrorException('Error al subir csv', error.message);
+
+
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Error al subir CSV', error.message);
+      }
+
+      // throw new InternalServerErrorException('Error al subir csv', error.message);
     }
 
-  }
-
-  findAll() {
-    return `This action returns all checkmarx`;
   }
 
   async findOneByApplication(id: number) {
@@ -132,10 +136,6 @@ export class CheckmarxService {
     fileStream.pipe(response);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} checkmarx`;
-  }
-
   async callPython(nameApplication:string, namePdf:string, application: Application){
 
     const scriptPath = join(__dirname, '../..', 'src/python-scripts','recovery.py');
@@ -144,7 +144,7 @@ export class CheckmarxService {
     const nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
     const fileName = `checkmarx_${application.idu_proyecto}_${nom_aplicacion}.csv`;
-    const finalFilePath = join(`/sysx/bito/projects/${nom_aplicacion}`, fileName);
+    const finalFilePath = join(`/sysx/bito/projects/${application.idu_proyecto}_${nom_aplicacion}`, fileName);
     
     try {
       await fsPromises.access(scriptPath, fsPromises.constants.F_OK | fsPromises.constants.R_OK);

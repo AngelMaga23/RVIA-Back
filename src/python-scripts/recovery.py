@@ -238,7 +238,7 @@ def main():
         nombre_pdf = sys.argv[2]
         id_proyecto = sys.argv[3]
         
-        ruta = '/sysx/bito/projects/'+nombre_aplicacion
+        ruta = '/sysx/bito/projects/'+id_proyecto+"_"+nombre_aplicacion
         pdf_path = obtener_ultimo_pdf(ruta, nombre_pdf)
         
         # Generar el nombre del archivo CSV

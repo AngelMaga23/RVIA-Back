@@ -87,7 +87,16 @@ export class LanguagesService {
 
   async remove(id: number) {
     const language = await this.findOne( id );
+
+    if (!language) {
+      throw new NotFoundException(`Lenguaje con ID ${id} no encontrado`);
+    }
+
+    const nom_lenguaje = language.nom_lenguaje;
+
     await this.languageRepository.remove( language );
+
+    return { message: `Lenguaje ${nom_lenguaje} eliminado correctamente` };
   }
 
   private handleDBExceptions( error:any ){

@@ -310,16 +310,17 @@ export class ApplicationsService {
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
     const obj = new addon.CRvia(2);
+    const iduProject = obj.createIDProject();
     const tempExtension = zipFile.originalname.split('.');
 
     const nameApplication = tempExtension.slice(0,-1).join('.').replace(/\s+/g, '-');
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
-    const repoFolderPath = join(zipFile.destination, nameApplication);
+    const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
-    const iduProject = obj.createIDProject();
+    
 
     try {
 

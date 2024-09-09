@@ -17,6 +17,7 @@ import { CreateArchitecture } from './dto/create-architecture.dto';
 import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
+import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -132,6 +133,12 @@ export class ApplicationsController {
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppDocumentation(@Param('id', ParseIntPipe) id: number, @Body() createDocumentation: CreateDocumentation) {
     return this.applicationsService.addAppDocumentation(id, createDocumentation);
+  }
+
+  @Patch('documentation-code:id')
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
+  addAppDocumentationCode(@Param('id', ParseIntPipe) id: number, @Body() createDocumentationCodigo: CreateDocumentationCodigo) {
+    return this.applicationsService.addAppDocumentationCode(id, createDocumentationCodigo);
   }
 
   @Patch('test-cases/:id')

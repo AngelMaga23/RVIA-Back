@@ -29,6 +29,7 @@ import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
+import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -511,6 +512,45 @@ export class ApplicationsService {
       application.opc_arquitectura = {
         ...application.opc_arquitectura,
         [createDocumentation.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
+      return application;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  async addAppDocumentationCode(id: number, createDocumentationCodigo: CreateDocumentationCodigo) {
+    try {
+      const obj = new addon.CRvia(2);
+
+      // lIdProject           : 12345678
+      // lEmployee            : > 90000000 <= 100000000
+      // Ruta del proyecto    : /sysx/bito/projects/[carpeta del proyecto]
+
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion: id }
+      });
+
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+      const lID = application.idu_proyecto;
+      const lEmployee = application.user.numero_empleado;
+      const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
+
+      const iResult = obj.createOverviewDoc( lID, lEmployee, ruta_proyecto);
+      // console.log(" Valor de retorno: " + iResult);
+
+      if(iResult >= 600 && iResult <= 699)
+        throw new BadRequestException( ErrorRVIA[iResult] );
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createDocumentationCodigo.opcArquitectura]: true,
       };
 
       await this.applicationRepository.save(application);

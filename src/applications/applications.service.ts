@@ -141,11 +141,13 @@ export class ApplicationsService {
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
     const obj = new addon.CRvia(2);
+    const iduProject = obj.createIDProject();
+
     const streamPipeline = promisify(pipeline);
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
-    const repoFolderPath = join(this.downloadPath, repoName);
-    const iduProject = obj.createIDProject();
+    const repoFolderPath = join(this.downloadPath, `${iduProject}_${repoName}`);
+
 
     const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };

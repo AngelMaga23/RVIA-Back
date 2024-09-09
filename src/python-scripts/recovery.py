@@ -3,6 +3,7 @@ import csv
 import sys
 import os
 from PyPDF2 import PdfReader
+csv.field_size_limit(sys.maxsize)
 
 RGX_PATH = re.compile(r'^.*\\Path\s+\d+:')
 RGX_SEVERITY = re.compile(r'Severity\s*(.*)$')

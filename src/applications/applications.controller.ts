@@ -135,7 +135,7 @@ export class ApplicationsController {
     return this.applicationsService.addAppDocumentation(id, createDocumentation);
   }
 
-  @Patch('documentation-code:id')
+  @Patch('documentation-code/:id')
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppDocumentationCode(@Param('id', ParseIntPipe) id: number, @Body() createDocumentationCodigo: CreateDocumentationCodigo) {
     return this.applicationsService.addAppDocumentationCode(id, createDocumentationCodigo);

@@ -223,7 +223,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
       application.idu_proyecto = iduProject;
       application.num_accion = numAccion;
-      application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false};
+      application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
@@ -243,6 +243,9 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+
+            this.ApplicationInitProcess(application, obj);
+
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
@@ -258,6 +261,9 @@ export class ApplicationsService {
 
       }
 
+      if( numAccion != 2 ){
+        this.ApplicationInitProcess(application, obj);
+      }
       
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -393,7 +399,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
       application.idu_proyecto = iduProject;
       application.num_accion = createFileDto.num_accion;
-      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false};
+      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
@@ -429,6 +435,9 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+
+            this.ApplicationInitProcess(application, obj);
+
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
@@ -441,6 +450,10 @@ export class ApplicationsService {
           scan.application = application;
           await this.scanRepository.save(scan);
         }
+      }
+
+      if( createFileDto.num_accion != 2 ){
+        this.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -674,6 +687,41 @@ export class ApplicationsService {
 
       throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
     }
+  }
+
+  private ApplicationInitProcess(aplicacion:Application, obj: any){
+    // Base de datos: 1 = Producción 2 = Desarrollo
+    // const obj = new addon.CRvia(2);
+    let isValidProcess = true;
+    //  -------------------------------- Parámetros de Entrada --------------------------------
+    const lID = aplicacion.idu_proyecto;
+    const lEmployee = aplicacion.user.numero_empleado;
+    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    const tipo_proyecto = aplicacion.num_accion;
+    const iConIA = 1;
+    // const Bd = 1 = Producion 2 = Desarrollo
+  
+    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
+    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
+    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
+    console.log(" Valor de retorno: " + bConDoc);
+    console.log(" Valor de retorno: " + bConCod);
+    console.log(" Valor de retorno: " + bConTest);
+    console.log(" Valor de retorno: " + bCalifica);
+    console.log(" Valor de retorno: " + lID);
+    console.log(" Valor de retorno: " + lEmployee);
+    console.log(" Valor de retorno: " + ruta_proyecto);
+    console.log(" Valor de retorno: " + tipo_proyecto);
+
+    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+    
+
+    if(initProcessResult >= 600 && initProcessResult <= 699){
+      isValidProcess = false;
+    }
+    console.log(isValidProcess)
+    return isValidProcess;
   }
 
 

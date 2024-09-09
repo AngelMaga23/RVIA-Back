@@ -705,14 +705,6 @@ export class ApplicationsService {
     const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
     const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
     const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
-    console.log(" Valor de retorno: " + bConDoc);
-    console.log(" Valor de retorno: " + bConCod);
-    console.log(" Valor de retorno: " + bConTest);
-    console.log(" Valor de retorno: " + bCalifica);
-    console.log(" Valor de retorno: " + lID);
-    console.log(" Valor de retorno: " + lEmployee);
-    console.log(" Valor de retorno: " + ruta_proyecto);
-    console.log(" Valor de retorno: " + tipo_proyecto);
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     

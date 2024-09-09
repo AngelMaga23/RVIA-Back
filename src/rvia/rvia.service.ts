@@ -30,17 +30,19 @@ export class RviaService {
     const tipo_proyecto = aplicacion.num_accion;
     const iConIA = createRviaDto.conIA;
     // const Bd = 1 = Producion 2 = Desarrollo
-    const bConDoc   = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[1] : false;
-    const bConCod   = false;
-    const bConTest  = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[2] : false;
-    const bCalifica = aplicacion.opc_arquitectura ? aplicacion.opc_arquitectura[3] : false;
+  
+    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
+    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
+    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
+    
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     // console.log(" Valor de retorno: " + initProcessResult);
 
-    if(initProcessResult >= 600 && initProcessResult <= 699)
+    if(initProcessResult >= 600 && initProcessResult <= 699){
       throw new BadRequestException( ErrorRVIA[initProcessResult] );
-
+    }
 
     return aplicacion;
   }

@@ -29,6 +29,7 @@ import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
+import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -140,11 +141,13 @@ export class ApplicationsService {
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
     const obj = new addon.CRvia(2);
+    const iduProject = obj.createIDProject();
+
     const streamPipeline = promisify(pipeline);
     const uniqueTempFolderName = `temp-${uuid()}`;
     const tempFolderPath = join(this.downloadPath, uniqueTempFolderName);
-    const repoFolderPath = join(this.downloadPath, repoName);
-    const iduProject = obj.createIDProject();
+    const repoFolderPath = join(this.downloadPath, `${iduProject}_${repoName}`);
+
 
     const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
@@ -220,7 +223,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(repoName);
       application.idu_proyecto = iduProject;
       application.num_accion = numAccion;
-      application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false};
+      application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
@@ -240,6 +243,9 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+
+            this.ApplicationInitProcess(application, obj);
+
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
@@ -255,6 +261,9 @@ export class ApplicationsService {
 
       }
 
+      if( numAccion != 2 ){
+        this.ApplicationInitProcess(application, obj);
+      }
       
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -390,7 +399,7 @@ export class ApplicationsService {
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
       application.idu_proyecto = iduProject;
       application.num_accion = createFileDto.num_accion;
-      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false};
+      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
@@ -426,6 +435,9 @@ export class ApplicationsService {
             scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
             scan.application = application;
             await this.scanRepository.save(scan);
+
+            this.ApplicationInitProcess(application, obj);
+
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
           }
@@ -438,6 +450,10 @@ export class ApplicationsService {
           scan.application = application;
           await this.scanRepository.save(scan);
         }
+      }
+
+      if( createFileDto.num_accion != 2 ){
+        this.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -511,6 +527,45 @@ export class ApplicationsService {
       application.opc_arquitectura = {
         ...application.opc_arquitectura,
         [createDocumentation.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
+
+      application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
+
+      return application;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  async addAppDocumentationCode(id: number, createDocumentationCodigo: CreateDocumentationCodigo) {
+    try {
+      const obj = new addon.CRvia(2);
+
+      // lIdProject           : 12345678
+      // lEmployee            : > 90000000 <= 100000000
+      // Ruta del proyecto    : /sysx/bito/projects/[carpeta del proyecto]
+
+      const application = await this.applicationRepository.findOne({
+        where: { idu_aplicacion: id }
+      });
+
+      if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
+
+      const lID = application.idu_proyecto;
+      const lEmployee = application.user.numero_empleado;
+      const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
+
+      const iResult = obj.createOverviewDoc( lID, lEmployee, ruta_proyecto);
+      // console.log(" Valor de retorno: " + iResult);
+
+      if(iResult >= 600 && iResult <= 699)
+        throw new BadRequestException( ErrorRVIA[iResult] );
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createDocumentationCodigo.opcArquitectura]: true,
       };
 
       await this.applicationRepository.save(application);
@@ -632,6 +687,33 @@ export class ApplicationsService {
 
       throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
     }
+  }
+
+  private ApplicationInitProcess(aplicacion:Application, obj: any){
+    // Base de datos: 1 = Producción 2 = Desarrollo
+    // const obj = new addon.CRvia(2);
+    let isValidProcess = true;
+    //  -------------------------------- Parámetros de Entrada --------------------------------
+    const lID = aplicacion.idu_proyecto;
+    const lEmployee = aplicacion.user.numero_empleado;
+    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    const tipo_proyecto = aplicacion.num_accion;
+    const iConIA = 1;
+    // const Bd = 1 = Producion 2 = Desarrollo
+  
+    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
+    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
+    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
+
+    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+    
+
+    if(initProcessResult >= 600 && initProcessResult <= 699){
+      isValidProcess = false;
+    }
+    console.log(isValidProcess)
+    return isValidProcess;
   }
 
 

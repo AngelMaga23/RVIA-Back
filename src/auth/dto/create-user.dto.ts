@@ -35,14 +35,17 @@ export class CreateUserDto {
     @IsString()
     @MinLength(6)
     @MaxLength(50)
-    @Matches(
-        /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'La contraseña debe tener una letra mayúscula, una minúscula y un número.'
+    @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{12,}$/, {
+      message: 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.'
     })
     nom_contrasena: string;
 
     @IsString()
     @MinLength(1)
+    @Transform(({ value }) => value.trim())
+    @Matches(/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){2,}$/, {
+      message: 'Escribe nombre completo, con al menos un nombre y dos apellidos, todos comenzando con letra mayúscula'
+    })
     nom_usuario: string;
 
     @IsNumber()

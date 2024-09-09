@@ -712,7 +712,7 @@ export class ApplicationsService {
     if(initProcessResult >= 600 && initProcessResult <= 699){
       isValidProcess = false;
     }
-    console.log(isValidProcess)
+
     return isValidProcess;
   }
 

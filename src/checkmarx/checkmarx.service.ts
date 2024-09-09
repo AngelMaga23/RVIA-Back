@@ -16,7 +16,7 @@ import { CommonService } from 'src/common/common.service';
 import { Checkmarx } from './entities/checkmarx.entity';
 
 import { Application } from 'src/applications/entities/application.entity';
-
+const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
 export class CheckmarxService {
@@ -73,6 +73,7 @@ export class CheckmarxService {
       const pdfFileRename = await this.moveAndRenamePdfFile( file, aplicacion );
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
  
+      this.ApplicationInitProcess(aplicacion);
 
       return res;
     } catch (error) {
@@ -134,6 +135,32 @@ export class CheckmarxService {
     });
 
     fileStream.pipe(response);
+  }
+
+  private ApplicationInitProcess(aplicacion:Application){
+    // Base de datos: 1 = Producción 2 = Desarrollo
+    const obj = new addon.CRvia(2);
+    let isValidProcess = true;
+    //  -------------------------------- Parámetros de Entrada --------------------------------
+    const lID = aplicacion.idu_proyecto;
+    const lEmployee = aplicacion.user.numero_empleado;
+    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
+    const tipo_proyecto = aplicacion.num_accion;
+    const iConIA = 1;
+    // const Bd = 1 = Producion 2 = Desarrollo
+  
+    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
+    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
+    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
+    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
+
+    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+    
+    if(initProcessResult >= 600 && initProcessResult <= 699){
+      isValidProcess = false;
+    }
+
+    return isValidProcess;
   }
 
   async callPython(nameApplication:string, namePdf:string, application: Application){

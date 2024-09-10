@@ -50,8 +50,6 @@ export class ApplicationsService {
     private scanRepository: Repository<Scan>,
     @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
     private readonly checkmarxService: CheckmarxService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
   ) {
   }
 
@@ -68,7 +66,7 @@ export class ApplicationsService {
       .orderBy('application.fec_creacion', 'ASC');
 
       if (user.position?.nom_rol !== ValidRoles.admin) {
-        queryBuilder.where('application.user = :userNum', { userNum: user.numero_empleado });
+        queryBuilder.where('application.user = :userId', { userId: user.idu_usuario });
       }
 
       const aplicaciones = await queryBuilder.getMany();
@@ -227,6 +225,7 @@ export class ApplicationsService {
       application.num_accion = numAccion;
       application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
+      application.num_empleado = user.numero_empleado;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -331,6 +330,7 @@ export class ApplicationsService {
     const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+    
 
     try {
 
@@ -402,6 +402,7 @@ export class ApplicationsService {
       application.num_accion = createFileDto.num_accion;
       application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
+      application.num_empleado = user.numero_empleado;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

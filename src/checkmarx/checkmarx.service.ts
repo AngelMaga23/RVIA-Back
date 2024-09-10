@@ -30,8 +30,7 @@ export class CheckmarxService {
     private readonly checkmarxRepository: Repository<Checkmarx>,
     @Inject(forwardRef(() => ApplicationsService)) // Usamos forwardRef aquí
     private readonly applicationService: ApplicationsService,
-    private readonly encryptionService: CommonService,
-    private readonly estatusService: ApplicationstatusService,
+    private readonly encryptionService: CommonService
 
   ) {}
 
@@ -69,7 +68,6 @@ export class CheckmarxService {
     try {
 
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
-      const estatu = await this.estatusService.findOne(1);
 
       if(aplicacion.num_accion != 2)
         throw new UnprocessableEntityException(` La aplicación debe tener la acción de Sanitización `);
@@ -78,7 +76,7 @@ export class CheckmarxService {
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
       
       if( res.isValid ){
-        
+
         const rrviaProcess = this.ApplicationInitProcess(aplicacion);
 
         if( rrviaProcess ){

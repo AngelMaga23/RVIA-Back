@@ -244,7 +244,12 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            this.ApplicationInitProcess(application, obj);
+            const rviaProcess = this.ApplicationInitProcess(application, obj);
+
+            if( rviaProcess ){
+              const newEstatu = await this.estatusService.findOne(1);
+              application.applicationstatus = newEstatu;
+            }
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -262,9 +267,13 @@ export class ApplicationsService {
       }
 
       if( numAccion != 2 ){
-        this.ApplicationInitProcess(application, obj);
+        const rviaProcess = this.ApplicationInitProcess(application, obj);
+        if( rviaProcess ){
+          const newEstatu = await this.estatusService.findOne(1);
+          application.applicationstatus = newEstatu;
+        }
       }
-      
+      await this.applicationRepository.save(application);
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
@@ -436,7 +445,12 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            this.ApplicationInitProcess(application, obj);
+            const rviaProcess = this.ApplicationInitProcess(application, obj);
+
+            if( rviaProcess ){
+              const newEstatu = await this.estatusService.findOne(1);
+              application.applicationstatus = newEstatu;
+            }
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -453,9 +467,14 @@ export class ApplicationsService {
       }
 
       if( createFileDto.num_accion != 2 ){
-        this.ApplicationInitProcess(application, obj);
-      }
+        const rviaProcess = this.ApplicationInitProcess(application, obj);
 
+        if( rviaProcess ){
+          const newEstatu = await this.estatusService.findOne(1);
+          application.applicationstatus = newEstatu;
+        }
+      }
+      await this.applicationRepository.save(application);
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {

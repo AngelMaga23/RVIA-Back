@@ -16,6 +16,8 @@ import { CommonService } from 'src/common/common.service';
 import { Checkmarx } from './entities/checkmarx.entity';
 
 import { Application } from 'src/applications/entities/application.entity';
+import { ApplicationstatusService } from 'src/applicationstatus/applicationstatus.service';
+
 const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
@@ -29,6 +31,7 @@ export class CheckmarxService {
     @Inject(forwardRef(() => ApplicationsService)) // Usamos forwardRef aquí
     private readonly applicationService: ApplicationsService,
     private readonly encryptionService: CommonService,
+    private readonly estatusService: ApplicationstatusService,
 
   ) {}
 
@@ -66,14 +69,27 @@ export class CheckmarxService {
     try {
 
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
+      const estatu = await this.estatusService.findOne(1);
 
       if(aplicacion.num_accion != 2)
         throw new UnprocessableEntityException(` La aplicación debe tener la acción de Sanitización `);
 
       const pdfFileRename = await this.moveAndRenamePdfFile( file, aplicacion );
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
- 
-      this.ApplicationInitProcess(aplicacion);
+      
+      if( res.isValid ){
+        
+        const rrviaProcess = this.ApplicationInitProcess(aplicacion);
+
+        if( rrviaProcess ){
+        
+          this.applicationService.update( aplicacion.idu_aplicacion, 1 );
+  
+        }
+      }
+      
+
+
 
       return res;
     } catch (error) {

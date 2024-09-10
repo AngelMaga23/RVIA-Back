@@ -161,7 +161,7 @@ export class ApplicationsController {
     @Param('id') id: number
   ) {
 
-    await this.applicationsService.getStaticFileZip(id, res);
+    await this.applicationsService.getStaticFile7z(id, res);
 
   }
 

@@ -514,11 +514,11 @@ export class ApplicationsService {
 
       if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
-      const lID = application.idu_proyecto;
+      // const lID = application.idu_proyecto;
       const lEmployee = application.user.numero_empleado;
       const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
 
-      const iResult = obj.createOverviewDoc( lID, lEmployee, ruta_proyecto);
+      const iResult = obj.createOverviewDoc( lEmployee, ruta_proyecto);
       // console.log(" Valor de retorno: " + iResult);
 
       if(iResult >= 600 && iResult <= 699)
@@ -553,11 +553,11 @@ export class ApplicationsService {
 
       if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
-      const lID = application.idu_proyecto;
+      // const lID = application.idu_proyecto;
       const lEmployee = application.user.numero_empleado;
       const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
 
-      const iResult = obj.createOverviewDoc( lID, lEmployee, ruta_proyecto);
+      const iResult = obj.createOverviewDoc( lEmployee, ruta_proyecto);
       // console.log(" Valor de retorno: " + iResult);
 
       if(iResult >= 600 && iResult <= 699)

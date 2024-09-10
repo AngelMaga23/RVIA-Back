@@ -637,37 +637,26 @@ export class ApplicationsService {
     }
   }
 
-  async getStaticFileZip(id: number, response): Promise<void> {
+  async getStaticFile7z(id: number, response): Promise<void> {
     const application = await this.applicationRepository.findOne({
       where: { idu_aplicacion: id },
       relations: ['applicationstatus', 'user', 'scans'],
     });
-    if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
-
+    if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrada`);
+  
     const decryptedAppName = this.encryptionService.decrypt(application.nom_aplicacion);
-    const directoryPath = join(this.downloadPath, decryptedAppName);
-    if (!existsSync(directoryPath)) throw new BadRequestException(`No directory found with name ${decryptedAppName}`);
+    const filePath = join(this.downloadPath, `${application.idu_proyecto}_${decryptedAppName}.7z`);
+    if (!existsSync(filePath)) throw new BadRequestException(`No se encontró el archivo ${application.idu_proyecto}_${decryptedAppName}.7z`);
+  
+    response.setHeader('Content-Type', 'application/x-7z-compressed');
+    response.setHeader('Content-Disposition', `attachment; filename="${application.idu_proyecto}_${decryptedAppName}.7z"; filename*=UTF-8''${encodeURIComponent(application.idu_proyecto + '_' + decryptedAppName)}.7z`);
 
-    response.setHeader('Content-Type', 'application/zip');
-    response.setHeader('Content-Disposition', `attachment; filename="${decryptedAppName}.zip"`);
-
-    const archive = archiver('zip', { zlib: { level: 9 } });
-    archive.on('error', err => { throw new BadRequestException(`Error while archiving: ${err.message}`); });
-
-    archive.pipe(response);
-    archive.directory(directoryPath, false);
-
-    if (application.scans && application.scans.length > 0) {
-      for (const scan of application.scans) {
-        const decryptedScanName = this.encryptionService.decrypt(scan.nom_escaneo);
-        const scanPath = join(this.downloadPath, decryptedScanName);
-        if (existsSync(scanPath)) {
-          archive.file(scanPath, { name: `escaneo/${decryptedScanName}` });
-        }
-      }
-    }
-
-    await archive.finalize();
+    const readStream = createReadStream(filePath);
+    readStream.pipe(response);
+  
+    readStream.on('error', (err) => {
+      throw new BadRequestException(`Error al leer el archivo: ${err.message}`);
+    });
   }
 
   private async moveAndRenamePdfFile(pdfFile: Express.Multer.File, repoFolderPath: string, project: string, idu_project: string): Promise<string> {

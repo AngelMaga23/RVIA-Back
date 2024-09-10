@@ -7,7 +7,6 @@ import { Checkmarx } from './entities/checkmarx.entity';
 import { ApplicationsModule } from 'src/applications/applications.module';
 import { CommonModule } from 'src/common/common.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { ApplicationstatusModule } from 'src/applicationstatus/applicationstatus.module';
 
 @Module({
   controllers: [CheckmarxController],
@@ -16,8 +15,7 @@ import { ApplicationstatusModule } from 'src/applicationstatus/applicationstatus
     TypeOrmModule.forFeature([ Checkmarx ]),
     forwardRef(() => ApplicationsModule),
     CommonModule,
-    AuthModule,
-    ApplicationstatusModule
+    AuthModule
   ],
   exports:[ 
     CheckmarxService, 

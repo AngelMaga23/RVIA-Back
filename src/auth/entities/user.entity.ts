@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 import { Position } from "../../positions/entities/position.entity";
 import { Application } from '../../applications/entities/application.entity';
@@ -11,11 +11,7 @@ export class User {
     @PrimaryGeneratedColumn('identity')
     idu_usuario: string;
 
-    @Column({
-        type: 'varchar', 
-        length:255, 
-        unique:true
-    })
+    @PrimaryColumn()
     numero_empleado: string;
 
     @Column({

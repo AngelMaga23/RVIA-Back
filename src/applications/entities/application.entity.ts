@@ -31,7 +31,6 @@ export class Application {
     @Type(() => Number)
     opc_lenguaje: number;
 
-
     @Column({ type: 'jsonb', default: { "1": false, "2": false, "3": false, "4": false } })
     opc_arquitectura: Record<string, boolean>;
     // @CreateDateColumn({ type: 'timestamp' })
@@ -58,7 +57,7 @@ export class Application {
         () => User, user => user.application,
         { eager:true }
     )
-    @JoinColumn({ name: 'numero_empleado' })
+    @JoinColumn({ name: 'idu_usuario' })
     user: User
 
     @OneToMany(() => UsersApplication, usuariosAplicaciones => usuariosAplicaciones.aplicacion)

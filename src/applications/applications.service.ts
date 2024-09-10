@@ -50,8 +50,6 @@ export class ApplicationsService {
     private scanRepository: Repository<Scan>,
     @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
     private readonly checkmarxService: CheckmarxService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
   ) {
   }
 
@@ -68,7 +66,7 @@ export class ApplicationsService {
       .orderBy('application.fec_creacion', 'ASC');
 
       if (user.position?.nom_rol !== ValidRoles.admin) {
-        queryBuilder.where('application.user = :userNum', { userNum: user.numero_empleado });
+        queryBuilder.where('application.user = :userId', { userId: user.idu_usuario });
       }
 
       const aplicaciones = await queryBuilder.getMany();
@@ -331,6 +329,7 @@ export class ApplicationsService {
     const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+    
 
     try {
 

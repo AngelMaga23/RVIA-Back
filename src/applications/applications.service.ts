@@ -225,7 +225,6 @@ export class ApplicationsService {
       application.num_accion = numAccion;
       application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
-      application.num_empleado = user.numero_empleado;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -402,7 +401,6 @@ export class ApplicationsService {
       application.num_accion = createFileDto.num_accion;
       application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
-      application.num_empleado = user.numero_empleado;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

@@ -155,7 +155,7 @@ export class ApplicationsController {
 
 
   @Get('zip/:id')
-  // @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
+  @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   async findFileZip(
     @Res() res: Response,
     @Param('id') id: number

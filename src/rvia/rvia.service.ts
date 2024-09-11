@@ -55,8 +55,6 @@ export class RviaService {
         throw new BadRequestException( ErrorRVIA[initProcessResult] );
       }
 
-      this.applicationService.update( aplicacion.idu_aplicacion, 1 );
-
     } else {
       throw new InternalServerErrorException('Unexpected error, check server logs');
     }

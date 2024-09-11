@@ -151,6 +151,7 @@ export class ApplicationsService {
 
     const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+    let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
     if( numAccion == 0 && !opcArquitectura )
       throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
@@ -244,12 +245,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-            if( rviaProcess ){
-              const newEstatu = await this.estatusService.findOne(1);
-              application.applicationstatus = newEstatu;
-            }
+            rviaProcess = this.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -267,19 +263,16 @@ export class ApplicationsService {
       }
 
       if( numAccion != 2 ){
-        const rviaProcess = this.ApplicationInitProcess(application, obj);
-        if( rviaProcess ){
-          const newEstatu = await this.estatusService.findOne(1);
-          application.applicationstatus = newEstatu;
-        }
+        rviaProcess = this.ApplicationInitProcess(application, obj);
       }
-      await this.applicationRepository.save(application);
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
         application,
         checkmarx: isSanitizacion && file ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
+        rviaProcess
       };
 
     } catch (error) {
@@ -338,7 +331,7 @@ export class ApplicationsService {
     const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
-    
+    let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
     try {
 
@@ -445,12 +438,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-            if( rviaProcess ){
-              const newEstatu = await this.estatusService.findOne(1);
-              application.applicationstatus = newEstatu;
-            }
+            rviaProcess = this.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -467,20 +455,16 @@ export class ApplicationsService {
       }
 
       if( createFileDto.num_accion != 2 ){
-        const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-        if( rviaProcess ){
-          const newEstatu = await this.estatusService.findOne(1);
-          application.applicationstatus = newEstatu;
-        }
+        rviaProcess = this.ApplicationInitProcess(application, obj);
       }
-      await this.applicationRepository.save(application);
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
         application,
         checkmarx: isSanitizacion && pdfFile ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
+        rviaProcess
       };
 
     } catch (error) {
@@ -700,7 +684,8 @@ export class ApplicationsService {
   private ApplicationInitProcess(aplicacion:Application, obj: any){
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);
-    let isValidProcess = true;
+    var isValidProcess = true;
+    var messageRVIA;
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lID = aplicacion.idu_proyecto;
     const lEmployee = aplicacion.user.numero_empleado;
@@ -716,12 +701,14 @@ export class ApplicationsService {
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     
-
-    if(initProcessResult >= 600 && initProcessResult <= 699){
+    if( initProcessResult == 1){
+      messageRVIA = "Proceso IA Iniciado Correctamente";
+    }else{
       isValidProcess = false;
+      messageRVIA = ErrorRVIA[initProcessResult];
     }
 
-    return isValidProcess;
+    return { isValidProcess, messageRVIA };
   }
 
 

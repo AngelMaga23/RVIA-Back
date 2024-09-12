@@ -1,7 +1,6 @@
 import { Operation } from "src/operations/entities/operation.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('tbl_acciones')
 export class Action {
 
     @PrimaryGeneratedColumn('identity')

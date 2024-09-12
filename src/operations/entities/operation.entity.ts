@@ -1,9 +1,9 @@
-import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Application } from "src/applications/entities/application.entity";
 import { Action } from "src/actions/entities/action.entity";
 import { Applicationstatus } from "src/applicationstatus/entities/applicationstatus.entity";
 
-
+@Entity('tbl_operaciones')
 export class Operation {
 
     @PrimaryGeneratedColumn()

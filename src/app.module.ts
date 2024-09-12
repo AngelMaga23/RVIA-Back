@@ -16,6 +16,8 @@ import { ConfigurationModule } from './configuration/configuration.module';
 import { LanguagesModule } from './languages/languages.module';
 import { CheckmarxModule } from './checkmarx/checkmarx.module';
 import { CostModule } from './cost/cost.module';
+import { ActionsModule } from './actions/actions.module';
+import { OperationsModule } from './operations/operations.module';
 
 @Module({
   imports: [
@@ -49,7 +51,9 @@ import { CostModule } from './cost/cost.module';
     // ConfigurationModule,
     LanguagesModule,
     CheckmarxModule,
-    CostModule
+    CostModule,
+    ActionsModule,
+    OperationsModule
     
   ],
   controllers: [],

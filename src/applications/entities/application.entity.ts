@@ -8,6 +8,7 @@ import { IsNumber } from "class-validator";
 import { Type } from "class-transformer";
 import { Checkmarx } from "src/checkmarx/entities/checkmarx.entity";
 import { Cost } from "src/cost/entities/cost.entity";
+import { Operation } from "src/operations/entities/operation.entity";
 
 @Entity('tbl_aplicaciones')
 export class Application {
@@ -21,30 +22,30 @@ export class Application {
     @Column({type: 'varchar', length:255})
     nom_aplicacion: string;
 
-    @Column()
-    @IsNumber()
-    @Type(() => Number)
-    num_accion: number;
+    // @Column()
+    // @IsNumber()
+    // @Type(() => Number)
+    // num_accion: number;
 
     @Column()
     @IsNumber()
     @Type(() => Number)
     opc_lenguaje: number;
 
-    @Column({ type: 'jsonb', default: { "1": false, "2": false, "3": false, "4": false } })
-    opc_arquitectura: Record<string, boolean>;
+    // @Column({ type: 'jsonb', default: { "1": false, "2": false, "3": false, "4": false } })
+    // opc_arquitectura: Record<string, boolean>;
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;
   
     // @UpdateDateColumn({ type: 'timestamp' })
     // updated_at: Date;
 
-    @ManyToOne(
-        () => Applicationstatus, applicationstatus => applicationstatus.application,
-        { eager:true }
-    )
-    @JoinColumn({ name: 'clv_estatus' })
-    applicationstatus: Applicationstatus
+    // @ManyToOne(
+    //     () => Applicationstatus, applicationstatus => applicationstatus.application,
+    //     { eager:true }
+    // )
+    // @JoinColumn({ name: 'clv_estatus' })
+    // applicationstatus: Applicationstatus
 
     @ManyToOne(
         () => Sourcecode, sourcecode => sourcecode.application,
@@ -71,5 +72,8 @@ export class Application {
 
     @OneToMany(() => Cost, cost => cost.application)
     cost: Cost[];
+
+    @OneToMany(() => Operation, operation => operation.application)
+    Operation: Operation[];
 
 }

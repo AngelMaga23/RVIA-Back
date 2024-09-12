@@ -541,6 +541,8 @@ export class ApplicationsService {
         [createDocumentation.opcArquitectura]: true,
       };
 
+      application.opc_estatu_doc = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -580,6 +582,8 @@ export class ApplicationsService {
         [createDocumentationCodigo.opcArquitectura]: true,
       };
 
+      application.opc_estatu_doc_code = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -610,6 +614,8 @@ export class ApplicationsService {
         [createTestCases.opcArquitectura]: true,
       };
 
+      application.opc_estatu_caso = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -638,6 +644,8 @@ export class ApplicationsService {
         ...application.opc_arquitectura,
         [createRateProject.opcArquitectura]: true,
       };
+
+      application.opc_estatu_calificar = 2;
 
       await this.applicationRepository.save(application);
 

@@ -151,6 +151,7 @@ export class ApplicationsService {
 
     const isSanitizacion = numAccion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
+    let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
     if( numAccion == 0 && !opcArquitectura )
       throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
@@ -225,6 +226,10 @@ export class ApplicationsService {
       application.num_accion = numAccion;
       application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
+      application.opc_estatus_doc = opcArquitectura['1'] ? 2 : 0;
+      application.opc_estatus_doc_code = opcArquitectura['2'] ? 2 : 0;
+      application.opc_estatus_caso = opcArquitectura['3'] ? 2 : 0;
+      application.opc_estatus_calificar = opcArquitectura['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -244,12 +249,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-            if( rviaProcess ){
-              const newEstatu = await this.estatusService.findOne(1);
-              application.applicationstatus = newEstatu;
-            }
+            rviaProcess = this.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -267,19 +267,16 @@ export class ApplicationsService {
       }
 
       if( numAccion != 2 ){
-        const rviaProcess = this.ApplicationInitProcess(application, obj);
-        if( rviaProcess ){
-          const newEstatu = await this.estatusService.findOne(1);
-          application.applicationstatus = newEstatu;
-        }
+        rviaProcess = this.ApplicationInitProcess(application, obj);
       }
-      await this.applicationRepository.save(application);
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
         application,
         checkmarx: isSanitizacion && file ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
+        rviaProcess
       };
 
     } catch (error) {
@@ -338,7 +335,7 @@ export class ApplicationsService {
     const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
     const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
-    
+    let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
     try {
 
@@ -402,7 +399,7 @@ export class ApplicationsService {
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
         nom_directorio: this.encryptionService.encrypt(repoFolderPath),
       });
-
+      const opciones = createFileDto.opc_arquitectura;
       // Crear el registro de la aplicación
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
@@ -410,6 +407,11 @@ export class ApplicationsService {
       application.num_accion = createFileDto.num_accion;
       application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
+      // Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1]
+      application.opc_estatus_doc = opciones['1'] ? 2 : 0;
+      application.opc_estatus_doc_code = opciones['2'] ? 2 : 0;
+      application.opc_estatus_caso = opciones['3'] ? 2 : 0;
+      application.opc_estatus_calificar = opciones['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -445,12 +447,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-            if( rviaProcess ){
-              const newEstatu = await this.estatusService.findOne(1);
-              application.applicationstatus = newEstatu;
-            }
+            rviaProcess = this.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -467,20 +464,16 @@ export class ApplicationsService {
       }
 
       if( createFileDto.num_accion != 2 ){
-        const rviaProcess = this.ApplicationInitProcess(application, obj);
-
-        if( rviaProcess ){
-          const newEstatu = await this.estatusService.findOne(1);
-          application.applicationstatus = newEstatu;
-        }
+        rviaProcess = this.ApplicationInitProcess(application, obj);
       }
-      await this.applicationRepository.save(application);
+
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
       return {
         application,
         checkmarx: isSanitizacion && pdfFile ? dataCheckmarx.checkmarx : [],
         esSanitizacion: isSanitizacion,
+        rviaProcess
       };
 
     } catch (error) {
@@ -548,6 +541,8 @@ export class ApplicationsService {
         [createDocumentation.opcArquitectura]: true,
       };
 
+      application.opc_estatus_doc = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -587,6 +582,8 @@ export class ApplicationsService {
         [createDocumentationCodigo.opcArquitectura]: true,
       };
 
+      application.opc_estatus_doc_code = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -617,6 +614,8 @@ export class ApplicationsService {
         [createTestCases.opcArquitectura]: true,
       };
 
+      application.opc_estatus_caso = 2;
+
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -645,6 +644,8 @@ export class ApplicationsService {
         ...application.opc_arquitectura,
         [createRateProject.opcArquitectura]: true,
       };
+
+      application.opc_estatus_calificar = 2;
 
       await this.applicationRepository.save(application);
 
@@ -700,7 +701,8 @@ export class ApplicationsService {
   private ApplicationInitProcess(aplicacion:Application, obj: any){
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);
-    let isValidProcess = true;
+    var isValidProcess = true;
+    var messageRVIA;
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lID = aplicacion.idu_proyecto;
     const lEmployee = aplicacion.user.numero_empleado;
@@ -716,12 +718,14 @@ export class ApplicationsService {
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     
-
-    if(initProcessResult >= 600 && initProcessResult <= 699){
+    if( initProcessResult == 1){
+      messageRVIA = "Proceso IA Iniciado Correctamente";
+    }else{
       isValidProcess = false;
+      messageRVIA = ErrorRVIA[initProcessResult];
     }
 
-    return isValidProcess;
+    return { isValidProcess, messageRVIA };
   }
 
 

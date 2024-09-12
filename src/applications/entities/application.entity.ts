@@ -31,6 +31,26 @@ export class Application {
     @Type(() => Number)
     opc_lenguaje: number;
 
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    opc_estatus_doc: number;
+
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    opc_estatus_doc_code: number;
+
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    opc_estatus_caso: number;
+
+    @Column()
+    @IsNumber()
+    @Type(() => Number)
+    opc_estatus_calificar: number;
+
     @Column({ type: 'jsonb', default: { "1": false, "2": false, "3": false, "4": false } })
     opc_arquitectura: Record<string, boolean>;
     // @CreateDateColumn({ type: 'timestamp' })

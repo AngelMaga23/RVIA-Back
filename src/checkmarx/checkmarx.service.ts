@@ -17,6 +17,7 @@ import { Checkmarx } from './entities/checkmarx.entity';
 
 import { Application } from 'src/applications/entities/application.entity';
 import { ApplicationstatusService } from 'src/applicationstatus/applicationstatus.service';
+import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -66,7 +67,7 @@ export class CheckmarxService {
   async convertPDF(createCheckmarxDto: CreateCheckmarxDto, file) {
 
     try {
-
+      let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
 
       if(aplicacion.num_accion != 2)
@@ -76,20 +77,12 @@ export class CheckmarxService {
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
       
       if( res.isValid ){
-
-        const rrviaProcess = this.ApplicationInitProcess(aplicacion);
-
-        if( rrviaProcess ){
-        
-          this.applicationService.update( aplicacion.idu_aplicacion, 1 );
-  
-        }
+        rviaProcess = this.ApplicationInitProcess(aplicacion);
       }
+      const responseConvert = { ...res, ...rviaProcess };
+
+      return responseConvert;
       
-
-
-
-      return res;
     } catch (error) {
 
 
@@ -155,6 +148,7 @@ export class CheckmarxService {
     // Base de datos: 1 = Producción 2 = Desarrollo
     const obj = new addon.CRvia(2);
     let isValidProcess = true;
+    var messageRVIA;
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lID = aplicacion.idu_proyecto;
     const lEmployee = aplicacion.user.numero_empleado;
@@ -170,11 +164,14 @@ export class CheckmarxService {
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
     
-    if(initProcessResult >= 600 && initProcessResult <= 699){
+    if( initProcessResult == 1){
+      messageRVIA = "Proceso IA Iniciado Correctamente";
+    }else{
       isValidProcess = false;
+      messageRVIA = ErrorRVIA[initProcessResult];
     }
 
-    return isValidProcess;
+    return { isValidProcess, messageRVIA };
   }
 
   async callPython(nameApplication:string, namePdf:string, application: Application){

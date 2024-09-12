@@ -30,7 +30,6 @@ import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
-import { OperationsService } from 'src/operations/operations.service';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -51,7 +50,6 @@ export class ApplicationsService {
     private scanRepository: Repository<Scan>,
     @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
     private readonly checkmarxService: CheckmarxService,
-    private readonly operationsService: OperationsService,
   ) {
   }
 
@@ -119,7 +117,7 @@ export class ApplicationsService {
         throw new BadRequestException('Invalid GitHub repository URL');
       }
 
-      return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.acciones, createApplicationDto.opc_lenguaje, 'GitHub', createApplicationDto.opc_arquitectura);
+      return await this.processRepository(repoInfo.repoName, repoInfo.userName, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitHub', createApplicationDto.opc_arquitectura);
 
     } catch (error) {
       this.handleDBExceptions(error);
@@ -133,14 +131,14 @@ export class ApplicationsService {
         throw new BadRequestException('Invalid GitLab repository URL');
       }
 
-      return await this.processRepository(repoInfo.repoName, `${repoInfo.userName}/${repoInfo.groupName}`, user, file, createApplicationDto.acciones, createApplicationDto.opc_lenguaje, 'GitLab', createApplicationDto.opc_arquitectura);
+      return await this.processRepository(repoInfo.repoName, `${repoInfo.userName}/${repoInfo.groupName}`, user, file, createApplicationDto.num_accion, createApplicationDto.opc_lenguaje, 'GitLab', createApplicationDto.opc_arquitectura);
 
     } catch (error) {
       this.handleDBExceptions(error);
     }
   }
 
-  private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number[], opcLenguaje: number, platform: string, opcArquitectura) {
+  private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
     const obj = new addon.CRvia(2);
     const iduProject = obj.createIDProject();
@@ -331,20 +329,16 @@ export class ApplicationsService {
     const tempFolderPath = join(zipFile.destination, uniqueTempFolderName);
     const tempZipPath = join(tempFolderPath, zipFile.filename);
     const repoFolderPath = join(zipFile.destination, `${iduProject}_${nameApplication}`);
-    const isSanitizacion = createFileDto.acciones.includes(2) ? true : false;
+    const isSanitizacion = createFileDto.num_accion == 2 ? true : false;
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
     let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
-    const opc_arquitectura = createFileDto.acciones.some(num => createFileDto.acciones.includes(num));
-    const num_acciones = [2,4]; // acciones de actualización y migración
 
     try {
 
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');
 
-      await this.operationsService.findByOptions(createFileDto.acciones);
-
-      if( createFileDto.acciones.includes(1) && !opc_arquitectura )
+      if( createFileDto.num_accion == 0 && !createFileDto.opc_arquitectura )
         throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
 
       await fsExtra.ensureDir(tempFolderPath);
@@ -396,8 +390,28 @@ export class ApplicationsService {
         throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }
 
+      // Crear el registro de código fuente
+      const sourcecode = await this.sourcecodeService.create({
+        nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
+        nom_directorio: this.encryptionService.encrypt(repoFolderPath),
+      });
+
+      // Crear el registro de la aplicación
+      const application = new Application();
+      application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
+      application.idu_proyecto = iduProject;
+      application.num_accion = createFileDto.num_accion;
+      application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
+      application.opc_lenguaje = createFileDto.opc_lenguaje;
+      application.applicationstatus = estatu;
+      application.sourcecode = sourcecode;
+      application.user = user;
+
+      await this.applicationRepository.save(application);
+
+      
       // Renombrar el archivo .zip o .7z con el id y nombre de la aplicación
-      const newZipFileName = `${iduProject}_${nameApplication}.${ tempExtension[tempExtension.length-1] }`;
+      const newZipFileName = `${application.idu_proyecto}_${nameApplication}.${ tempExtension[tempExtension.length-1] }`;
       const newZipFilePath = join(zipFile.destination, newZipFileName);
 
       // Verifica si el archivo existe antes de renombrarlo
@@ -409,23 +423,7 @@ export class ApplicationsService {
       }
 
       await fsExtra.remove(tempFolderPath);
-      
-      // Crear el registro de código fuente
-      const sourcecode = await this.sourcecodeService.create({
-        nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
-        nom_directorio: this.encryptionService.encrypt(repoFolderPath),
-      });
 
-      // Crear el registro de la aplicación
-      const application = new Application();
-      application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
-      application.idu_proyecto = iduProject;
-      application.opc_lenguaje = createFileDto.opc_lenguaje;
-      application.sourcecode = sourcecode;
-      application.user = user;
-
-      await this.applicationRepository.save(application);
-      await this.operationsService.createByActions( createFileDto.acciones, application, estatu );
       // Procesar el archivo PDF (si existe)
       if (pdfFile) {
         const pdfFileRename = await this.moveAndRenamePdfFile(pdfFile, repoFolderPath, nameApplication, iduProject);
@@ -447,7 +445,7 @@ export class ApplicationsService {
           }
         }
 
-        if (createFileDto.acciones.some(num => num_acciones.includes(num))) {
+        if (createFileDto.num_accion != 2) {
           const scan = new Scan();
           scan.nom_escaneo = this.encryptionService.encrypt(pdfFileRename);
           scan.nom_directorio = this.encryptionService.encrypt(join(repoFolderPath, pdfFileRename));
@@ -456,7 +454,7 @@ export class ApplicationsService {
         }
       }
 
-      if( createFileDto.acciones.some(num => num_acciones.includes(num)) ){
+      if( createFileDto.num_accion != 2 ){
         rviaProcess = this.ApplicationInitProcess(application, obj);
       }
 
@@ -495,7 +493,7 @@ export class ApplicationsService {
       const estatu = await this.estatusService.findOne(estatusId);
       if (!estatu) throw new NotFoundException(`Estatus con ID ${estatusId} no encontrado`);
 
-      // application.applicationstatus = estatu;
+      application.applicationstatus = estatu;
       await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -508,7 +506,7 @@ export class ApplicationsService {
   async addAppDocumentation(id: number, createDocumentation: CreateDocumentation) {
     try {
       const obj = new addon.CRvia(2);
-      const estatu = await this.estatusService.findOne(2);
+
       // lIdProject           : 12345678
       // lEmployee            : > 90000000 <= 100000000
       // Ruta del proyecto    : /sysx/bito/projects/[carpeta del proyecto]
@@ -529,7 +527,12 @@ export class ApplicationsService {
       if(iResult >= 600 && iResult <= 699)
         throw new BadRequestException( ErrorRVIA[iResult] );
 
-      await this.operationsService.createByActions( [createDocumentation.opcArquitectura], application, estatu );
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createDocumentation.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -542,7 +545,7 @@ export class ApplicationsService {
   async addAppDocumentationCode(id: number, createDocumentationCodigo: CreateDocumentationCodigo) {
     try {
       const obj = new addon.CRvia(2);
-      const estatu = await this.estatusService.findOne(2);
+
       // lIdProject           : 12345678
       // lEmployee            : > 90000000 <= 100000000
       // Ruta del proyecto    : /sysx/bito/projects/[carpeta del proyecto]
@@ -557,14 +560,18 @@ export class ApplicationsService {
       const lEmployee = application.user.numero_empleado;
       const ruta_proyecto = this.encryptionService.decrypt(application.sourcecode.nom_directorio);
 
-      // const iResult = obj.createOverviewDoc( lEmployee, ruta_proyecto);
+      const iResult = obj.createOverviewDoc( lEmployee, ruta_proyecto);
       // console.log(" Valor de retorno: " + iResult);
 
-      // if(iResult >= 600 && iResult <= 699)
-      //   throw new BadRequestException( ErrorRVIA[iResult] );
+      if(iResult >= 600 && iResult <= 699)
+        throw new BadRequestException( ErrorRVIA[iResult] );
 
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createDocumentationCodigo.opcArquitectura]: true,
+      };
 
-      await this.operationsService.createByActions( [createDocumentationCodigo.opcArquitectura], application, estatu );
+      await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -577,7 +584,6 @@ export class ApplicationsService {
   async addAppTestCases(id: number, createTestCases: CreateTestCases) {
     try {
       const obj = new addon.CRvia(2);
-      const estatu = await this.estatusService.findOne(2);
       //Pendiente 
       // const iResult3 = obj.createTestCase( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult3);
@@ -588,7 +594,14 @@ export class ApplicationsService {
 
       if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
-      await this.operationsService.createByActions( [createTestCases.opcArquitectura], application, estatu );
+
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createTestCases.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -601,7 +614,6 @@ export class ApplicationsService {
   async addAppRateProject(id: number, createRateProject: CreateRateProject) {
     try {
       const obj = new addon.CRvia(2);
-      const estatu = await this.estatusService.findOne(2);
       //Pendiente 
       // const iResult4 = obj.createCalifica( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult4);
@@ -612,7 +624,13 @@ export class ApplicationsService {
       if (!application) throw new NotFoundException(`Aplicación con ID ${id} no encontrado`);
 
 
-      await this.operationsService.createByActions( [createRateProject.opcArquitectura], application, estatu );
+
+      application.opc_arquitectura = {
+        ...application.opc_arquitectura,
+        [createRateProject.opcArquitectura]: true,
+      };
+
+      await this.applicationRepository.save(application);
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
 
@@ -668,12 +686,11 @@ export class ApplicationsService {
     // const obj = new addon.CRvia(2);
     var isValidProcess = true;
     var messageRVIA;
-    const operaciones = this.operationsService.findByproject( aplicacion.idu_aplicacion );
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lID = aplicacion.idu_proyecto;
     const lEmployee = aplicacion.user.numero_empleado;
     const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-    const tipo_proyecto = operaciones;
+    const tipo_proyecto = aplicacion.num_accion;
     const iConIA = 1;
     // const Bd = 1 = Producion 2 = Desarrollo
   

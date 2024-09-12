@@ -34,22 +34,22 @@ export class Application {
     @Column()
     @IsNumber()
     @Type(() => Number)
-    opc_estatu_doc: number;
+    opc_estatus_doc: number;
 
     @Column()
     @IsNumber()
     @Type(() => Number)
-    opc_estatu_doc_code: number;
+    opc_estatus_doc_code: number;
 
     @Column()
     @IsNumber()
     @Type(() => Number)
-    opc_estatu_caso: number;
+    opc_estatus_caso: number;
 
     @Column()
     @IsNumber()
     @Type(() => Number)
-    opc_estatu_calificar: number;
+    opc_estatus_calificar: number;
 
     @Column({ type: 'jsonb', default: { "1": false, "2": false, "3": false, "4": false } })
     opc_arquitectura: Record<string, boolean>;

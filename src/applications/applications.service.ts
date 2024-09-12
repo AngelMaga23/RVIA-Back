@@ -226,10 +226,10 @@ export class ApplicationsService {
       application.num_accion = numAccion;
       application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
-      application.opc_estatu_doc = opcArquitectura['1'] ? 2 : 0;
-      application.opc_estatu_doc_code = opcArquitectura['2'] ? 2 : 0;
-      application.opc_estatu_caso = opcArquitectura['3'] ? 2 : 0;
-      application.opc_estatu_calificar = opcArquitectura['4'] ? 2 : 0;
+      application.opc_estatus_doc = opcArquitectura['1'] ? 2 : 0;
+      application.opc_estatus_doc_code = opcArquitectura['2'] ? 2 : 0;
+      application.opc_estatus_caso = opcArquitectura['3'] ? 2 : 0;
+      application.opc_estatus_calificar = opcArquitectura['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -408,10 +408,10 @@ export class ApplicationsService {
       application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
       // Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1]
-      application.opc_estatu_doc = opciones['1'] ? 2 : 0;
-      application.opc_estatu_doc_code = opciones['2'] ? 2 : 0;
-      application.opc_estatu_caso = opciones['3'] ? 2 : 0;
-      application.opc_estatu_calificar = opciones['4'] ? 2 : 0;
+      application.opc_estatus_doc = opciones['1'] ? 2 : 0;
+      application.opc_estatus_doc_code = opciones['2'] ? 2 : 0;
+      application.opc_estatus_caso = opciones['3'] ? 2 : 0;
+      application.opc_estatus_calificar = opciones['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -541,7 +541,7 @@ export class ApplicationsService {
         [createDocumentation.opcArquitectura]: true,
       };
 
-      application.opc_estatu_doc = 2;
+      application.opc_estatus_doc = 2;
 
       await this.applicationRepository.save(application);
 
@@ -582,7 +582,7 @@ export class ApplicationsService {
         [createDocumentationCodigo.opcArquitectura]: true,
       };
 
-      application.opc_estatu_doc_code = 2;
+      application.opc_estatus_doc_code = 2;
 
       await this.applicationRepository.save(application);
 
@@ -614,7 +614,7 @@ export class ApplicationsService {
         [createTestCases.opcArquitectura]: true,
       };
 
-      application.opc_estatu_caso = 2;
+      application.opc_estatus_caso = 2;
 
       await this.applicationRepository.save(application);
 
@@ -645,7 +645,7 @@ export class ApplicationsService {
         [createRateProject.opcArquitectura]: true,
       };
 
-      application.opc_estatu_calificar = 2;
+      application.opc_estatus_calificar = 2;
 
       await this.applicationRepository.save(application);
 

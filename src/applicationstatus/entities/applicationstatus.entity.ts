@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
-import { Operation } from "src/operations/entities/operation.entity";
 
 @Entity('tcl_estatusaplicaciones')
 export class Applicationstatus {
@@ -17,7 +16,8 @@ export class Applicationstatus {
     // @UpdateDateColumn({ type: 'timestamp' })
     // updated_at: Date;
 
-    @OneToMany(() => Operation, operation => operation.applicationstatus)
-    Operation: Operation[];
-
+    @OneToMany(
+        () => Application, application => application.applicationstatus,
+    )
+    application:Application[]
 }

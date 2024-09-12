@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
 import { ScansModule } from 'src/scans/scans.module';
 import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
+import { OperationsService } from 'src/operations/operations.service';
 
 @Module({
   controllers: [ApplicationsController],
@@ -25,6 +26,7 @@ import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
     CommonModule,
     ScansModule,
     forwardRef(() => CheckmarxModule),
+    OperationsService
   ],
   exports:[ ApplicationsService,TypeOrmModule ]
 })

@@ -226,6 +226,10 @@ export class ApplicationsService {
       application.num_accion = numAccion;
       application.opc_arquitectura = opcArquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = opcLenguaje;
+      application.opc_estatu_doc = opcArquitectura['1'] ? 2 : 0;
+      application.opc_estatu_doc_code = opcArquitectura['2'] ? 2 : 0;
+      application.opc_estatu_caso = opcArquitectura['3'] ? 2 : 0;
+      application.opc_estatu_calificar = opcArquitectura['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;
@@ -395,7 +399,7 @@ export class ApplicationsService {
         nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
         nom_directorio: this.encryptionService.encrypt(repoFolderPath),
       });
-
+      const opciones = createFileDto.opc_arquitectura;
       // Crear el registro de la aplicación
       const application = new Application();
       application.nom_aplicacion = this.encryptionService.encrypt(nameApplication);
@@ -403,6 +407,11 @@ export class ApplicationsService {
       application.num_accion = createFileDto.num_accion;
       application.opc_arquitectura = createFileDto.opc_arquitectura || {"1": false, "2": false, "3": false, "4": false};
       application.opc_lenguaje = createFileDto.opc_lenguaje;
+      // Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1]
+      application.opc_estatu_doc = opciones['1'] ? 2 : 0;
+      application.opc_estatu_doc_code = opciones['2'] ? 2 : 0;
+      application.opc_estatu_caso = opciones['3'] ? 2 : 0;
+      application.opc_estatu_calificar = opciones['4'] ? 2 : 0;
       application.applicationstatus = estatu;
       application.sourcecode = sourcecode;
       application.user = user;

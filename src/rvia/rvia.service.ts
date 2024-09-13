@@ -22,7 +22,7 @@ export class RviaService {
     private readonly checkmarxService: CheckmarxService,
     private readonly configService: ConfigService,
   ) {
-    this.crviaEnvironment = this.configService.get<number>('RVIA_ENVIRONMENT');
+    this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
   }
 
   async create(createRviaDto: CreateRviaDto) {
@@ -93,6 +93,7 @@ export class RviaService {
   getVersion() {
 
     const obj = new addon.CRvia(this.crviaEnvironment);
+
     return obj.getVersionAddons();
 
   }

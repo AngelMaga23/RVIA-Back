@@ -37,7 +37,7 @@ export class CheckmarxService {
     private readonly configService: ConfigService,
 
   ) {
-    this.crviaEnvironment = this.configService.get<number>('RVIA_ENVIRONMENT');
+    this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
   }
 
   async create(createCheckmarxDto: CreateCheckmarxDto, file) {

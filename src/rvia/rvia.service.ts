@@ -6,24 +6,30 @@ import { CommonService } from 'src/common/common.service';
 import { ErrorRVIA } from './helpers/errors-rvia';
 import { CheckmarxService } from 'src/checkmarx/checkmarx.service';
 import { ApplicationstatusService } from 'src/applicationstatus/applicationstatus.service';
+import { ConfigService } from '@nestjs/config';
 
 const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
 export class RviaService {
 
+  private readonly crviaEnvironment: number;
+
   constructor(
 
     private readonly applicationService: ApplicationsService,
     private readonly encryptionService: CommonService,
-    private readonly checkmarxService: CheckmarxService
-  ) {}
+    private readonly checkmarxService: CheckmarxService,
+    private readonly configService: ConfigService,
+  ) {
+    this.crviaEnvironment = this.configService.get<number>('RVIA_ENVIRONMENT');
+  }
 
   async create(createRviaDto: CreateRviaDto) {
 
     const { idu_aplicacion, conIA, opc_arquitectura } = createRviaDto;
 
-    const obj = new addon.CRvia(2);
+    const obj = new addon.CRvia(this.crviaEnvironment);
     const aplicacion = await this.applicationService.findOne(idu_aplicacion);
     const fileCheckmarx = await this.checkmarxService.findOneByApplication(aplicacion.idu_aplicacion);
     let message;
@@ -86,7 +92,7 @@ export class RviaService {
 
   getVersion() {
 
-    const obj = new addon.CRvia();
+    const obj = new addon.CRvia(this.crviaEnvironment);
     return obj.getVersionAddons();
 
   }

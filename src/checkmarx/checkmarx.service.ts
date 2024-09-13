@@ -18,12 +18,14 @@ import { Checkmarx } from './entities/checkmarx.entity';
 import { Application } from 'src/applications/entities/application.entity';
 import { ApplicationstatusService } from 'src/applicationstatus/applicationstatus.service';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
+import { ConfigService } from '@nestjs/config';
 
 const addon = require(process.env.RVIA_PATH);
 
 @Injectable()
 export class CheckmarxService {
 
+  private readonly crviaEnvironment: number;
 
   constructor(
 
@@ -31,9 +33,12 @@ export class CheckmarxService {
     private readonly checkmarxRepository: Repository<Checkmarx>,
     @Inject(forwardRef(() => ApplicationsService)) // Usamos forwardRef aquí
     private readonly applicationService: ApplicationsService,
-    private readonly encryptionService: CommonService
+    private readonly encryptionService: CommonService,
+    private readonly configService: ConfigService,
 
-  ) {}
+  ) {
+    this.crviaEnvironment = this.configService.get<number>('RVIA_ENVIRONMENT');
+  }
 
   async create(createCheckmarxDto: CreateCheckmarxDto, file) {
 
@@ -146,7 +151,7 @@ export class CheckmarxService {
 
   private ApplicationInitProcess(aplicacion:Application){
     // Base de datos: 1 = Producción 2 = Desarrollo
-    const obj = new addon.CRvia(2);
+    const obj = new addon.CRvia(this.crviaEnvironment);
     let isValidProcess = true;
     var messageRVIA;
     //  -------------------------------- Parámetros de Entrada --------------------------------
@@ -163,7 +168,6 @@ export class CheckmarxService {
     const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
-    
     if( initProcessResult == 1){
       messageRVIA = "Proceso IA Iniciado Correctamente";
     }else{

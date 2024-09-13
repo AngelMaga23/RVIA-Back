@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsNumber } from "class-validator";
+import { IsIn, IsNumber } from "class-validator";
 
 export class CreateRviaDto {
 
@@ -10,5 +10,12 @@ export class CreateRviaDto {
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))
     conIA: number;
+
+    @IsNumber()
+    @Transform(({ value }) => parseInt(value, 10))
+    @IsIn([ 1, 2, 3, 4 ], {
+        message: 'El valor de num_accion debe ser 1, 2, 3 o 4',
+    })
+    opc_arquitectura: number;
 
 }

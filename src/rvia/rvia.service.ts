@@ -21,10 +21,13 @@ export class RviaService {
 
   async create(createRviaDto: CreateRviaDto) {
 
+    const { idu_aplicacion, conIA, opc_arquitectura } = createRviaDto;
+
     const obj = new addon.CRvia(2);
-    const aplicacion = await this.applicationService.findOne(createRviaDto.idu_aplicacion);
+    const aplicacion = await this.applicationService.findOne(idu_aplicacion);
     const fileCheckmarx = await this.checkmarxService.findOneByApplication(aplicacion.idu_aplicacion);
- 
+    let message;
+    let isProccessValid = false;
 
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);
@@ -34,7 +37,7 @@ export class RviaService {
     const lEmployee = aplicacion.user.numero_empleado;
     const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
     const tipo_proyecto = aplicacion.num_accion;
-    const iConIA = createRviaDto.conIA;
+    const iConIA = conIA;
     // const Bd = 1 = Producion 2 = Desarrollo
   
     const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
@@ -49,10 +52,25 @@ export class RviaService {
 
     } else if (fileCheckmarx && typeof fileCheckmarx === 'object') {
 
-      const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
-  
-      if(initProcessResult >= 600 && initProcessResult <= 699){
-        throw new BadRequestException( ErrorRVIA[initProcessResult] );
+      // const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+
+      const actionsMap = {
+        1: () => obj.createOverviewDoc(lEmployee, ruta_proyecto),
+        2: () => obj.createCodeDoc(lEmployee, ruta_proyecto),
+        3: () => obj.createTestCases(lEmployee, ruta_proyecto),
+        4: () => obj.createRateProject(lEmployee, ruta_proyecto),
+      };
+
+      const initProcessResult = actionsMap[opc_arquitectura]();
+
+
+
+      if(initProcessResult == 1){
+        isProccessValid = true;
+        message = "Proceso IA iniciado correctamente";
+      }else{
+        // throw new BadRequestException( ErrorRVIA[initProcessResult] );
+        message = ErrorRVIA[initProcessResult];
       }
 
     } else {
@@ -61,7 +79,9 @@ export class RviaService {
 
     aplicacion.nom_aplicacion = this.encryptionService.decrypt(aplicacion.nom_aplicacion);
 
-    return aplicacion;
+    const responseConvert = { ...aplicacion, ...{ isProccessValid,  message} };
+
+    return responseConvert;
   }
 
   getVersion() {

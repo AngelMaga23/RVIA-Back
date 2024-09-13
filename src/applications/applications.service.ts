@@ -30,6 +30,7 @@ import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
+import { ConfigService } from '@nestjs/config';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -38,6 +39,7 @@ export class ApplicationsService {
 
   private readonly logger = new Logger('ApplicationsService');
   private downloadPath = '/sysx/bito/projects';
+  private readonly crviaEnvironment: number;
 
   constructor(
     @InjectRepository(Application)
@@ -50,7 +52,9 @@ export class ApplicationsService {
     private scanRepository: Repository<Scan>,
     @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
     private readonly checkmarxService: CheckmarxService,
+    private readonly configService: ConfigService,
   ) {
+    this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
   }
 
   async findAll(user: User) {
@@ -140,7 +144,7 @@ export class ApplicationsService {
 
   private async processRepository(repoName: string, repoUserName: string, user: User, file, numAccion: number, opcLenguaje: number, platform: string, opcArquitectura) {
 
-    const obj = new addon.CRvia(2);
+    const obj = new addon.CRvia(this.crviaEnvironment);
     const iduProject = obj.createIDProject();
 
     const streamPipeline = promisify(pipeline);
@@ -324,7 +328,7 @@ export class ApplicationsService {
 
   async createFiles(createFileDto: CreateFileDto, zipFile: Express.Multer.File, pdfFile: Express.Multer.File | undefined, user: User) {
 
-    const obj = new addon.CRvia(2);
+    const obj = new addon.CRvia(this.crviaEnvironment);
     const iduProject = obj.createIDProject();
     const tempExtension = zipFile.originalname.split('.');
 
@@ -514,7 +518,7 @@ export class ApplicationsService {
 
   async addAppDocumentation(id: number, createDocumentation: CreateDocumentation) {
     try {
-      const obj = new addon.CRvia(2);
+      const obj = new addon.CRvia(this.crviaEnvironment);
 
       // lIdProject           : 12345678
       // lEmployee            : > 90000000 <= 100000000
@@ -555,7 +559,7 @@ export class ApplicationsService {
 
   async addAppDocumentationCode(id: number, createDocumentationCodigo: CreateDocumentationCodigo) {
     try {
-      const obj = new addon.CRvia(2);
+      const obj = new addon.CRvia(this.crviaEnvironment);
 
       // lIdProject           : 12345678
       // lEmployee            : > 90000000 <= 100000000
@@ -596,7 +600,7 @@ export class ApplicationsService {
 
   async addAppTestCases(id: number, createTestCases: CreateTestCases) {
     try {
-      const obj = new addon.CRvia(2);
+      const obj = new addon.CRvia(this.crviaEnvironment);
       //Pendiente 
       // const iResult3 = obj.createTestCase( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult3);
@@ -628,7 +632,7 @@ export class ApplicationsService {
 
   async addAppRateProject(id: number, createRateProject: CreateRateProject) {
     try {
-      const obj = new addon.CRvia(2);
+      const obj = new addon.CRvia(this.crviaEnvironment);
       //Pendiente 
       // const iResult4 = obj.createCalifica( lID, 90329121, "/sysx/bito/projects/Web-Basico-PHP");
       // console.log(" Valor de retorno: " + iResult4);

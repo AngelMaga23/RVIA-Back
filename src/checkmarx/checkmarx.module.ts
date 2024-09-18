@@ -7,6 +7,7 @@ import { Checkmarx } from './entities/checkmarx.entity';
 import { ApplicationsModule } from 'src/applications/applications.module';
 import { CommonModule } from 'src/common/common.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { RviaModule } from 'src/rvia/rvia.module';
 
 @Module({
   controllers: [CheckmarxController],
@@ -15,7 +16,8 @@ import { AuthModule } from 'src/auth/auth.module';
     TypeOrmModule.forFeature([ Checkmarx ]),
     forwardRef(() => ApplicationsModule),
     CommonModule,
-    AuthModule
+    AuthModule,
+    forwardRef(() => RviaModule),
   ],
   exports:[ 
     CheckmarxService, 

@@ -31,6 +31,7 @@ import { CreateRateProject } from './dto/create-rateproject.dto';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 import { ConfigService } from '@nestjs/config';
+import { RviaService } from 'src/rvia/rvia.service';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -53,6 +54,8 @@ export class ApplicationsService {
     @Inject(forwardRef(() => CheckmarxService)) // Usamos forwardRef aquí
     private readonly checkmarxService: CheckmarxService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RviaService))
+    private readonly rviaService: RviaService,
   ) {
     this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
   }
@@ -253,7 +256,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            rviaProcess = this.ApplicationInitProcess(application, obj);
+            rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -271,7 +274,7 @@ export class ApplicationsService {
       }
 
       if( numAccion != 2 ){
-        rviaProcess = this.ApplicationInitProcess(application, obj);
+        rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -451,7 +454,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            rviaProcess = this.ApplicationInitProcess(application, obj);
+            rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -468,7 +471,7 @@ export class ApplicationsService {
       }
 
       if( createFileDto.num_accion != 2 ){
-        rviaProcess = this.ApplicationInitProcess(application, obj);
+        rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -701,37 +704,6 @@ export class ApplicationsService {
       throw new InternalServerErrorException(`Error al mover y renombrar el archivo PDF: ${error.message}`);
     }
   }
-
-  private ApplicationInitProcess(aplicacion:Application, obj: any){
-    // Base de datos: 1 = Producción 2 = Desarrollo
-    // const obj = new addon.CRvia(2);
-    var isValidProcess = true;
-    var messageRVIA;
-    //  -------------------------------- Parámetros de Entrada --------------------------------
-    const lID = aplicacion.idu_proyecto;
-    const lEmployee = aplicacion.user.numero_empleado;
-    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-    const tipo_proyecto = aplicacion.num_accion;
-    const iConIA = 1;
-    // const Bd = 1 = Producion 2 = Desarrollo
-  
-    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
-    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
-    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
-    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
-
-    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
-    
-    if( initProcessResult == 1){
-      messageRVIA = "Proceso IA Iniciado Correctamente";
-    }else{
-      isValidProcess = false;
-      messageRVIA = ErrorRVIA[initProcessResult];
-    }
-
-    return { isValidProcess, messageRVIA };
-  }
-
 
   private handleDBExceptions(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);

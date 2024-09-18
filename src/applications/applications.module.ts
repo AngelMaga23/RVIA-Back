@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
 import { ScansModule } from 'src/scans/scans.module';
 import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
+import { RviaModule } from 'src/rvia/rvia.module';
 
 @Module({
   controllers: [ApplicationsController],
@@ -25,6 +26,7 @@ import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
     CommonModule,
     ScansModule,
     forwardRef(() => CheckmarxModule),
+    forwardRef(() => RviaModule),
   ],
   exports:[ ApplicationsService,TypeOrmModule ]
 })

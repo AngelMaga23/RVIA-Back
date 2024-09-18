@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RviaService } from './rvia.service';
 import { RviaController } from './rvia.controller';
 import { ApplicationsModule } from 'src/applications/applications.module';
@@ -9,9 +9,10 @@ import { CheckmarxModule } from 'src/checkmarx/checkmarx.module';
   controllers: [RviaController],
   providers: [RviaService],
   imports:[
-    ApplicationsModule,
+    forwardRef(() => ApplicationsModule),
     CommonModule,
-    CheckmarxModule,
-  ]
+    forwardRef(() => CheckmarxModule),
+  ],
+  exports:[ RviaService ]
 })
 export class RviaModule {}

@@ -19,6 +19,7 @@ import { Application } from 'src/applications/entities/application.entity';
 import { ApplicationstatusService } from 'src/applicationstatus/applicationstatus.service';
 import { ErrorRVIA } from 'src/rvia/helpers/errors-rvia';
 import { ConfigService } from '@nestjs/config';
+import { RviaService } from 'src/rvia/rvia.service';
 
 const addon = require(process.env.RVIA_PATH);
 
@@ -35,6 +36,8 @@ export class CheckmarxService {
     private readonly applicationService: ApplicationsService,
     private readonly encryptionService: CommonService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RviaService))
+    private readonly rviaService: RviaService,
 
   ) {
     this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
@@ -72,6 +75,7 @@ export class CheckmarxService {
   async convertPDF(createCheckmarxDto: CreateCheckmarxDto, file) {
 
     try {
+      const obj = new addon.CRvia(this.crviaEnvironment);
       let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
       const aplicacion = await this.applicationService.findOne(createCheckmarxDto.idu_aplicacion);
 
@@ -80,10 +84,14 @@ export class CheckmarxService {
 
       const pdfFileRename = await this.moveAndRenamePdfFile( file, aplicacion );
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
-      
+
       if( res.isValid ){
-        rviaProcess = this.ApplicationInitProcess(aplicacion);
+        rviaProcess = this.rviaService.ApplicationInitProcess(aplicacion, obj);
+      }else{
+
+        rviaProcess = { isValidProcess:res.isValid, messageRVIA: res.message  };
       }
+
       const responseConvert = { ...res, ...rviaProcess };
 
       return responseConvert;
@@ -147,35 +155,6 @@ export class CheckmarxService {
     });
 
     fileStream.pipe(response);
-  }
-
-  private ApplicationInitProcess(aplicacion:Application){
-    // Base de datos: 1 = Producción 2 = Desarrollo
-    const obj = new addon.CRvia(this.crviaEnvironment);
-    let isValidProcess = true;
-    var messageRVIA;
-    //  -------------------------------- Parámetros de Entrada --------------------------------
-    const lID = aplicacion.idu_proyecto;
-    const lEmployee = aplicacion.user.numero_empleado;
-    const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
-    const tipo_proyecto = aplicacion.num_accion;
-    const iConIA = 1;
-    // const Bd = 1 = Producion 2 = Desarrollo
-  
-    const bConDoc   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 1 ? aplicacion.opc_arquitectura[1] : false;
-    const bConCod   = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 2 ? aplicacion.opc_arquitectura[2] : false;
-    const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
-    const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
-
-    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
-    if( initProcessResult == 1){
-      messageRVIA = "Proceso IA Iniciado Correctamente";
-    }else{
-      isValidProcess = false;
-      messageRVIA = ErrorRVIA[initProcessResult];
-    }
-
-    return { isValidProcess, messageRVIA };
   }
 
   async callPython(nameApplication:string, namePdf:string, application: Application){

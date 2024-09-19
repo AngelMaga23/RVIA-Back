@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateRviaDto } from './dto/create-rvia.dto';
 import { UpdateRviaDto } from './dto/update-rvia.dto';
 import { ApplicationsService } from 'src/applications/applications.service';
@@ -14,6 +14,7 @@ const addon = require(process.env.RVIA_PATH);
 @Injectable()
 export class RviaService {
 
+  private readonly logger = new Logger("RVIA");
   private readonly crviaEnvironment: number;
 
   constructor(
@@ -22,7 +23,7 @@ export class RviaService {
     private readonly encryptionService: CommonService,
     @Inject(forwardRef(() => CheckmarxService))
     private readonly checkmarxService: CheckmarxService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     this.crviaEnvironment = Number(this.configService.get('RVIA_ENVIRONMENT'));
   }
@@ -111,7 +112,17 @@ export class RviaService {
     const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
 
     const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
-    
+
+    const resultType = typeof initProcessResult;
+
+    if (resultType === 'number') {
+      this.logger.debug('Mensaje del RVIA (int):', initProcessResult);
+    } else if (resultType === 'string') {
+      this.logger.debug('Mensaje del RVIA (string):', initProcessResult);
+    } else {
+      this.logger.debug('Mensaje del RVIA (otro tipo):', initProcessResult);
+    }
+
     if( initProcessResult == 1){
       messageRVIA = "Proceso IA Iniciado Correctamente";
     }else{

@@ -51,10 +51,12 @@ if (cluster.isPrimary) {
   // Monitorear si un trabajador muere y reiniciar uno nuevo
   cluster.on('exit', (worker, code, signal) => {
     console.error(`Worker ${worker.process.pid} died with code ${code} and signal ${signal}`);
+    const delay = Math.random() * 1000 + 500;  // Espera entre 500 ms y 1500 ms
+
     setTimeout(() => {
       console.log('Starting a new worker...');
       cluster.fork();
-    }, 1000);  // Espera 1 segundo antes de reiniciar
+    }, delay);
   });
 
   // Manejar el evento de inicio de un trabajador

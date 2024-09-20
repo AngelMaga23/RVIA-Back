@@ -2,6 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cluster from 'cluster';
+import * as os from 'os';
+
+const numCPUs = os.cpus().length;
 
 async function bootstrap() {
 
@@ -35,4 +39,36 @@ async function bootstrap() {
   await app.listen(process.env.PORT);
   logger.log(`App running on port ${ process.env.PORT }`);
 }
-bootstrap();
+
+if (cluster.isPrimary) {
+  console.log(`Primary/Master ${process.pid} is running`);
+
+  // Crear trabajadores (workers)
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  // Monitorear si un trabajador muere y reiniciar uno nuevo
+  cluster.on('exit', (worker, code, signal) => {
+    console.error(`Worker ${worker.process.pid} died with code ${code} and signal ${signal}`);
+    setTimeout(() => {
+      console.log('Starting a new worker...');
+      cluster.fork();
+    }, 1000);  // Espera 1 segundo antes de reiniciar
+  });
+
+  // Manejar el evento de inicio de un trabajador
+  cluster.on('online', (worker) => {
+    console.log(`Worker ${worker.process.pid} is online`);
+  });
+
+} else {
+  // Ejecutar el bootstrap en los trabajadores
+  bootstrap();
+
+  // Manejar el cierre del proceso de manera ordenada
+  process.on('SIGTERM', () => {
+    console.log(`Worker ${process.pid} received SIGTERM. Exiting...`);
+    process.exit(0);
+  });
+}

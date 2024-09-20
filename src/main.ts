@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cluster from 'cluster';
 import * as os from 'os';
 
-const numCPUs = os.cpus().length;
+const numCPUs = process.env.WORKERS_COUNT ? parseInt(process.env.WORKERS_COUNT, 10) : os.cpus().length;
 
 async function bootstrap() {
 

@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { SourcecodeService } from './sourcecode.service';
 import { CreateSourcecodeDto } from './dto/create-sourcecode.dto';
 
+@ApiTags('Código Fuente')
 @Controller('sourcecode')
 export class SourcecodeController {
   constructor(private readonly sourcecodeService: SourcecodeService) {}

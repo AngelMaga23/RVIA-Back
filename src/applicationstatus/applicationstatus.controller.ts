@@ -1,8 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
 import { ApplicationstatusService } from './applicationstatus.service';
 import { CreateApplicationstatusDto } from './dto/create-applicationstatus.dto';
 import { UpdateApplicationstatusDto } from './dto/update-applicationstatus.dto';
 
+
+@ApiTags('Estatus Aplicaciones')
 @Controller('applicationstatus')
 export class ApplicationstatusController {
   constructor(private readonly applicationstatusService: ApplicationstatusService) {}

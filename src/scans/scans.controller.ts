@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ScansService } from './scans.service';
 import { CreateScanDto } from './dto/create-scan.dto';
 
+
+@ApiTags('Escaneos')
 @Controller('scans')
 export class ScansController {
   constructor(private readonly scansService: ScansService) {}

@@ -2,6 +2,7 @@ import re
 import csv
 import sys
 import os
+from typing import Counter
 from PyPDF2 import PdfReader
 csv.field_size_limit(sys.maxsize)
 
@@ -13,6 +14,38 @@ RGX_OBJECT = re.compile(r'Object\s*(.*)$')
 RGX_DESCRIPTION = re.compile(r'Source Destination\s*(.*)$')
 RGX_DATE = re.compile(r'Detection Date\s*(.*)$')
 DELIMITER = '|'
+
+####################################################################################
+def sev_save_to_csv(info, base_path, file_name):
+    if not info:
+        raise ValueError("No hay datos para guardar.")
+
+    # Extraer el nombre de la carpeta desde el nombre del archivo CSV
+    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
+
+    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    folder_path = os.path.join(base_path)
+
+    # Crear la carpeta si no existe
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
+    full_file_path = os.path.join(folder_path, file_name)
+
+    # Agregar la información al CSV
+    keys = list(info[0].keys())
+
+    with open(full_file_path, 'w', newline='', encoding='utf-8') as output_file:
+        dict_writer = csv.DictWriter(output_file, fieldnames=["Vulnerability Type", "Occurrences", "Severity"])
+        # Escribir la cabecera
+        dict_writer.writeheader()
+            
+            # Escribir los datos
+        for fila in info:
+            dict_writer.writerow(fila)
+####################################################################################
+
 
 def extraer_texto_de_pdf(ruta_pdf):
     try:
@@ -261,9 +294,29 @@ def main():
 
         save_to_csv(groups, ruta, csv_file_name)
 
+
+        #####################################################################################
+        # Generar el nombre del archivo CSV
+        sev_csv_file_name = f'severidad_checkmarx_{id_proyecto}_{nombre_aplicacion}.csv'
+        # Procesar datos para obtener solo el tipo de vulnerabilidad sin el sufijo path
+        vulnerabilidades = []
+        for registro in all_dic_frags:
+            tipo = registro['Type'].split('\\')[0].strip()  # Obtenemos solo la parte antes de \\ y eliminamos espacios
+            severidad = registro['Severity']
+            vulnerabilidades.append((tipo, severidad))
+
+        # Contar las ocurrencias de cada tipo de vulnerabilidad agrupada por severidad
+        contador = Counter(vulnerabilidades)
+
+        # Convertir el contador a una lista estructurada
+        resultado = [{"Vulnerability Type": tipo, "Occurrences": cantidad, "Severity": severidad} 
+                    for (tipo, severidad), cantidad in contador.items()]
+        sev_save_to_csv(resultado, ruta, sev_csv_file_name)
+        ######################################################################################
+
     except Exception as e:
         print(f"Error crítico: {e}")
         sys.exit(1)
-
+     
 if __name__ == '__main__':
     main()

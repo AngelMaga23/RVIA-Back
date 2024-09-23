@@ -7,7 +7,7 @@ import * as os from 'os';
 
 const numCPUs = process.env.WORKERS_COUNT ? parseInt(process.env.WORKERS_COUNT, 10) : os.cpus().length;
 
-// Número de núcleos a utilizar (en este caso, 1 por cada núcleo disponible)
+// Numero de núcleos a utilizar (en este caso, 1 por cada núcleo disponible)
 const workersPerCore = 1; // Puedes cambiar esto según las necesidades
 const totalWorkers = workersPerCore * numCPUs;
 

@@ -7,8 +7,11 @@ import * as os from 'os';
 
 const numCPUs = process.env.WORKERS_COUNT ? parseInt(process.env.WORKERS_COUNT, 10) : os.cpus().length;
 
-async function bootstrap() {
+// Numero de núcleos a utilizar (en este caso, 1 por cada núcleo disponible)
+const workersPerCore = 1; // Puedes cambiar esto según las necesidades
+const totalWorkers = workersPerCore * numCPUs;
 
+async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
   
@@ -44,9 +47,10 @@ if (cluster.isPrimary) {
   console.log(`Primary/Master ${process.pid} is running`);
 
   // Crear trabajadores (workers)
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < totalWorkers; i++) {
+    console.log(`Cantidad de Worker utilizados:   ${i}`);
     cluster.fork();
-  }
+  } 
 
   // Monitorear si un trabajador muere y reiniciar uno nuevo
   cluster.on('exit', (worker, code, signal) => {

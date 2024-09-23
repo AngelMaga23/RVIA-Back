@@ -14,6 +14,47 @@ RGX_DESCRIPTION = re.compile(r'Source Destination\s*(.*)$')
 RGX_DATE = re.compile(r'Detection Date\s*(.*)$')
 DELIMITER = '|'
 
+def sev_save_to_csv(info, base_path, file_name):
+    if not info:
+        raise ValueError("No hay datos para guardar.")
+    
+    # Extraer el nombre de la carpeta desde el nombre del archivo CSV
+    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
+
+    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    folder_path = os.path.join(base_path)
+
+    # Crear la carpeta si no existe
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
+    full_file_path = os.path.join(folder_path, file_name)
+
+    # Usamos expresiones regulares para encontrar todos los números en la cadena
+    numeros = re.findall(r'\d+', info)
+
+    # Agrupar los números en filas de 5 columnas
+    filas = []
+    for i in range(0, len(numeros), 5):
+        filas.append(numeros[i:i+5])
+
+    # Lista de conceptos a insertar en la columna A
+    concepto = ['To Verify', 'Not Exploitable', 'Confirmed', 'Urgent', 'Proposed Not Exploitable', 'Total']
+
+    # Ahora escribimos en un archivo CSV
+    with open(full_file_path, mode='w', newline='', encoding='utf-8') as sev_archivo_csv:
+        sev_escribe_csv = csv.writer(sev_archivo_csv)
+
+        # Lista de encabezados
+        sev_escribe_csv.writerow(["", "High", "Medium", "Low", "Information", "Total"])
+        
+        # Escribimos los conceptos y las filas de números en el CSV
+        for i in range(len(filas)):
+            # Escribimos cada concepto con cada fila de números
+            sev_escribe_csv.writerow([concepto[i]] + filas[i])
+
+
 def extraer_texto_de_pdf(ruta_pdf):
     try:
         with open(ruta_pdf, 'rb') as archivo:
@@ -260,6 +301,24 @@ def main():
         groups = group_by_file_name(all_dic_clean)
 
         save_to_csv(groups, ruta, csv_file_name)
+
+        # Generar archivo csv severidad
+        # Generar el nombre del archivo CSV
+        sev_csv_file_name = f'Severidad_checkmarx_{id_proyecto}_{nombre_aplicacion}.csv'        
+        sev_txt_from_pdf = extraer_texto_de_pdf(pdf_path)
+
+        #Palabras clave contenidas en el pdf
+        txtStart = "Results Distribution By  State"
+        txtEnd = "Result Summary"
+
+        # Validamos que exista la frase
+        position_txt = txt_from_pdf.find(txtStart)
+        if position_txt != -1:
+            sev_useful_txt = sev_txt_from_pdf.split(txtStart)[1].split(txtEnd)[0].strip()
+            sev_save_to_csv(sev_useful_txt, ruta, sev_csv_file_name)
+        #else:
+            #raise RuntimeError("ERROR - '{txtStart}' not found")
+            
 
     except Exception as e:
         print(f"Error crítico: {e}")

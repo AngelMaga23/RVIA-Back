@@ -20,23 +20,39 @@ export class PositionsController {
   constructor(private readonly positionsService: PositionsService) {}
 
   @Post()
+  @Auth(ValidRoles.admin)
+  @ApiResponse({ status:201, description:'Rol creado correctamente', type: Position})
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   create(@Body() createPositionDto: CreatePositionDto) {
     return this.positionsService.create(createPositionDto);
   }
 
   @Get()
+  @ApiResponse({ status:200, description:'Listado de los Roles', type: [Position]})
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   @Auth( ValidRoles.admin )
   findAll() {
     return this.positionsService.findAll();
   }
 
   @Get(':id')
+  @ApiResponse({ status:201, description:'Rol obtenido', type: Position})
+  @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
+  @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
+  @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
+  @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.positionsService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiParam({ name: 'id', description: 'ID del lenguaje de programación' })
+  @ApiParam({ name: 'id', description: 'ID del lenguaje del rol' })
   @ApiResponse({ status:200, description:'Objeto actualizado', type: Position })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })

@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
 import { ApplicationsService } from './applications.service';
 import { fileFilterZip, fileNamerZip } from './helper/ZIP';
@@ -19,6 +20,8 @@ import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 
+
+@ApiTags('Aplicaciones')
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) { }

@@ -2,6 +2,7 @@ import re
 import csv
 import sys
 import os
+from typing import Counter
 from PyPDF2 import PdfReader
 csv.field_size_limit(sys.maxsize)
 
@@ -13,6 +14,54 @@ RGX_OBJECT = re.compile(r'Object\s*(.*)$')
 RGX_DESCRIPTION = re.compile(r'Source Destination\s*(.*)$')
 RGX_DATE = re.compile(r'Detection Date\s*(.*)$')
 DELIMITER = '|'
+
+####################################################################################
+def sev_save_to_csv(info, base_path, file_name):
+    if not info:
+        raise ValueError("No hay datos para guardar.")
+    
+    # Extraer el nombre de la carpeta desde el nombre del archivo CSV
+    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
+
+    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    folder_path = os.path.join(base_path)
+
+    # Crear la carpeta si no existe
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
+    full_file_path = os.path.join(folder_path, file_name)
+
+    # Contar las ocurrencias de cada severidad
+    severidades = Counter(registro['Severity'] for registro in info)
+    
+    # Obtener la cantidad de vulnerabilidades por severidad
+    total_high = severidades.get('High', 0)
+    total_medium = severidades.get('Medium', 0)
+    total_low = severidades.get('Low', 0)
+
+    # Total general
+    total = total_high + total_medium + total_low
+
+    # Escribimos la información extraída en un archivo de texto
+    with open(full_file_path, 'w', newline='', encoding='utf-8') as output_file:
+        # Crear el escritor de CSV
+        escritor = csv.writer(output_file)
+        
+        # Escribir la cabecera
+        escritor.writerow(['Severity', 'Total'])
+        
+        # Escribir los datos
+        escritor.writerow(['High', total_high])
+        escritor.writerow(['Medium', total_medium])
+        escritor.writerow(['Low', total_low])
+        
+        # Escribir el total
+        escritor.writerow(['Total', total])
+
+####################################################################################
+
 
 def extraer_texto_de_pdf(ruta_pdf):
     try:
@@ -261,9 +310,16 @@ def main():
 
         save_to_csv(groups, ruta, csv_file_name)
 
+
+        #####################################################################################            
+        sev_csv_file_name = f'checkmarx_tot_{id_proyecto}_{nombre_aplicacion}.csv'
+    
+        sev_save_to_csv(all_dic_frags, ruta, sev_csv_file_name)
+        ######################################################################################
+
     except Exception as e:
         print(f"Error crítico: {e}")
         sys.exit(1)
-
+     
 if __name__ == '__main__':
     main()

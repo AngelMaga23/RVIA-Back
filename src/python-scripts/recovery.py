@@ -314,7 +314,7 @@ def main():
         #####################################################################################            
         sev_csv_file_name = f'checkmarx_tot_{id_proyecto}_{nombre_aplicacion}.csv'
     
-        sev_save_to_csv(all_dic_frags, ruta, sev_csv_file_name)
+        sev_save_to_csv(all_dic_frags, ruta, sev_csv_file_name)  
         ######################################################################################
 
     except Exception as e:

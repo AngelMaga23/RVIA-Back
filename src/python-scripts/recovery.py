@@ -19,7 +19,7 @@ DELIMITER = '|'
 def sev_save_to_csv(info, base_path, file_name):
     if not info:
         raise ValueError("No hay datos para guardar.")
-
+    
     # Extraer el nombre de la carpeta desde el nombre del archivo CSV
     folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
 
@@ -33,17 +33,33 @@ def sev_save_to_csv(info, base_path, file_name):
     # Construir la ruta completa del archivo CSV dentro de la nueva carpeta
     full_file_path = os.path.join(folder_path, file_name)
 
-    # Agregar la información al CSV
-    keys = list(info[0].keys())
+    # Contar las ocurrencias de cada severidad
+    severidades = Counter(registro['Severity'] for registro in info)
+    
+    # Obtener la cantidad de vulnerabilidades por severidad
+    total_high = severidades.get('High', 0)
+    total_medium = severidades.get('Medium', 0)
+    total_low = severidades.get('Low', 0)
 
+    # Total general
+    total = total_high + total_medium + total_low
+
+    # Escribimos la información extraída en un archivo de texto
     with open(full_file_path, 'w', newline='', encoding='utf-8') as output_file:
-        dict_writer = csv.DictWriter(output_file, fieldnames=["Vulnerability Type", "Occurrences", "Severity"])
+        # Crear el escritor de CSV
+        escritor = csv.writer(output_file)
+        
         # Escribir la cabecera
-        dict_writer.writeheader()
-            
-            # Escribir los datos
-        for fila in info:
-            dict_writer.writerow(fila)
+        escritor.writerow(['', 'Total'])
+        
+        # Escribir los datos
+        escritor.writerow(['High', total_high])
+        escritor.writerow(['Medium', total_medium])
+        escritor.writerow(['Low', total_low])
+        
+        # Escribir el total
+        escritor.writerow(['Total', total])
+
 ####################################################################################
 
 
@@ -295,23 +311,10 @@ def main():
         save_to_csv(groups, ruta, csv_file_name)
 
 
-        #####################################################################################
-        # Generar el nombre del archivo CSV
+        #####################################################################################            
         sev_csv_file_name = f'severidad_checkmarx_{id_proyecto}_{nombre_aplicacion}.csv'
-        # Procesar datos para obtener solo el tipo de vulnerabilidad sin el sufijo path
-        vulnerabilidades = []
-        for registro in all_dic_frags:
-            tipo = registro['Type'].split('\\')[0].strip()  # Obtenemos solo la parte antes de \\ y eliminamos espacios
-            severidad = registro['Severity']
-            vulnerabilidades.append((tipo, severidad))
-
-        # Contar las ocurrencias de cada tipo de vulnerabilidad agrupada por severidad
-        contador = Counter(vulnerabilidades)
-
-        # Convertir el contador a una lista estructurada
-        resultado = [{"Vulnerability Type": tipo, "Occurrences": cantidad, "Severity": severidad} 
-                    for (tipo, severidad), cantidad in contador.items()]
-        sev_save_to_csv(resultado, ruta, sev_csv_file_name)
+    
+        sev_save_to_csv(all_dic_frags, ruta, sev_csv_file_name)
         ######################################################################################
 
     except Exception as e:

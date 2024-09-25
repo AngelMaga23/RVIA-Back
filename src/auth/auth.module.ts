@@ -29,7 +29,7 @@ import { CommonModule } from 'src/common/common.module';
         return {
           secret: configService.get('JWT_SECRET'),
           signOptions: {
-            expiresIn:'2h'
+            expiresIn:'24h'
           }
         }
       }

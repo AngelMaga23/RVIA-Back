@@ -160,6 +160,10 @@ export class ApplicationsService {
     let dataCheckmarx: { message: string; error?: string; isValid?: boolean; checkmarx?: any };
     let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
+    if( isSanitizacion  && !file ){
+      throw new BadRequestException("Es necesario subir el PDF");
+    }
+
     if( numAccion == 0 && !opcArquitectura )
       throw new BadRequestException("Es necesario seleccionar una opción de arquitectura");
 
@@ -345,6 +349,10 @@ export class ApplicationsService {
     let rviaProcess: { isValidProcess:boolean, messageRVIA:string };
 
     try {
+
+      if( isSanitizacion  && !pdfFile ){
+        throw new BadRequestException("Es necesario subir el PDF");
+      }
 
       const estatu = await this.estatusService.findOne(2);
       if (!estatu) throw new NotFoundException('Estatus no encontrado');

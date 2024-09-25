@@ -134,10 +134,10 @@ export class AuthService {
   }
 
   async checkAuthStatus( user: User ){
-
+    const token = await this.getJwtToken({ id: user.idu_usuario });
     return {
       ...user,
-      token: this.getJwtToken({ id: user.idu_usuario })
+      token: token
     };
 
   }

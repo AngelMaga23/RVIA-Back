@@ -237,7 +237,7 @@ def save_to_csv(info, base_path, file_name):
 
                 # Modificar la ruta en la columna 'File Name' para que contenga el prefijo correcto
                 if key == 'File Name':
-                    row[key] = f"sysx/bito/projects/{folder_name}/{row[key]}"
+                    row[key] = f"/sysx/bito/projects/{folder_name}/{row[key]}"
             
             dict_writer.writerow(row)
 

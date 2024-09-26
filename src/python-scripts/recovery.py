@@ -4,8 +4,11 @@ import sys
 import os
 from typing import Counter
 from PyPDF2 import PdfReader
+
+# Aumentar el límite de tamaño del campo CSV
 csv.field_size_limit(sys.maxsize)
 
+# Compilación de expresiones regulares
 RGX_PATH = re.compile(r'^.*\\Path\s+\d+:')
 RGX_SEVERITY = re.compile(r'Severity\s*(.*)$')
 RGX_FILE_NAME = re.compile(r'File Name\s*(.*)$')
@@ -20,10 +23,7 @@ def sev_save_to_csv(info, base_path, file_name):
     if not info:
         raise ValueError("No hay datos para guardar.")
     
-    # Extraer el nombre de la carpeta desde el nombre del archivo CSV
-    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
-
-    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    # Crear la ruta completa de la carpeta bajo /sysx/bito/projects
     folder_path = os.path.join(base_path)
 
     # Crear la carpeta si no existe
@@ -62,7 +62,6 @@ def sev_save_to_csv(info, base_path, file_name):
 
 ####################################################################################
 
-
 def extraer_texto_de_pdf(ruta_pdf):
     try:
         with open(ruta_pdf, 'rb') as archivo:
@@ -73,10 +72,7 @@ def extraer_texto_de_pdf(ruta_pdf):
             for pagina in range(numero_de_paginas):
                 pagina_objeto = lector_pdf.pages[pagina]
                 texto_pagina = pagina_objeto.extract_text() if pagina_objeto.extract_text() else ""
-                #texto_pagina = texto_pagina.replace('"', "").replace("'", "")  # Eliminar todas las comillas
-                #texto_pagina = texto_pagina.replace('"', "") #Elimina comillas dobles y solo deja comillas simples
-                texto_pagina = texto_pagina.replace("'", '"') # Elimina comillas simples y deja comillas dobles
-
+                texto_pagina = texto_pagina.replace("'", '"')  # Elimina comillas simples y deja comillas dobles
                 texto_completo += texto_pagina
             
             return texto_completo
@@ -128,7 +124,8 @@ def get_info_frags(frags):
                 description.append(line.strip())
             elif RGX_FILE_NAME.match(line):
                 file_name = RGX_FILE_NAME.match(line).group(1).strip()
-                info_frag['File Name'] = file_name
+                # Guardar solo la ruta relativa sin repetir la carpeta base
+                info_frag['File Name'] = file_name.split('/', 1)[-1]
             elif RGX_LINE.match(line):
                 info_frag['Line'] = RGX_LINE.match(line).group(1).split()[0]
             elif RGX_OBJECT.match(line):
@@ -214,9 +211,9 @@ def save_to_csv(info, base_path, file_name):
         raise ValueError("No hay datos para guardar.")
 
     # Extraer el nombre de la carpeta desde el nombre del archivo CSV
-    folder_name = file_name.split('_', 1)[-1].rsplit('.', 1)[0]
+    folder_name = os.path.basename(base_path)
 
-    # Crear la ruta completa de la carpeta bajo /tmp/bito
+    # Crear la ruta completa de la carpeta bajo base_path
     folder_path = os.path.join(base_path)
 
     # Crear la carpeta si no existe
@@ -237,6 +234,10 @@ def save_to_csv(info, base_path, file_name):
                 # Asegurar que el valor es una cadena de texto antes de aplicar replace
                 value = str(row[key])  # Convertir a cadena
                 row[key] = value.replace('|', '\\|')  # Escapar pipes dentro del contenido
+
+                # Modificar la ruta en la columna 'File Name' para que contenga el prefijo correcto
+                if key == 'File Name':
+                    row[key] = f"/sysx/bito/projects/{folder_name}/{row[key]}"
             
             dict_writer.writerow(row)
 
@@ -288,7 +289,7 @@ def main():
         nombre_pdf = sys.argv[2]
         id_proyecto = sys.argv[3]
         
-        ruta = '/sysx/bito/projects/'+id_proyecto+"_"+nombre_aplicacion
+        ruta = f'/sysx/bito/projects/{id_proyecto}_{nombre_aplicacion}'
         pdf_path = obtener_ultimo_pdf(ruta, nombre_pdf)
         
         # Generar el nombre del archivo CSV
@@ -309,7 +310,6 @@ def main():
         groups = group_by_file_name(all_dic_clean)
 
         save_to_csv(groups, ruta, csv_file_name)
-
 
         #####################################################################################            
         sev_csv_file_name = f'checkmarx_tot_{id_proyecto}_{nombre_aplicacion}.csv'

@@ -128,7 +128,7 @@ def get_info_frags(frags):
                 description.append(line.strip())
             elif RGX_FILE_NAME.match(line):
                 file_name = RGX_FILE_NAME.match(line).group(1).strip()
-                info_frag['File Name'] = file_name
+                info_frag['File Name'] = "/sysx/bito/projects/" + file_name
             elif RGX_LINE.match(line):
                 info_frag['Line'] = RGX_LINE.match(line).group(1).split()[0]
             elif RGX_OBJECT.match(line):

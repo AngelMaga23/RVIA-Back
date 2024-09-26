@@ -98,7 +98,7 @@ def split_by_frags(txt):
     
     return frags
 
-def get_info_frags(frags):
+def get_info_frags(frags,ruta):
     info_all_frags = []
     valid_fragments = True  # Variable para verificar la validez de los fragmentos
 
@@ -128,7 +128,7 @@ def get_info_frags(frags):
                 description.append(line.strip())
             elif RGX_FILE_NAME.match(line):
                 file_name = RGX_FILE_NAME.match(line).group(1).strip()
-                info_frag['File Name'] = "/sysx/bito/projects/" + file_name
+                info_frag['File Name'] = ruta + file_name
             elif RGX_LINE.match(line):
                 info_frag['Line'] = RGX_LINE.match(line).group(1).split()[0]
             elif RGX_OBJECT.match(line):
@@ -303,7 +303,7 @@ def main():
             raise RuntimeError("ERROR - 'Scan Results Details' not found")
 
         all_frags = split_by_frags(useful_txt)
-        all_dic_frags, valid_fragments = get_info_frags(all_frags)
+        all_dic_frags, valid_fragments = get_info_frags(all_frags,ruta)
 
         all_dic_clean = clean_info(all_dic_frags)
         groups = group_by_file_name(all_dic_clean)

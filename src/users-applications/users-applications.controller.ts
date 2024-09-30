@@ -12,23 +12,23 @@ export class UsersApplicationsController {
     private readonly usersApplicationsService: UsersApplicationsService,
   ) {}
 
-  @Post()
-  create(@Body() createUsersApplicationDto: CreateUsersApplicationDto) {
-    return this.usersApplicationsService.create(createUsersApplicationDto);
-  }
+  // @Post()
+  // create(@Body() createUsersApplicationDto: CreateUsersApplicationDto) {
+  //   return this.usersApplicationsService.create(createUsersApplicationDto);
+  // }
 
-  @Get()
-  findAll() {
-    return this.usersApplicationsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.usersApplicationsService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersApplicationsService.findOne(id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id', ParseIntPipe) id: number) {
+  //   return this.usersApplicationsService.findOne(id);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersApplicationsService.remove(id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id', ParseIntPipe) id: number) {
+  //   return this.usersApplicationsService.remove(id);
+  // }
 }

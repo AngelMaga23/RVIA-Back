@@ -50,15 +50,11 @@ def sev_save_to_csv(info, base_path, file_name):
         escritor = csv.writer(output_file)
         
         # Escribir la cabecera
-        escritor.writerow(['Severity', 'Total'])
+        escritor.writerow(['High', 'Medium', 'Low', 'Total'])
         
         # Escribir los datos
-        escritor.writerow(['High', total_high])
-        escritor.writerow(['Medium', total_medium])
-        escritor.writerow(['Low', total_low])
-        
-        # Escribir el total
-        escritor.writerow(['Total', total])
+        escritor.writerow([total_high, total_medium, total_low, total])
+
 
 ####################################################################################
 

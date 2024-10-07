@@ -103,29 +103,48 @@ def get_info_frags(frags):
         file_name = None
         
         for line in lines:
-            if RGX_PATH.match(line):
-                info_frag['Type'] = line.strip()
-            elif RGX_SEVERITY.match(line):
-                info_frag['Severity'] = RGX_SEVERITY.match(line).group(1)
-            elif RGX_DATE.match(line):
-                flag_txt_desc = True  
-            elif RGX_DESCRIPTION.match(line):  
-                flag_txt_desc = False
-                description_text = ' '.join(description)
-                description_text = re.sub(r'\bof\s+[^.]*\.php', '', description_text).strip()
-                description_text = re.sub(r'\bin\s+[^.]*\.php', '', description_text).strip()
-                description_text = re.sub(r'\bpage\b(?!\bpage\b).*?\.php', 'page', description_text).strip()
-                info_frag['Description'] = description_text
-            elif flag_txt_desc:
-                description.append(line.strip())
-            elif RGX_FILE_NAME.match(line):
-                file_name = RGX_FILE_NAME.match(line).group(1).strip()
-                # Guardar solo la ruta relativa sin repetir la carpeta base
-                info_frag['File Name'] = file_name.split('/', 1)[-1]
-            elif RGX_LINE.match(line):
-                info_frag['Line'] = RGX_LINE.match(line).group(1).split()[0]
-            elif RGX_OBJECT.match(line):
-                info_frag['Object'] = RGX_OBJECT.match(line).group(1).split()[0]
+            try:
+                # Comprobar coincidencias antes de acceder a sus grupos
+                path_match = RGX_PATH.match(line)
+                severity_match = RGX_SEVERITY.match(line)
+                date_match = RGX_DATE.match(line)
+                description_match = RGX_DESCRIPTION.match(line)
+                file_name_match = RGX_FILE_NAME.match(line)
+                line_match = RGX_LINE.match(line)
+                object_match = RGX_OBJECT.match(line)
+
+                if path_match:
+                    info_frag['Type'] = path_match.group()  # Usar group() directamente aquí
+                elif severity_match:
+                    if severity_match.lastindex >= 1:  # Verifica si hay al menos un grupo
+                        info_frag['Severity'] = severity_match.group(1)
+                elif date_match:
+                    flag_txt_desc = True  
+                elif description_match:  
+                    flag_txt_desc = False
+                    description_text = ' '.join(description)
+                    description_text = re.sub(r'\bof\s+[^.]*\.php', '', description_text).strip()
+                    description_text = re.sub(r'\bin\s+[^.]*\.php', '', description_text).strip()
+                    description_text = re.sub(r'\bpage\b(?!\bpage\b).*?\.php', 'page', description_text).strip()
+                    info_frag['Description'] = description_text
+                elif flag_txt_desc:
+                    description.append(line.strip())
+                elif file_name_match:
+                    if file_name_match.lastindex >= 1:  # Verifica si hay al menos un grupo
+                        file_name = file_name_match.group(1).strip()
+                        # Guardar solo la ruta relativa sin repetir la carpeta base
+                        info_frag['File Name'] = file_name.split('/', 1)[-1]
+                elif line_match:
+                    if line_match.lastindex >= 1:  # Verifica si hay al menos un grupo
+                        info_frag['Line'] = line_match.group(1).split()[0]
+                elif object_match:
+                    if object_match.lastindex >= 1:  # Verifica si hay al menos un grupo
+                        info_frag['Object'] = object_match.group(1).split()[0]
+                # else:
+                #     print(f"No coincide con ninguna expresión regular: {line}") 
+            
+            except IndexError as e:
+                continue  # Continúa con la siguiente línea
             
         # Verificación de validaciones esenciales
         if not info_frag.get('Type') or not info_frag.get('Severity') or not info_frag.get('Description'):

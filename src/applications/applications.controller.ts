@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { ApplicationsService } from './applications.service';
 import { fileFilterZip, fileNamerZip } from './helper/ZIP';
@@ -20,7 +20,6 @@ import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
 
-
 @ApiTags('Aplicaciones')
 @Controller('applications')
 export class ApplicationsController {
@@ -36,12 +35,9 @@ export class ApplicationsController {
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterZip,
-    // limits: { fileSize: 1000 }
     storage: diskStorage({
       destination: (req, file, cb) => {
-
         const dir = `/sysx/bito/projects`;
-
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
@@ -49,8 +45,7 @@ export class ApplicationsController {
     })
   }),
   new ValidationInterceptor((dto: CreateApplicationDto) => {
-    // Implement DTO validation logic here
-    return true; // Replace with actual validation
+    return true; 
   })
   )
   create(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
@@ -61,12 +56,9 @@ export class ApplicationsController {
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilterZip,
-    // limits: { fileSize: 1000 }
     storage: diskStorage({
       destination: (req, file, cb) => {
-
         const dir = `/sysx/bito/projects`;
-
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
@@ -74,8 +66,7 @@ export class ApplicationsController {
     })
   }),
   new ValidationInterceptor((dto: CreateApplicationDto) => {
-    // Implement DTO validation logic here
-    return true; // Replace with actual validation
+    return true;
   }))
   createGitLab(@Body() createApplicationDto: CreateApplicationDto, @GetUser() user: User, @UploadedFile() file: Express.Multer.File) {
     return this.applicationsService.createGitLabFile(createApplicationDto, user, file);
@@ -85,22 +76,17 @@ export class ApplicationsController {
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @UseInterceptors(FilesInterceptor('files', 2, {
     fileFilter: fileFilterZip,
-    // limits: { fileSize: 1000 }
     storage: diskStorage({
       destination: (req, file, cb) => {
-
         const dir = `/sysx/bito/projects`;
-
         fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
       },
       filename: fileNamerZip
     }),
-
   }),
   new ValidationInterceptor((dto: CreateFileDto) => {
-    // Implement DTO validation logic here
-    return true; // Replace with actual validation
+    return true;
   })
   )
   uploadFileZip(
@@ -127,45 +113,47 @@ export class ApplicationsController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación que se va a actualizar', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
   update(@Param('id', ParseIntPipe) id: number, @Body('estatusId') estatusId: number) {
     return this.applicationsService.update(id, estatusId);
   }
 
   @Patch('documentation/:id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir documentación', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppDocumentation(@Param('id', ParseIntPipe) id: number, @Body() createDocumentation: CreateDocumentation) {
     return this.applicationsService.addAppDocumentation(id, createDocumentation);
   }
-
+  
   @Patch('documentation-code/:id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir documentación de código', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppDocumentationCode(@Param('id', ParseIntPipe) id: number, @Body() createDocumentationCodigo: CreateDocumentationCodigo) {
     return this.applicationsService.addAppDocumentationCode(id, createDocumentationCodigo);
   }
 
   @Patch('test-cases/:id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir casos de prueba', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addApptestCases(@Param('id', ParseIntPipe) id: number, @Body() createTestCases: CreateTestCases) {
     return this.applicationsService.addAppTestCases(id, createTestCases);
   }
 
   @Patch('rate-project/:id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación para calificar el proyecto', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   addAppRateProject(@Param('id', ParseIntPipe) id: number, @Body() createRateProject: CreateRateProject) {
     return this.applicationsService.addAppRateProject(id, createRateProject);
   }
 
-
   @Get('zip/:id')
+  @ApiParam({ name: 'id', description: 'ID de la aplicación para descargar el archivo ZIP', type: Number })
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   async findFileZip(
     @Res() res: Response,
     @Param('id') id: number
   ) {
-
     await this.applicationsService.getStaticFile7z(id, res);
-
   }
-
 }

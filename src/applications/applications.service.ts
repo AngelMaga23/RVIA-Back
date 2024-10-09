@@ -397,14 +397,14 @@ export class ApplicationsService {
         } else {
           throw new UnsupportedMediaTypeException('Formato de archivo no soportado');
         }
-        if (extractedFolders.length === 1 && (await fsExtra.stat(join(repoFolderPath, extractedFolders[0]))).isDirectory()) {
-          const singleFolderPath = join(repoFolderPath, extractedFolders[0]);
-          const filesInside = await fsExtra.readdir(singleFolderPath);
-          for (const file of filesInside) {
-              await fsExtra.move(join(singleFolderPath, file), join(repoFolderPath, file), { overwrite: true });
-          }
-          await fsExtra.remove(singleFolderPath);
-      }
+        // if (extractedFolders.length === 1 && (await fsExtra.stat(join(repoFolderPath, extractedFolders[0]))).isDirectory()) {
+        //   const singleFolderPath = join(repoFolderPath, extractedFolders[0]);
+        //   const filesInside = await fsExtra.readdir(singleFolderPath);
+        //   for (const file of filesInside) {
+        //       await fsExtra.move(join(singleFolderPath, file), join(repoFolderPath, file), { overwrite: true });
+        //   }
+        //   await fsExtra.remove(singleFolderPath);
+        // }
       } catch (error) {
         throw new InternalServerErrorException(`Error al descomprimir el archivo: ${error.message}`);
       }

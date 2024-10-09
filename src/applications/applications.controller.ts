@@ -19,7 +19,7 @@ import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
-import { BadRequestResponse, UnauthorizedResponse, ForbiddenResponse, InternalServerErrorResponse } from './dto/dto'
+import { BadRequestResponse, UnauthorizedResponse, ForbiddenResponse, InternalServerErrorResponse } from './dto/dto-response'
 @ApiTags('Aplicaciones')
 @Controller('applications')
 export class ApplicationsController {

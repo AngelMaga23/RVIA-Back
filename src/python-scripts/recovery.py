@@ -133,7 +133,7 @@ def get_info_frags(frags):
                     if file_name_match.lastindex >= 1:  # Verifica si hay al menos un grupo
                         file_name = file_name_match.group(1).strip()
                         # Guardar solo la ruta relativa sin repetir la carpeta base
-                        info_frag['File Name'] = file_name.split('/', 1)[-1]
+                        info_frag['File Name'] = file_name
                 elif line_match:
                     if line_match.lastindex >= 1:  # Verifica si hay al menos un grupo
                         info_frag['Line'] = line_match.group(1).split()[0]

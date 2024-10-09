@@ -19,7 +19,7 @@ import { CreateDocumentation } from './dto/create-documentation.dto';
 import { CreateTestCases } from './dto/create-testcases.dto';
 import { CreateRateProject } from './dto/create-rateproject.dto';
 import { CreateDocumentationCodigo } from './dto/create-documentation-cod.dto';
-import { BadRequestResponse, UnauthorizedResponse, ForbiddenResponse, InternalServerErrorResponse } from './dto/dto-response'
+import { BadRequestResponse, UnauthorizedResponse, ForbiddenResponse, InternalServerErrorResponse, CreateCommonDto, CreateGitDto, CreateFilesDto, CreateIdDto, CreateDocumentationIdDto, CreateDocumentationCodeIdDto, CreateTestCasesIdDto, CreateRateProjectIdDto, CreateZipIdDto, CreateGitlabDto } from './dto/dto-response'
 @ApiTags('Aplicaciones')
 @Controller('applications')
 export class ApplicationsController {
@@ -27,7 +27,7 @@ export class ApplicationsController {
 
   @Get()
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
-  @ApiResponse({ status: 201, description: 'Aplicaciones recuperadas exitosamente.' })
+  @ApiResponse({ status: 201, description: 'Aplicaciones recuperadas exitosamente.', type: CreateCommonDto })
   @ApiResponse({ status: 400, description: 'Bad Request.', type: BadRequestResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized.', type: UnauthorizedResponse })
   @ApiResponse({ status: 403, description: 'Forbidden.', type: ForbiddenResponse })
@@ -39,7 +39,7 @@ export class ApplicationsController {
   @Post('git')
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @ApiConsumes('multipart/form-data')
-  @ApiResponse({ status: 201, description: 'Archivo cargado exitosamente.' })
+  @ApiResponse({ status: 201, description: 'Archivo cargado exitosamente.', type: CreateGitDto })
   @ApiResponse({ status: 400, description: 'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status: 403, description: 'Forbidden', type: ForbiddenResponse })
@@ -66,7 +66,7 @@ export class ApplicationsController {
   @Post('gitlab')
   @Auth(ValidRoles.admin, ValidRoles.autorizador, ValidRoles.user)
   @ApiConsumes('multipart/form-data')
-  @ApiResponse({ status: 201, description: 'Archivo cargado exitosamente.' })
+  @ApiResponse({ status: 201, description: 'Archivo cargado exitosamente.', type: CreateGitlabDto })
   @ApiResponse({ status: 400, description: 'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status: 403, description: 'Forbidden', type: ForbiddenResponse })
@@ -91,7 +91,7 @@ export class ApplicationsController {
 
   @Post('files')
   @ApiConsumes('multipart/form-data')
-  @ApiResponse({ status: 201, description: 'Archivo subido satisfactoriamente.' })
+  @ApiResponse({ status: 201, description: 'Archivo subido satisfactoriamente.', type: CreateFilesDto })
   @ApiResponse({ status: 400, description: 'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status: 403, description: 'Forbidden', type: ForbiddenResponse })
@@ -137,7 +137,7 @@ export class ApplicationsController {
  
   @Patch(':id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación que se va a actualizar', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
@@ -149,7 +149,7 @@ export class ApplicationsController {
 
   @Patch('documentation/:id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir documentación', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateDocumentationIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
@@ -161,7 +161,7 @@ export class ApplicationsController {
   
   @Patch('documentation-code/:id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir documentación de código', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateDocumentationCodeIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
@@ -173,7 +173,7 @@ export class ApplicationsController {
 
   @Patch('test-cases/:id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación para añadir casos de prueba', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateTestCasesIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
@@ -185,7 +185,7 @@ export class ApplicationsController {
 
   @Patch('rate-project/:id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación para calificar el proyecto', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateRateProjectIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
@@ -197,7 +197,7 @@ export class ApplicationsController {
 
   @Get('zip/:id')
   @ApiParam({ name: 'id', description: 'ID de la aplicación para descargar el archivo ZIP', type: Number })
-  @ApiResponse({ status:201, description:'Se muestra correctamente'})
+  @ApiResponse({ status:201, description:'Se muestra correctamente', type: CreateZipIdDto})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })

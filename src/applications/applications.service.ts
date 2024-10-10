@@ -260,7 +260,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
+            rviaProcess = await this.rviaService.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -278,7 +278,7 @@ export class ApplicationsService {
       }
 
       if( numAccion != 2 ){
-        rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
+        rviaProcess = await this.rviaService.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);
@@ -462,7 +462,7 @@ export class ApplicationsService {
             scan.application = application;
             await this.scanRepository.save(scan);
 
-            rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
+            rviaProcess = await this.rviaService.ApplicationInitProcess(application, obj);
 
           } else {
             await fsExtra.remove(join(repoFolderPath, pdfFileRename));
@@ -479,7 +479,7 @@ export class ApplicationsService {
       }
 
       if( createFileDto.num_accion != 2 ){
-        rviaProcess = this.rviaService.ApplicationInitProcess(application, obj);
+        rviaProcess = await this.rviaService.ApplicationInitProcess(application, obj);
       }
 
       application.nom_aplicacion = this.encryptionService.decrypt(application.nom_aplicacion);

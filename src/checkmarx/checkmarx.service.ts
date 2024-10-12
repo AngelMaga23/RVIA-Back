@@ -86,7 +86,7 @@ export class CheckmarxService {
       const res = await this.callPython( aplicacion.nom_aplicacion, pdfFileRename, aplicacion );
 
       if( res.isValid ){
-        rviaProcess = this.rviaService.ApplicationInitProcess(aplicacion, obj);
+        rviaProcess = await this.rviaService.ApplicationInitProcess(aplicacion, obj);
       }else{
 
         rviaProcess = { isValidProcess:res.isValid, messageRVIA: res.message  };

@@ -93,7 +93,7 @@ export class RviaService {
     return responseConvert;
   }
 
-  ApplicationInitProcess(aplicacion:Application, obj: any){
+  async ApplicationInitProcess(aplicacion:Application, obj: any){
     // Base de datos: 1 = Producción 2 = Desarrollo
     // const obj = new addon.CRvia(2);
     var isValidProcess = true;
@@ -111,7 +111,7 @@ export class RviaService {
     const bConTest  = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 3 ? aplicacion.opc_arquitectura[3] : false;
     const bCalifica = Array.isArray(aplicacion.opc_arquitectura) && aplicacion.opc_arquitectura.length > 4 ? aplicacion.opc_arquitectura[4] : false;
 
-    const initProcessResult = obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
+    const initProcessResult = await obj.initProcess( lID, lEmployee, ruta_proyecto, tipo_proyecto, iConIA, bConDoc, bConCod, bConTest, bCalifica);
 
     const resultType = typeof initProcessResult;
 
@@ -133,11 +133,11 @@ export class RviaService {
     return { isValidProcess, messageRVIA };
   }
 
-  getVersion() {
+  async getVersion() {
 
     const obj = new addon.CRvia(this.crviaEnvironment);
 
-    return obj.getVersionAddons();
+    return await obj.getVersionAddons();
 
   }
 

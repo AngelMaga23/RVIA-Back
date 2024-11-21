@@ -6,12 +6,11 @@ import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestResponse, ForbiddenResponse, InternalServerErrorResponse, UnauthorizedResponse } from 'src/common/dto';
 import { CreateResponseDto } from './dto/create-response.dto';
 
-@ApiTags('RVIA')
 @Controller('rvia')
 export class RviaController {
   constructor(private readonly rviaService: RviaService) {}
 
-  @Post()
+
   @ApiParam({ name: 'idu_aplicacion', description: 'ID de la aplicación', example: 1 })
   @ApiParam({ name: 'conIA', description: 'Indica si se trabajará con IA', example: 1 })
   @ApiParam({ name: 'opc_arquitectura', description: 'Opción de la arquitectura seleccionada', example: 1 })
@@ -24,7 +23,7 @@ export class RviaController {
     return this.rviaService.create(createRviaDto);
   }
 
-  @Get()
+
   @ApiResponse({ status:200, description:'Se obtiene la versión del rvia'})
   findAll() {
     return this.rviaService.getVersion();

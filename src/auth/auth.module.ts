@@ -9,7 +9,6 @@ import { AuthController } from './auth.controller';
 import { User } from './entities/user.entity';
 import { PositionsModule } from '../positions/positions.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { SeguimientoModule } from 'src/seguimiento/seguimiento.module';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
@@ -17,7 +16,6 @@ import { CommonModule } from 'src/common/common.module';
   providers: [AuthService, JwtStrategy],
   imports: [
     ConfigModule,
-    SeguimientoModule,
     CommonModule,
 
     TypeOrmModule.forFeature([ User ]),

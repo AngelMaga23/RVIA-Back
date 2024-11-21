@@ -8,8 +8,6 @@ import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { PositionsService } from '../positions/positions.service';
 import { JwtPayload } from './interfaces';
-import { SeguimientoService } from 'src/seguimiento/seguimiento.service';
-import { CreateSeguimientoDto } from 'src/seguimiento/dto/create-seguimiento.dto';
 import { CommonService } from 'src/common/common.service';
 
 
@@ -22,7 +20,6 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly positionService: PositionsService,
     private readonly jwtService: JwtService,
-    private readonly seguimientoService: SeguimientoService,
     private readonly encryptionService: CommonService
   ) {}
 
@@ -141,84 +138,7 @@ export class AuthService {
     };
 
   }
-
-  async delete( id: string, user: User ){
-    
-    if( `${user.idu_usuario}` === id)
-      throw new ForbiddenException(`Cannot delete self. ${id}`);
-
-    const userData = await this.userRepository.findOneBy({ idu_usuario:id });
-    if( !userData )
-      throw new NotFoundException(`User with ${id} not found `);
-
-    const seguimientoDto: CreateSeguimientoDto = {
-      nom_tabla: 'cat_colaboladores',
-      nom_accion: 'DELETE',
-      idu_usuario: user.idu_usuario,
-      identificador_registro: { idu_usuario: user.idu_usuario },
-      valores_anteriores: { esactivo: userData.esactivo },
-      valores_nuevos: { esactivo: !userData.esactivo }
-    };
-
-    await this.seguimientoService.create(seguimientoDto);
-
-    userData.esactivo = !userData.esactivo;
-
-    const appDelete =  await this.userRepository.save(userData);
-
-    return appDelete;
-
-  }
-
-  async update(id:string, updateUserDto: UpdateUserDto, userInfo: User){
-
-    try {
-      const user = await this.userRepository.findOneBy({ idu_usuario:id });
-     
-      if( !user || user === null || user === undefined) 
-        throw new NotFoundException(`Usuario con ${id} no encontrado `);
-      
-      const usuario_anterior = {...user};
-      if (updateUserDto.nom_contrasena) {
-        
-        user.nom_contrasena = bcrypt.hashSync(updateUserDto.nom_contrasena, 10);
-        
-      }
   
-      if (updateUserDto.idu_rol) {
-        const position = await this.positionService.findOne( updateUserDto.idu_rol );
-        if( !position ) throw new NotFoundException(`Rol con ${updateUserDto.idu_rol} no encontrado `);
-        user.position = position;
-      }
-
-      if(updateUserDto.nom_correo) updateUserDto.nom_correo = this.encryptionService.encrypt(updateUserDto.nom_correo);
-      if(updateUserDto.nom_usuario) updateUserDto.nom_usuario = this.encryptionService.encrypt(updateUserDto.nom_usuario);
-
-      const { nom_contrasena, idu_rol, ...otherUpdates } = updateUserDto;
-      Object.assign(user, otherUpdates);
-
-      const seguimientoDto: CreateSeguimientoDto = {
-        nom_tabla: 'usuarios',
-        nom_accion: 'UPDATE',
-        idu_usuario: userInfo.idu_usuario,
-        identificador_registro: { idu_usuario: user.idu_usuario },
-        valores_anteriores: usuario_anterior,
-        valores_nuevos: user
-      };
-  
-      await this.seguimientoService.create(seguimientoDto);
-
-      await this.userRepository.save(user);
-
-      user.nom_usuario = this.encryptionService.decrypt(user.nom_usuario);
-
-      return user;
-
-    } catch (error) {
-      this.handleDBErrors(error);
-    }
-  }
-
   private getJwtToken( payload: JwtPayload ) {
 
     const token = this.jwtService.sign( payload );

@@ -18,13 +18,11 @@ import { UnauthorizedResponse, BadRequestResponse, CreateCommonDto, ForbiddenRes
 import { Checkmarx } from './entities/checkmarx.entity';
 
 
-
-@ApiTags('Checkmarx')
 @Controller('checkmarx')
 export class CheckmarxController {
   constructor(private readonly checkmarxService: CheckmarxService) {}
 
-  @Post()
+
   @Auth(ValidRoles.admin, ValidRoles.autorizador)
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
@@ -63,7 +61,7 @@ export class CheckmarxController {
     return this.checkmarxService.create(createCheckmarxDto, file);
   }
 
-  @Post('recoverypdf')
+
   @Auth(ValidRoles.admin)
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status:201, description:'CSV se subió correctamente', type: SuccessResponse })
@@ -99,7 +97,7 @@ export class CheckmarxController {
     return this.checkmarxService.convertPDF(createCheckmarxDto, file);
   }
 
-  @Post('upload-pdf')
+
   @Auth(ValidRoles.autorizador, ValidRoles.admin)
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status:201, description:'CSV se subió correctamente', type: SuccessResponse })
@@ -133,7 +131,7 @@ export class CheckmarxController {
     return this.checkmarxService.convertPDF(createCheckmarxDto, file);
   }
 
-  @Get(':id')
+
   @Auth()
   @ApiResponse({ status:201, description:'CSV se subió correctamente', type: Checkmarx })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
@@ -144,7 +142,7 @@ export class CheckmarxController {
     return this.checkmarxService.findOneByApplication(id);
   }
 
-  @Get('download/:id')
+
   @ApiParam({ name: 'id', description: 'ID del archivo Checkmarx' })
   @ApiResponse({ status: 200, description: 'Archivo CSV descargado correctamente', content: { 'text/csv': { schema: { type: 'string', format: 'binary', }, },},})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })

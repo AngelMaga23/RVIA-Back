@@ -4,16 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { PositionsModule } from './positions/positions.module';
 import { ApplicationsModule } from './applications/applications.module';
-import { AuthModule } from './auth/auth.module';
 import { SourcecodeModule } from './sourcecode/sourcecode.module';
 import { ScansModule } from './scans/scans.module';
 import { ApplicationstatusModule } from './applicationstatus/applicationstatus.module';
 import { CommonModule } from './common/common.module';
 import { UsersApplicationsModule } from './users-applications/users-applications.module';
 import { RviaModule } from './rvia/rvia.module';
-import { SeguimientoModule } from './seguimiento/seguimiento.module';
-import { ConfigurationModule } from './configuration/configuration.module';
-import { LanguagesModule } from './languages/languages.module';
 import { CheckmarxModule } from './checkmarx/checkmarx.module';
 import { CostModule } from './cost/cost.module';
 
@@ -40,16 +36,12 @@ import { CostModule } from './cost/cost.module';
 
     PositionsModule,
     ApplicationsModule,
-    AuthModule,
     SourcecodeModule,
     ScansModule,
     ApplicationstatusModule,
     CommonModule,
     UsersApplicationsModule,
     RviaModule,
-    SeguimientoModule,
-    // ConfigurationModule,
-    LanguagesModule,
     CheckmarxModule,
     CostModule
     

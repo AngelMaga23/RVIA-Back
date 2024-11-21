@@ -13,12 +13,13 @@ import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 
 
+@ApiTags('Roles')
 @Controller('positions')
 @Auth( ValidRoles.admin )
 export class PositionsController {
   constructor(private readonly positionsService: PositionsService) {}
 
-
+  @Post()
   @Auth(ValidRoles.admin)
   @ApiResponse({ status:201, description:'Rol creado correctamente', type: Position})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
@@ -29,7 +30,7 @@ export class PositionsController {
     return this.positionsService.create(createPositionDto);
   }
 
-
+  @Get()
   @ApiResponse({ status:200, description:'Listado de los Roles', type: [Position]})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
@@ -40,7 +41,7 @@ export class PositionsController {
     return this.positionsService.findAll();
   }
 
-
+  @Get(':id')
   @ApiResponse({ status:201, description:'Rol obtenido', type: Position})
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
   @ApiResponse({ status:401, description:'Unauthorized', type: UnauthorizedResponse })
@@ -50,7 +51,7 @@ export class PositionsController {
     return this.positionsService.findOne(id);
   }
 
-
+  @Patch(':id')
   @ApiParam({ name: 'id', description: 'ID del lenguaje del rol' })
   @ApiResponse({ status:200, description:'Objeto actualizado', type: Position })
   @ApiResponse({ status:400, description:'Bad Request', type: BadRequestResponse })
@@ -62,7 +63,7 @@ export class PositionsController {
     return this.positionsService.update(id, updatePositionDto);
   }
 
-
+  @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.positionsService.remove(id);
   }

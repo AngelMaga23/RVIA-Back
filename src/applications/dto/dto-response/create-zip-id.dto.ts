@@ -9,4 +9,4 @@ export class CreateZipIdDto {
 
     @ApiProperty({ example: ["applications", "7z", "1"] })
     path: string[];
-} 
+}

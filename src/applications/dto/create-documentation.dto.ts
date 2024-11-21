@@ -10,4 +10,4 @@ export class CreateDocumentation {
     })
     opcArquitectura: number;
 
-} 
+}

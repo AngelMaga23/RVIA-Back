@@ -6,4 +6,4 @@ export class UnauthorizedResponse {
   
     @ApiProperty({ example: 401 })
     statusCode: number;
-} 
+}

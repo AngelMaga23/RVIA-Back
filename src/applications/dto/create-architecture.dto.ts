@@ -10,4 +10,4 @@ export class CreateArchitecture {
     })
     opcArquitectura: number;
 
-} 
+}

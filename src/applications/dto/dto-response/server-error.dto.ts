@@ -6,4 +6,4 @@ export class InternalServerErrorResponse {
   
     @ApiProperty({ example: 500 })
     statusCode: number;
-} 
+}

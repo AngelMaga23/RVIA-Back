@@ -2,7 +2,7 @@ import { Transform } from "class-transformer";
 import { IsIn, IsJSON, IsNumber, IsObject, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateApplicationDto {
- 
+
     @IsString()
     @MinLength(1)
     url: string;

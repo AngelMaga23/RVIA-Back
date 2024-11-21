@@ -10,7 +10,7 @@ export class CreateFileDto {
     })
     num_accion: number;
 
-    @IsNumber() 
+    @IsNumber()
     @IsOptional()
     @Transform(({ value }) => parseInt(value, 10))
     opc_lenguaje: number = 0;
@@ -26,7 +26,7 @@ export class CreateFileDto {
       @IsObject({ message: 'opc_arquitectura debe ser un objeto' })
     opc_arquitectura:Record<string, boolean>;
     
-    @IsOptional() 
+    @IsOptional()
     fec_creacion?: Date;
   
     @IsOptional()

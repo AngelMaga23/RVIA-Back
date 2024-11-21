@@ -15,7 +15,7 @@ export class PositionDto {
     @ApiProperty({ example: "560d8d05cfacc7ea2dae3c177ee41032:5cc44baca89a4f886de66004424365ce" })
     nom_rol: string;
 }
- 
+
 export class UserDto {
     @ApiProperty({ example: 1 })
     idu_usuario: number;

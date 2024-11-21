@@ -10,4 +10,4 @@ export class CreateTestCases {
     })
     opcArquitectura: number;
 
-}
+} 

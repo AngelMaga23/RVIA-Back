@@ -9,4 +9,4 @@ export class NotFoundExceptionResponse {
   
     @ApiProperty({ example: 404 })
     statusCode: number;
-}
+}  

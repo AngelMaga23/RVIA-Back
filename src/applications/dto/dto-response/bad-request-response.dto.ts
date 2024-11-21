@@ -11,4 +11,4 @@ export class BadRequestResponse {
 
     @ApiProperty({ example: 400 })
     statusCode: number;
-}
+} 

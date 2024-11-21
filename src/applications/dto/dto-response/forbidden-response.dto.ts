@@ -6,4 +6,4 @@ export class ForbiddenResponse {
   
     @ApiProperty({ example: 403 })
     statusCode: number;
-}
+} 

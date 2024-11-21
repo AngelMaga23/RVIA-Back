@@ -10,4 +10,4 @@ export class CreateRateProject {
     })
     opcArquitectura: number;
 
-}
+} 

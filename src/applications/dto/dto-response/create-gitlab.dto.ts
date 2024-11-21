@@ -12,7 +12,7 @@ export class ApplicationDto {
 
     @ApiProperty({ example: { "1": true, "2": true, "3": true, "4": true } })
     opc_arquitectura: { [key: number]: boolean };
-
+ 
     @ApiProperty({ example: 0 })
     opc_lenguaje: number;
 

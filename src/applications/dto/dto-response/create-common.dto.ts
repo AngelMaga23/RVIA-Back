@@ -12,7 +12,7 @@ export class CreateCommonDto {
 
     @ApiProperty({ example: 2 })
     num_accion: number;
-
+ 
     @ApiProperty({ example: 0 })
     opc_lenguaje: number;
 

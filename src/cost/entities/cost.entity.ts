@@ -23,7 +23,7 @@ export class Cost {
     val_monto: string;
   
     @Column({ type: 'text' })
-    txt_descripcion: string;
+    des_descripcion: string;
 
     @ManyToOne(() => Application, application => application.cost, { nullable: false })
     @JoinColumn({ name: 'id_proyecto', referencedColumnName: 'idu_proyecto' })

@@ -88,13 +88,13 @@ export class AuthController {
 
   // Rutas DELETE
   @Delete(':id')
-  @ApiResponse({ status:200, description:'Se desactivo el usuario correctamente', schema:{
+  @ApiResponse({ status:200, description:'Se dopc_es_activo el usuario correctamente', schema:{
     example:{
       idu_usuario: 1,
-      numero_empleado: 99887767,
+      num_empleado: 99887767,
       nom_correo: "78931e7cd4d73df54a0fb9acfb54cb7a:dc87cb86d5340d6cb62e0848ead702bb7a870ce9b0ac30492558c1c4775cfc80",
       nom_usuario: "9de664d7eab871d923bf6ce9f1f629a2:34b31f4db11866954db5adb63c8a819f0ee1ba056288035afe994c599a9f5079",
-      esactivo: false,
+      opc_es_activo: false,
       position: {
         idu_rol: 2,
         nom_rol: "5ab4703fc4b825f24ea82846be79afc0:60ab1450601d55d1f02a7d56bd826f76"

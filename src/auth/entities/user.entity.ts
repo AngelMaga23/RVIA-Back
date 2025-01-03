@@ -16,7 +16,7 @@ export class User {
         length:255, 
         unique:true
     })
-    numero_empleado: string;
+    num_empleado: string;
 
     @Column({
         type: 'varchar', 
@@ -39,7 +39,7 @@ export class User {
     @Column('bool', {
         default: true
     })
-    esactivo: boolean;
+    opc_es_activo: boolean;
 
     // @CreateDateColumn({ type: 'timestamp' })
     // created_at: Date;

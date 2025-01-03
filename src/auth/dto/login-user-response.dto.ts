@@ -14,7 +14,7 @@ export class LoginUserResponseDto {
     idu_usuario: number;
 
     @ApiProperty({ description: 'Número de empleado', example: 99887770 })
-    numero_empleado: string;
+    num_empleado: string;
 
     @ApiProperty({ description: 'Correo Registrado', example: "correo@coppel.com" })
     nom_correo: string;

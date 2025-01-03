@@ -42,7 +42,7 @@ export class AuthService {
 
   async findAllActiveUsers(){
 
-    const usuarios = await this.userRepository.find({ where: { esactivo: true }});
+    const usuarios = await this.userRepository.find({ where: { opc_es_activo: true }});
 
     const usuariosDesencriptados = usuarios.map(usuario => ({
       ...usuario,
@@ -108,11 +108,11 @@ export class AuthService {
 
   async login( loginUserDto: LoginUserDto ) {
     console.log("dentro dos");
-    const { nom_contrasena, numero_empleado } = loginUserDto;
+    const { nom_contrasena, num_empleado } = loginUserDto;
 
     const user = await this.userRepository.findOne({
-      where: { numero_empleado },
-      select: { numero_empleado:true, nom_correo: true, nom_contrasena: true, idu_usuario: true, nom_usuario:true },
+      where: { num_empleado },
+      select: { num_empleado:true, nom_correo: true, nom_contrasena: true, idu_usuario: true, nom_usuario:true },
       relations: ['position']
     });
 
@@ -156,13 +156,13 @@ export class AuthService {
       nom_accion: 'DELETE',
       idu_usuario: user.idu_usuario,
       identificador_registro: { idu_usuario: user.idu_usuario },
-      valores_anteriores: { esactivo: userData.esactivo },
-      valores_nuevos: { esactivo: !userData.esactivo }
+      valores_anteriores: { opc_es_activo: userData.opc_es_activo },
+      valores_nuevos: { opc_es_activo: !userData.opc_es_activo }
     };
 
     await this.seguimientoService.create(seguimientoDto);
 
-    userData.esactivo = !userData.esactivo;
+    userData.opc_es_activo = !userData.opc_es_activo;
 
     const appDelete =  await this.userRepository.save(userData);
 
@@ -248,7 +248,7 @@ export class AuthService {
   private handleDBErrors( error: any ): never {
 
     if ( error.code === '23505' || error.code === '42703' ){
-      if(error.detail.includes('numero_empleado')){
+      if(error.detail.includes('num_empleado')){
         throw new BadRequestException( "El número de empleado ya existe" );
       }
       throw new BadRequestException( error.detail );

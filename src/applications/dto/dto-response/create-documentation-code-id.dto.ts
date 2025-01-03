@@ -21,7 +21,7 @@ export class UserDto {
     idu_usuario: number;
 
     @ApiProperty({ example: 99806750 })
-    numero_empleado: number;
+    num_empleado: number;
 
     @ApiProperty({ example: "e0dd34d83937aa751de783155ca1bf4d:af39db51b0ca96d353b625edb632a15a59a4794170fe8e979a7c88d16f060745" })
     nom_correo: string;
@@ -30,7 +30,7 @@ export class UserDto {
     nom_usuario: string;
 
     @ApiProperty({ example: true })
-    esactivo: boolean;
+    opc_es_activo: boolean;
 
     @ApiProperty({ type: PositionDto })
     position: PositionDto;

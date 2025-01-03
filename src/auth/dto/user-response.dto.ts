@@ -14,7 +14,7 @@ export class UserResponseDto {
     idu_usuario: number;
 
     @ApiProperty({ description: 'Número de empleado', example: 99887770 })
-    numero_empleado: string;
+    num_empleado: string;
 
     @ApiProperty({ description: 'Correo Registrado', example: "correo@coppel.com" })
     nom_correo: string;
@@ -23,7 +23,7 @@ export class UserResponseDto {
     nom_usuario: string;
 
     @ApiProperty({ description: 'Estatus del usuario', example: true })
-    esactivo: boolean;
+    opc_es_activo: boolean;
 
     @ApiProperty({ description: 'Opciones de arquitectura' })
     position: PositionDto;

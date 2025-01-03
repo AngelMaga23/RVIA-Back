@@ -52,7 +52,7 @@ export class CreateUserDto {
     @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
     @Validate(IsExactLength)
     @Validate(IsInRange)
-    numero_empleado: string;
+    num_empleado: string;
 
     @IsNumber()
     @Transform(({ value }) => parseInt(value, 10))

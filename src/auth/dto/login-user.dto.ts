@@ -5,7 +5,7 @@ export class LoginUserDto {
 
     @IsString()
     @Length(8, 8)
-    numero_empleado: string;
+    num_empleado: string;
 
     @IsString()
     @MinLength(6)

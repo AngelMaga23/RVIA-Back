@@ -12,7 +12,7 @@ class position {
 export class CreateUserResponseDto {
 
     @ApiProperty({ description: 'Número de empleado', example: 99887770 })
-    numero_empleado: string;
+    num_empleado: string;
 
     @ApiProperty({ description: 'Correo Registrado', example: "correo@coppel.com" })
     nom_correo: string;
@@ -24,7 +24,7 @@ export class CreateUserResponseDto {
     idu_usuario: number;
 
     @ApiProperty({ description: 'Estatus del usuario', example: true })
-    esactivo: boolean;
+    opc_es_activo: boolean;
 
     @ApiProperty({ description: 'Token generado', example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzI3MTE4MjQ0LCJleHAiOjE3MjcxMjU0NDR9.pRMxxGubMpJZgK3b-T8h5yb7DBcyLGr7EywYzwI9Rjc" })
     token: string;

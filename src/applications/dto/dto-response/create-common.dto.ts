@@ -76,18 +76,18 @@ export class CreateCommonDto {
     @ApiProperty({
         example: {
             idu_usuario: 1,
-            numero_empleado: 99806750,
+            num_empleado: 99806750,
             nom_correo: "e0dd34d83937aa751de783155ca1bf4d:af39db51b0ca96d353b625edb632a15a59a4794170fe8e979a7c88d16f060745",
             nom_usuario: "nombre usuario completo",
-            esactivo: true
+            opc_es_activo: true
         }
     })
     user: {
         idu_usuario: number;
-        numero_empleado: number;
+        num_empleado: number;
         nom_correo: string;
         nom_usuario: string;
-        esactivo: boolean;
+        opc_es_activo: boolean;
     };
 
     @ApiProperty({ example: 1 })

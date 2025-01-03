@@ -46,7 +46,7 @@ class UserDto {
   idu_usuario: number;
 
   @ApiProperty({ description: 'Número de empleado', example: 99887766 })
-  numero_empleado: number;
+  num_empleado: number;
 
   @ApiProperty({ description: 'Correo del usuario', example: '1b4eb5ff6797bdc40aa2dbc2747f41a5:47320e3d0245fc78553583df243eeb4b6435f8470b4c67b274e4f7954babb451' })
   nom_correo: string;
@@ -55,7 +55,7 @@ class UserDto {
   nom_usuario: string;
 
   @ApiProperty({ description: 'Indica si el usuario está activo', example: true })
-  esactivo: boolean;
+  opc_es_activo: boolean;
 
   @ApiProperty({ description: 'Rol del usuario' })
   position: PositionDto;

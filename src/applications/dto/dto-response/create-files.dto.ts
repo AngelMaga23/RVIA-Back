@@ -55,10 +55,10 @@ export class ApplicationDto {
     @ApiProperty({
         example: {
             idu_usuario: 1,
-            numero_empleado: 99887766,
+            num_empleado: 99887766,
             nom_correo: "example@coppel.com",
             nom_usuario: "nombre usuario completo",
-            esactivo: true,
+            opc_es_activo: true,
             position: {
                 idu_rol: 1,
                 nom_rol: "Administrador"
@@ -67,10 +67,10 @@ export class ApplicationDto {
     })
     user: {
         idu_usuario: number;
-        numero_empleado: number;
+        num_empleado: number;
         nom_correo: string;
         nom_usuario: string;
-        esactivo: boolean;
+        opc_es_activo: boolean;
         position: {
             idu_rol: number;
             nom_rol: string;

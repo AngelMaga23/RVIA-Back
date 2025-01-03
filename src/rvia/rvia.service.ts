@@ -43,7 +43,7 @@ export class RviaService {
     const lID = aplicacion.idu_proyecto;
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lIdProject = aplicacion.idu_aplicacion;
-    const lEmployee = aplicacion.user.numero_empleado;
+    const lEmployee = aplicacion.user.num_empleado;
     const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
     const tipo_proyecto = aplicacion.num_accion;
     const iConIA = conIA;
@@ -100,7 +100,7 @@ export class RviaService {
     var messageRVIA;
     //  -------------------------------- Parámetros de Entrada --------------------------------
     const lID = aplicacion.idu_proyecto;
-    const lEmployee = aplicacion.user.numero_empleado;
+    const lEmployee = aplicacion.user.num_empleado;
     const ruta_proyecto = this.encryptionService.decrypt(aplicacion.sourcecode.nom_directorio);
     const tipo_proyecto = aplicacion.num_accion;
     const iConIA = 1;

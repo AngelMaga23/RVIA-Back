@@ -3,7 +3,7 @@ import { User } from "src/auth/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
-@Entity('usuarios_x_aplicaciones')
+@Entity('ctl_usuarios_por_aplicaciones')
 export class UsersApplication {
 
     @PrimaryGeneratedColumn('identity')

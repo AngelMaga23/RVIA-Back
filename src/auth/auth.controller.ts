@@ -31,7 +31,10 @@ export class AuthController {
   @ApiResponse({ status:403, description:'Forbidden', type: ForbiddenResponse })
   @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   loginUser(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+    const uuu = this.authService.login(loginUserDto)
+    console.log(uuu);
+    //return this.authService.login(loginUserDto);
+    return uuu;
   }
 
   // Rutas GET más específicas

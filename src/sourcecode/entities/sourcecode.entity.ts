@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Application } from '../../applications/entities/application.entity';
 
-@Entity('tbl_codigo_fuentes')
+@Entity('ctl_codigo_fuentes')
 export class Sourcecode {
     @PrimaryGeneratedColumn('identity')
     idu_codigo_fuente: number;

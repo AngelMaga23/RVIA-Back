@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Application } from '../../applications/entities/application.entity';
 
 
-@Entity('tcl_estatusaplicaciones')
+@Entity('ctl_estatus_aplicaciones')
 export class Applicationstatus {
 
     @ApiProperty({ 

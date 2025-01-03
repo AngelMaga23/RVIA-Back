@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('tcl_seguimiento_modificaciones')
+@Entity('his_segimiento_modificaciones')
 export class Seguimiento {
     
     @PrimaryGeneratedColumn('identity')

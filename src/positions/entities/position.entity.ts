@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../../auth/entities/user.entity";
 
 
-@Entity('tbl_roles')
+@Entity('cat_roles')
 export class Position {
 
     @ApiProperty({ 

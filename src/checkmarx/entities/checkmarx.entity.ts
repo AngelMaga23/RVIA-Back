@@ -2,7 +2,7 @@ import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { Application } from "src/applications/entities/application.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('tbl_checkmarx')
+@Entity('ctl_checkmarx')
 export class Checkmarx {
 
     @ApiProperty({ 

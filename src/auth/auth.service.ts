@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   async login( loginUserDto: LoginUserDto ) {
-    console.log("dentro dos");
+
     const { nom_contrasena, num_empleado } = loginUserDto;
 
     const user = await this.userRepository.findOne({
@@ -126,7 +126,7 @@ export class AuthService {
     const { nom_contrasena: _, ...userWithoutPassword } = user;
     userWithoutPassword.nom_correo = this.encryptionService.decrypt(userWithoutPassword.nom_correo);
     userWithoutPassword.nom_usuario = this.encryptionService.decrypt(userWithoutPassword.nom_usuario);
-    console.log("tres");
+
     return {
       ...userWithoutPassword,
       token: this.getJwtToken({ id: user.idu_usuario }) 

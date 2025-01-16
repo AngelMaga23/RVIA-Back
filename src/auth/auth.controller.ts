@@ -32,7 +32,7 @@ export class AuthController {
   @ApiResponse({ status:500, description:'Internal server error', type: InternalServerErrorResponse })
   loginUser(@Body() loginUserDto: LoginUserDto) {
     const uuu = this.authService.login(loginUserDto)
-    console.log(uuu);
+
     //return this.authService.login(loginUserDto);
     return uuu;
   }

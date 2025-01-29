@@ -53,14 +53,13 @@ export class CommonService {
 
   async reEncryptAllEntities(): Promise<void> {
     const entities = this.dataSource.entityMetadatas;
-    console.log(this.oldKey)
-    console.log(this.newKey)
+
     for (const entity of entities) {
       const repository = this.dataSource.getRepository(entity.name);
       const records = await repository.find();
 
       for (const record of records) {
-        console.log(record)
+ 
         let updated = false;
 
         for (const column of entity.columns) {

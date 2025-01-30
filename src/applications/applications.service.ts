@@ -411,7 +411,7 @@ export class ApplicationsService {
 
       // Crear el registro de código fuente
       const sourcecode = await this.sourcecodeService.create({
-        nom_codigo_fuente: this.encryptionService.encrypt(zipFile.filename),
+        nom_codigo_fuente: this.encryptionService.encrypt(`${iduProject}_${nameApplication}.${ tempExtension[tempExtension.length-1] }`),
         nom_directorio: this.encryptionService.encrypt(repoFolderPath),
       });
       const opciones = createFileDto.opc_arquitectura;
